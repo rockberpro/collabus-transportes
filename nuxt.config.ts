@@ -7,7 +7,7 @@ export default defineNuxtConfig({
     host: '0.0.0.0',
     https: false
   },
-  ssr: false,
+  ssr: true,
   modules: [
     '@nuxt/eslint',
     '@nuxt/fonts',
