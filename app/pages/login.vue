@@ -52,27 +52,23 @@
   </div>
 </template>
 
-<script type="ts">
+<script setup lang="ts">
 import { reactive } from 'vue'
-import { useRouter } from 'vue-router'
 
-export default {
-  setup() {
-    const state = reactive({
-      email: '',
-      password: ''
-    })
-    const router = useRouter()
+definePageMeta({
+  auth: false,
+  layout: 'default'
+})
 
-    const handleLogin = async () => {
-      // TODO
-      await router.push('/dashboard')
-    }
+const router = useRouter()
 
-    return {
-      state,
-      handleLogin
-    }
-  }
+const state = reactive({
+  email: '',
+  password: ''
+})
+
+const handleLogin = async () => {
+  // TODO: Implementar lógica de login
+  await router.push('/dashboard')
 }
 </script>

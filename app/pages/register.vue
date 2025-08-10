@@ -83,28 +83,63 @@
   </div>
 </template>
 
-<script type="ts">
-import { useRouter } from 'vue-router'
+<script setup lang="ts">
+import { reactive } from 'vue'
 
-export default {
-  setup() {
-    const state = reactive({
-      fullName: '',
-      email: '',
-      password: '',
-      password_again: ''
+definePageMeta({
+  auth: false,
+  layout: false
+})
+
+const router = useRouter()
+const supabase = useSupabaseClient()
+
+const state = reactive({
+  fullName: '',
+  email: '',
+  password: '',
+  password_again: ''
+})
+
+const handleRegister = async () => {
+  try {
+    const { data: signupData, error: signupError } = await supabase.auth.signUp({
+      email: state.email,
+      password: state.password,
+      options: {
+        data: {
+          fullName: state.fullName
+        }
+      }
     })
-    const router = useRouter()
 
-    const handleRegister = async () => {
-      // TODO: Implementar lógica de registro
+    if (signupError) {
+      console.error('Erro no signup:', signupError)
+      alert('Erro ao criar conta: ' + signupError.message)
+      return
+    }
+
+    if (signupData.user) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([{
+          id: signupData.user.id,
+          fullname: state.fullName
+        }] as any)
+
+      if (profileError) console.error(profileError)
+
+      state.fullName = ''
+      state.email = ''
+      state.password = ''
+      state.password_again = ''
+
+      alert('Cadastro realizado com sucesso!')
       await router.push('/login')
     }
-
-    return {
-      state,
-      handleRegister
-    }
+  } catch (error) {
+    console.error('Erro no registro:', error)
+    alert('Erro inesperado ao criar conta')
   }
 }
 </script>
