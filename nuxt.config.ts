@@ -16,5 +16,15 @@ export default defineNuxtConfig({
     '@nuxt/test-utils',
     '@nuxt/ui-pro'
   ],
-  css: ['~/assets/css/main.css']
+  fonts: {
+    families: [
+      {
+        name: 'Montserrat',
+        provider: 'google',
+        weights: ['300', '400', '500', '600', '700'],
+        styles: ['normal', 'italic']
+      }
+    ]
+  },
+  css: ['~/assets/css/main.css'],
 })

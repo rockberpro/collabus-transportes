@@ -1,2 +1,29 @@
 @import "tailwindcss";
 @import "@nuxt/ui-pro";
+
+@theme static {
+  --font-sans: 'Montserrat', sans-serif;
+  --breakpoint-3xl: 1920px;
+
+  --color-primary: var(--color-amber-500);
+  --color-secondary: var(--color-teal-500);
+
+  --ui-color-neutral-50: var(--color-zinc-50);
+  --ui-color-neutral-100: var(--color-zinc-100);
+  --ui-color-neutral-200: var(--color-zinc-200);
+  --ui-color-neutral-300: var(--color-zinc-300);
+  --ui-color-neutral-400: var(--color-zinc-400);
+  --ui-color-neutral-500: var(--color-zinc-500);
+  --ui-color-neutral-600: var(--color-zinc-600);
+  --ui-color-neutral-700: var(--color-zinc-700);
+  --ui-color-neutral-800: var(--color-zinc-800);
+  --ui-color-neutral-900: var(--color-zinc-900);
+}
+
+:root {
+  --ui-primary: var(--ui-color-primary-700);
+}
+
+.dark {
+  --ui-primary: var(--ui-color-primary-200);
+}
