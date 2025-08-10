@@ -1,15 +1,26 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen h-screen">
-    <div>
+  <div class="flex items-center justify-center min-h-full p-8">
+    <UCard class="w-full max-w-md">
+      <div class="text-center">
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Entrar</h2>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 mb-8">
+          Entre na sua conta do Collabus
+        </p>
+      </div>
       <UForm @submit.prevent="handleLogin">
         <div class="mb-4">
-          <UFormField label="Usuário">
-            <UInput v-model="username" type="text" size="xl" />
+          <UFormField label="E-mail">
+            <UInput v-model="email" type="text" size="xl" class="w-full" />
           </UFormField>
         </div>
-        <div class="mb-8">
+        <div class="mb-12">
           <UFormField label="Senha">
-            <UInput v-model="password" type="password" size="xl" />
+            <UInput
+              v-model="password"
+              type="password"
+              size="xl"
+              class="w-full"
+            />
           </UFormField>
         </div>
         <div class="mb-4">
@@ -26,18 +37,18 @@
           </UFormField>
         </div>
         <div class="mb-4 text-center">
-            <p class="text-sm text-gray-600">
-              Não tem conta?
-              <NuxtLink
-                to="/register"
-                class="text-primary-600 hover:text-primary-700 font-medium"
-              >
-                Cadastre-se
-              </NuxtLink>
-            </p>
+          <p class="text-sm text-gray-600">
+            Não tem conta?
+            <NuxtLink
+              to="/register"
+              class="text-teal-600 hover:text-teal-700 font-medium"
+            >
+              Cadastre-se
+            </NuxtLink>
+          </p>
         </div>
       </UForm>
-    </div>
+    </UCard>
   </div>
 </template>
 
@@ -47,7 +58,7 @@ import { useRouter } from 'vue-router'
 
 export default {
   setup() {
-    const username = ref('')
+    const email = ref('')
     const password = ref('')
     const router = useRouter()
 
@@ -57,7 +68,7 @@ export default {
     }
 
     return {
-      username,
+      email,
       password,
       handleLogin
     }
