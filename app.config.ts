@@ -4,10 +4,6 @@ export default defineAppConfig({
     primary: "amber",
     neutral: "zinc",
 
-    notifications: {
-      position: "top-0 bottom-auto",
-    },
-
     button: {
       base: "font-bold",
       default: {
