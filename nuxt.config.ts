@@ -14,7 +14,8 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@nuxt/image',
     '@nuxt/test-utils',
-    '@nuxt/ui-pro'
+    '@nuxt/ui-pro',
+    '@nuxtjs/supabase',
   ],
   fonts: {
     families: [
