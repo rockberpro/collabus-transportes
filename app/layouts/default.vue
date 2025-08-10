@@ -12,8 +12,6 @@
       </template>
     </UDashboardNavbar>
 
-    <UDashboardMainPanel>
-      <slot />
-    </UDashboardMainPanel>
+    <slot />
   </UDashboardPanel>
 </template>

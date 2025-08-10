@@ -7,16 +7,16 @@
           Entre na sua conta do Collabus
         </p>
       </div>
-      <UForm @submit.prevent="handleLogin">
+      <UForm @submit.prevent="handleLogin" :state="state">
         <div class="mb-4">
-          <UFormField label="E-mail">
-            <UInput v-model="email" type="text" size="xl" class="w-full" />
+          <UFormField label="E-mail" name="email">
+            <UInput v-model="state.email" type="email" size="xl" class="w-full" />
           </UFormField>
         </div>
         <div class="mb-12">
-          <UFormField label="Senha">
+          <UFormField label="Senha" name="password">
             <UInput
-              v-model="password"
+              v-model="state.password"
               type="password"
               size="xl"
               class="w-full"
@@ -53,13 +53,15 @@
 </template>
 
 <script type="ts">
-import { ref } from 'vue'
+import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
 export default {
   setup() {
-    const email = ref('')
-    const password = ref('')
+    const state = reactive({
+      email: '',
+      password: ''
+    })
     const router = useRouter()
 
     const handleLogin = async () => {
@@ -68,8 +70,7 @@ export default {
     }
 
     return {
-      email,
-      password,
+      state,
       handleLogin
     }
   }

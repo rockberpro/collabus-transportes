@@ -9,12 +9,12 @@
           Crie sua conta no Collabus
         </p>
       </div>
-      <UForm @submit.prevent="handleRegister">
+      <UForm @submit.prevent="handleRegister" :state="state">
         <div class="mb-4">
           <UFormField label="Nome">
             <UInput
               placeholder="Seu nome completo"
-              v-model="fullName"
+              v-model="state.fullName"
               type="text"
               size="xl"
               class="w-full"
@@ -25,7 +25,7 @@
           <UFormField label="E-mail">
             <UInput
               placeholder="seu@email.com"
-              v-model="email"
+              v-model="state.email"
               type="email"
               size="xl"
               class="w-full"
@@ -36,7 +36,7 @@
           <UFormField label="Senha">
             <UInput
               placeholder="Crie uma senha"
-              v-model="password"
+              v-model="state.password"
               type="password"
               size="xl"
               class="w-full"
@@ -47,7 +47,7 @@
           <UFormField>
             <UInput
               placeholder="Repita a senha"
-              v-model="password_again"
+              v-model="state.password_again"
               type="password"
               size="xl"
               class="w-full"
@@ -84,15 +84,16 @@
 </template>
 
 <script type="ts">
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 export default {
   setup() {
-    const fullName = ref('')
-    const email = ref('')
-    const password = ref('')
-    const password_again = ref('')
+    const state = reactive({
+      fullName: '',
+      email: '',
+      password: '',
+      password_again: ''
+    })
     const router = useRouter()
 
     const handleRegister = async () => {
@@ -101,10 +102,7 @@ export default {
     }
 
     return {
-      fullName,
-      email,
-      password,
-      password_again,
+      state,
       handleRegister
     }
   }
