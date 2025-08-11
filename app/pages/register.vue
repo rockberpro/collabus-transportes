@@ -88,7 +88,7 @@ import { reactive } from 'vue'
 
 definePageMeta({
   auth: false,
-  layout: false
+  layout: 'default'
 })
 
 const router = useRouter()
