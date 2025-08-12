@@ -92,6 +92,7 @@ definePageMeta({
 })
 
 const router = useRouter()
+const toast = useToast()
 const supabase = useSupabaseClient()
 
 const state = reactive({
@@ -134,12 +135,17 @@ const handleRegister = async () => {
       state.password = ''
       state.password_again = ''
 
-      alert('Cadastro realizado com sucesso!')
-      await router.push('/login')
+      toast.add({
+        title: 'Cadastro realizado com sucesso!',
+        color: 'success'
+      });
     }
-  } catch (error) {
-    console.error('Erro no registro:', error)
-    alert('Erro inesperado ao criar conta')
+  } catch (error: any) {
+    toast.add({
+      title: 'Erro ao criar conta',
+      color: 'error',
+      description: error?.message || 'Erro inesperado ao criar conta'
+    })
   }
 }
 </script>
