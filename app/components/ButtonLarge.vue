@@ -9,17 +9,27 @@
   </UButton>
 </template>
 
-<script lang="ts">
-import { defineProps } from "vue";
+<script setup lang="ts">
+interface Props {
+  color?:
+    | "primary"
+    | "secondary"
+    | "success"
+    | "info"
+    | "warning"
+    | "error"
+    | "neutral";
+  variant?:
+    | "solid"
+    | "link"
+    | "outline"
+    | "soft"
+    | "subtle"
+    | "ghost";
+}
 
-defineProps({
-  color: {
-    type: String,
-    default: "primary",
-  },
-  variant: {
-    type: String,
-    default: "solid",
-  },
+withDefaults(defineProps<Props>(), {
+  color: "primary",
+  variant: "solid",
 });
 </script>
