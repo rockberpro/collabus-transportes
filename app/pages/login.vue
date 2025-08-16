@@ -10,30 +10,38 @@
       <UForm @submit.prevent="handleLogin" :state="state">
         <div class="mb-4">
           <UFormField label="E-mail" name="email">
-            <UInput v-model="state.email" type="email" size="xl" class="w-full" />
+            <InputTextLarge
+              v-model="state.email"
+              id="email"
+              icon="mdi:at"
+              :required="true"
+              placeholder="Digite seu e-mail"
+            />
           </UFormField>
         </div>
         <div class="mb-12">
           <UFormField label="Senha" name="password">
-            <UInput
-              v-model="state.password"
-              type="password"
-              size="xl"
-              class="w-full"
+            <InputPasswordLarge
+              :v-model="state.password"
+              id="password"
+              :type="state.showPassword ? 'text' : 'password'"
+              icon="mdi:lock-outline"
+              :trailing-icon="state.showPassword ? 'mdi:eye' : 'mdi:eye-off'"
+              :required="true"
+              placeholder="Digite sua senha"
             />
           </UFormField>
         </div>
         <div class="mb-4">
           <UFormField>
-            <UButton
+            <ButtonLarge
               label="login"
-              size="xl"
+              variant="solid"
               type="submit"
-              class="w-full justify-center"
             >
               Entrar
-              <UIcon name="i-lucide-log-in" />
-            </UButton>
+              <UIcon name="mdi:login" />
+            </ButtonLarge>
           </UFormField>
         </div>
         <div class="mb-4 text-center">
@@ -53,22 +61,23 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive } from "vue";
 
 definePageMeta({
   auth: false,
-  layout: 'default'
-})
+  layout: "default",
+});
 
-const router = useRouter()
+const router = useRouter();
 
 const state = reactive({
-  email: '',
-  password: ''
-})
+  email: "",
+  password: "",
+  showPassword: false,
+});
 
 const handleLogin = async () => {
   // TODO: Implementar lógica de login
-  await router.push('/dashboard')
-}
+  await router.push("/dashboard");
+};
 </script>

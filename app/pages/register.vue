@@ -12,59 +12,59 @@
       <UForm @submit.prevent="handleRegister" :state="state">
         <div class="mb-4">
           <UFormField label="Nome">
-            <UInput
-              placeholder="Seu nome completo"
+            <InputTextLarge
+              id="full-name"
               v-model="state.fullName"
-              type="text"
-              size="xl"
-              class="w-full"
+              placeholder="Seu nome completo"
+              icon="mdi:card-account-details-outline"
+              :required="true"
             />
           </UFormField>
         </div>
         <div class="mb-4">
           <UFormField label="E-mail">
-            <UInput
-              placeholder="seu@email.com"
+            <InputTextLarge
+              id="email"
               v-model="state.email"
-              type="email"
-              size="xl"
-              class="w-full"
+              placeholder="seu@email.com"
+              icon="mdi:at"
+              :required="true"
             />
           </UFormField>
         </div>
         <div class="mb-4">
           <UFormField label="Senha">
-            <UInput
-              placeholder="Crie uma senha"
+            <InputPasswordLarge
+              id="password"
               v-model="state.password"
-              type="password"
-              size="xl"
-              class="w-full"
+              placeholder="Crie uma senha"
+              icon="mdi:lock-outline"
+              :trailing-icon="state.showPassword ? 'mdi:eye' : 'mdi:eye-off'"
             />
           </UFormField>
         </div>
         <div class="mb-12">
           <UFormField>
-            <UInput
+            <InputTextLarge
+              id="password-again"
+              v-model="state.passwordAgain"
               placeholder="Repita a senha"
-              v-model="state.password_again"
               type="password"
-              size="xl"
-              class="w-full"
+              icon="mdi:lock-check-outline"
+              :trailing-icon="state.showPasswordAgain ? 'mdi:eye' : 'mdi:eye-off'"
             />
           </UFormField>
         </div>
         <div class="mb-4">
           <UFormField>
-            <UButton
+            <ButtonLarge
               label="cadastrar"
-              size="xl"
+              variant="solid"
               type="submit"
-              class="w-full justify-center"
             >
               Cadastrar
-              <UIcon name="i-lucide-user-plus" />
-            </UButton>
+              <UIcon name="mdi:account-plus" size="xl"/>
+            </ButtonLarge>
           </UFormField>
         </div>
         <div class="mb-4 text-center">
@@ -84,68 +84,72 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive } from "vue";
 
 definePageMeta({
   auth: false,
-  layout: 'default'
-})
+  layout: "default",
+});
 
-const router = useRouter()
-const toast = useToast()
-const supabase = useSupabaseClient()
+const router = useRouter();
+const toast = useToast();
+const supabase = useSupabaseClient();
 
 const state = reactive({
-  fullName: '',
-  email: '',
-  password: '',
-  password_again: ''
-})
+  fullName: "",
+  email: "",
+  password: "",
+  passwordAgain: "",
+  showPassword: false,
+  showPasswordAgain: false,
+});
 
 const handleRegister = async () => {
   try {
-    const { data: signupData, error: signupError } = await supabase.auth.signUp({
-      email: state.email,
-      password: state.password,
-      options: {
-        data: {
-          fullName: state.fullName
-        }
+    const { data: signupData, error: signupError } = await supabase.auth.signUp(
+      {
+        email: state.email,
+        password: state.password,
+        options: {
+          data: {
+            fullName: state.fullName,
+          },
+        },
       }
-    })
+    );
 
     if (signupError) {
-      console.error('Erro no signup:', signupError)
-      alert('Erro ao criar conta: ' + signupError.message)
-      return
+      console.error("Erro no signup:", signupError);
+      alert("Erro ao criar conta: " + signupError.message);
+      return;
     }
 
     if (signupData.user) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([{
+      const { error: profileError } = await supabase.from("profiles").insert([
+        {
           id: signupData.user.id,
-          fullname: state.fullName
-        }] as any)
+          fullname: state.fullName,
+        },
+      ] as any);
 
-      if (profileError) console.error(profileError)
+      if (profileError) console.error(profileError);
 
-      state.fullName = ''
-      state.email = ''
-      state.password = ''
-      state.password_again = ''
+      state.fullName = "";
+      state.email = "";
+      state.password = "";
+      state.passwordAgain = "";
 
       toast.add({
-        title: 'Cadastro realizado com sucesso!',
-        color: 'success'
+        title: "Cadastro realizado com sucesso!",
+        color: "success",
       });
     }
   } catch (error: any) {
     toast.add({
-      title: 'Erro ao criar conta',
-      color: 'error',
-      description: error?.message || 'Erro inesperado ao criar conta'
-    })
+      title: "Erro ao criar conta",
+      color: "error",
+      description: error?.message || "Erro inesperado ao criar conta",
+    });
   }
-}
+};
 </script>
