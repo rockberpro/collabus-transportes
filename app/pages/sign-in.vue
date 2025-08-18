@@ -48,7 +48,7 @@
           <p class="text-sm text-gray-600">
             Não tem conta?
             <NuxtLink
-              to="/register"
+              to="/sign-up"
               class="text-teal-600 hover:text-teal-700 font-medium"
             >
               Cadastre-se
