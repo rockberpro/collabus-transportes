@@ -45,7 +45,7 @@
         </div>
         <div class="mb-12">
           <UFormField>
-            <InputTextLarge
+            <InputPasswordLarge
               id="password-again"
               v-model="state.passwordAgain"
               placeholder="Repita a senha"
