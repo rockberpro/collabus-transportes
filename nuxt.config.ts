@@ -15,15 +15,7 @@ export default defineNuxtConfig({
     "@nuxt/image",
     "@nuxt/test-utils",
     "@nuxt/ui-pro",
-    "@nuxtjs/supabase",
   ],
-  supabase: {
-    redirectOptions: {
-      login: "sign-in",
-      callback: "/confirm",
-      exclude: ["/sign-in", "/sign-up", "/"],
-    },
-  },
   fonts: {
     families: [
       {

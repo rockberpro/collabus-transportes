@@ -9,7 +9,7 @@
           Crie sua conta no Collabus
         </p>
       </div>
-      <UForm @submit.prevent="handleRegister" :state="state">
+      <UForm @submit.prevent="handleSignUp" :state="state">
         <div class="mb-4">
           <UFormField label="Nome">
             <InputTextLarge
@@ -71,7 +71,7 @@
           <p class="text-sm text-gray-600">
             Já tem conta?
             <NuxtLink
-              to="/login"
+              to="/sign-in"
               class="text-teal-600 hover:text-teal-700 font-medium"
             >
               Faça login
@@ -93,7 +93,6 @@ definePageMeta({
 
 const router = useRouter();
 const toast = useToast();
-const supabase = useSupabaseClient();
 
 const state = reactive({
   fullName: "",
@@ -104,52 +103,7 @@ const state = reactive({
   showPasswordAgain: false,
 });
 
-const handleRegister = async () => {
-  try {
-    const { data: signupData, error: signupError } = await supabase.auth.signUp(
-      {
-        email: state.email,
-        password: state.password,
-        options: {
-          data: {
-            fullName: state.fullName,
-          },
-        },
-      }
-    );
-
-    if (signupError) {
-      console.error("Erro no signup:", signupError);
-      alert("Erro ao criar conta: " + signupError.message);
-      return;
-    }
-
-    if (signupData.user) {
-      const { error: profileError } = await supabase.from("profiles").insert([
-        {
-          id: signupData.user.id,
-          fullname: state.fullName,
-        },
-      ] as any);
-
-      if (profileError) console.error(profileError);
-
-      state.fullName = "";
-      state.email = "";
-      state.password = "";
-      state.passwordAgain = "";
-
-      toast.add({
-        title: "Cadastro realizado com sucesso!",
-        color: "success",
-      });
-    }
-  } catch (error: any) {
-    toast.add({
-      title: "Erro ao criar conta",
-      color: "error",
-      description: error?.message || "Erro inesperado ao criar conta",
-    });
-  }
+const handleSignUp = async () => {
+  // TODO
 };
 </script>
