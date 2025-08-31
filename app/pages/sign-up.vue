@@ -86,13 +86,9 @@
 <script setup lang="ts">
 import { reactive } from "vue";
 
-definePageMeta({
-  auth: false,
-  layout: "default",
-});
-
 const router = useRouter();
 const toast = useToast();
+const { signUp } = useUsers();
 
 const state = reactive({
   fullName: "",
@@ -104,6 +100,52 @@ const state = reactive({
 });
 
 const handleSignUp = async () => {
-  // TODO
+  try {
+    // Validações básicas no frontend
+    if (!state.fullName || !state.email || !state.password || !state.passwordAgain) {
+      toast.add({
+        title: 'Erro',
+        description: 'Todos os campos são obrigatórios',
+        color: 'error'
+      })
+      return
+    }
+
+    if (state.password !== state.passwordAgain) {
+      toast.add({
+        title: 'Erro',
+        description: 'As senhas não coincidem',
+        color: 'error'
+      })
+      return
+    }
+
+    // Fazer a requisição usando o composable
+    const response = await signUp({
+      fullName: state.fullName,
+      email: state.email,
+      password: state.password,
+      passwordAgain: state.passwordAgain
+    })
+
+    // Sucesso
+    toast.add({
+      title: 'Sucesso!',
+      description: 'Conta criada com sucesso',
+      color: 'success'
+    })
+
+    // Redirecionar para login
+    await router.push('/sign-in')
+
+  } catch (error: any) {
+    console.error('Erro ao cadastrar:', error)
+    
+    toast.add({
+      title: 'Erro',
+      description: error.data?.message || 'Erro ao criar conta',
+      color: 'error'
+    })
+  }
 };
 </script>

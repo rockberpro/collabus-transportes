@@ -63,11 +63,6 @@
 <script setup lang="ts">
 import { reactive } from "vue";
 
-definePageMeta({
-  auth: false,
-  layout: "default",
-});
-
 const router = useRouter();
 
 const state = reactive({
