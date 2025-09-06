@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
       senha: hashedPassword,
       tipo: 'passageiro', // padrão
       dataCriacao: new Date(),
-      ativo: true
+      ativo: false
     }
 
     const result = await usuarios.insertOne(newUser)

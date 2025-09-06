@@ -5,8 +5,8 @@
 db = db.getSiblingDB('collabus');
 
 db.createUser({
-  user: 'collabus_user',
-  pwd: 'collabus_password',
+  user: process.env.MONGO_USER,
+  pwd: process.env.MONGO_PASSWORD,
   roles: [
     {
       role: 'readWrite',
