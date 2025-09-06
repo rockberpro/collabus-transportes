@@ -7,7 +7,7 @@
           Entre na sua conta do Collabus
         </p>
       </div>
-      <UForm @submit.prevent="handleLogin" :state="state">
+      <UForm @submit.prevent="handleSignIn" :state="state">
         <div class="mb-4">
           <UFormField label="E-mail" name="email">
             <InputTextLarge
@@ -63,11 +63,6 @@
 <script setup lang="ts">
 import { reactive } from "vue";
 
-definePageMeta({
-  auth: false,
-  layout: "default",
-});
-
 const router = useRouter();
 
 const state = reactive({
@@ -76,8 +71,8 @@ const state = reactive({
   showPassword: false,
 });
 
-const handleLogin = async () => {
-  // TODO: Implementar lógica de login
-  await router.push("/dashboard");
+const handleSignIn = async () => {
+  // TODO
+  await router.push("/home");
 };
 </script>

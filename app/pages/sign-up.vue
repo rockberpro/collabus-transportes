@@ -9,7 +9,7 @@
           Crie sua conta no Collabus
         </p>
       </div>
-      <UForm @submit.prevent="handleRegister" :state="state">
+      <UForm @submit.prevent="handleSignUp" :state="state">
         <div class="mb-4">
           <UFormField label="Nome">
             <InputTextLarge
@@ -45,7 +45,7 @@
         </div>
         <div class="mb-12">
           <UFormField>
-            <InputTextLarge
+            <InputPasswordLarge
               id="password-again"
               v-model="state.passwordAgain"
               placeholder="Repita a senha"
@@ -71,7 +71,7 @@
           <p class="text-sm text-gray-600">
             Já tem conta?
             <NuxtLink
-              to="/login"
+              to="/sign-in"
               class="text-teal-600 hover:text-teal-700 font-medium"
             >
               Faça login
@@ -86,14 +86,9 @@
 <script setup lang="ts">
 import { reactive } from "vue";
 
-definePageMeta({
-  auth: false,
-  layout: "default",
-});
-
 const router = useRouter();
 const toast = useToast();
-const supabase = useSupabaseClient();
+const { signUp } = useUsers();
 
 const state = reactive({
   fullName: "",
@@ -104,52 +99,53 @@ const state = reactive({
   showPasswordAgain: false,
 });
 
-const handleRegister = async () => {
+const handleSignUp = async () => {
   try {
-    const { data: signupData, error: signupError } = await supabase.auth.signUp(
-      {
-        email: state.email,
-        password: state.password,
-        options: {
-          data: {
-            fullName: state.fullName,
-          },
-        },
-      }
-    );
-
-    if (signupError) {
-      console.error("Erro no signup:", signupError);
-      alert("Erro ao criar conta: " + signupError.message);
-      return;
-    }
-
-    if (signupData.user) {
-      const { error: profileError } = await supabase.from("profiles").insert([
-        {
-          id: signupData.user.id,
-          fullname: state.fullName,
-        },
-      ] as any);
-
-      if (profileError) console.error(profileError);
-
-      state.fullName = "";
-      state.email = "";
-      state.password = "";
-      state.passwordAgain = "";
-
+    // Validações básicas no frontend
+    if (!state.fullName || !state.email || !state.password || !state.passwordAgain) {
       toast.add({
-        title: "Cadastro realizado com sucesso!",
-        color: "success",
-      });
+        title: 'Erro',
+        description: 'Todos os campos são obrigatórios',
+        color: 'error'
+      })
+      return
     }
-  } catch (error: any) {
+
+    if (state.password !== state.passwordAgain) {
+      toast.add({
+        title: 'Erro',
+        description: 'As senhas não coincidem',
+        color: 'error'
+      })
+      return
+    }
+
+    // Fazer a requisição usando o composable
+    const response = await signUp({
+      fullName: state.fullName,
+      email: state.email,
+      password: state.password,
+      passwordAgain: state.passwordAgain
+    })
+
+    // Sucesso
     toast.add({
-      title: "Erro ao criar conta",
-      color: "error",
-      description: error?.message || "Erro inesperado ao criar conta",
-    });
+      title: 'Sucesso!',
+      description: 'Conta criada com sucesso',
+      color: 'success'
+    })
+
+    // Redirecionar para login
+    await router.push('/sign-in')
+
+  } catch (error: any) {
+    console.error('Erro ao cadastrar:', error)
+    
+    toast.add({
+      title: 'Erro',
+      description: error.data?.message || 'Erro ao criar conta',
+      color: 'error'
+    })
   }
 };
 </script>
