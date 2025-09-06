@@ -1,10 +1,22 @@
-# Nuxt Minimal Starter
+# Collabus Transporte
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Sistema de transporte colaborativo desenvolvido com Nuxt 3 e MongoDB.
 
-## Setup
+## 🚀 Setup
 
-Make sure to install dependencies:
+### 1. Configurar variáveis de ambiente
+
+```bash
+# Copiar os arquivos de exemplo
+cp .env.example .env
+cp docker/.env.example docker/.env
+
+# Editar com suas configurações
+nano .env
+nano docker/.env
+```
+
+### 2. Instalar dependências
 
 ```bash
 # npm
@@ -18,6 +30,13 @@ yarn install
 
 # bun
 bun install
+```
+
+### 3. Iniciar com Docker
+
+```bash
+cd docker
+docker compose up -d
 ```
 
 ## Development Server
