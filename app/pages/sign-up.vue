@@ -99,8 +99,12 @@ const state = reactive({
 
 const handleSignUp = async () => {
   try {
-    // Validações básicas no frontend
-    if (!state.name || !state.email || !state.password || !state.passwordConfirm) {
+    if (
+      !state.name ||
+      !state.email ||
+      !state.password ||
+      !state.passwordConfirm
+    ) {
       toast.add({
         title: "Erro",
         description: "Todos os campos são obrigatórios",
@@ -118,7 +122,6 @@ const handleSignUp = async () => {
       return;
     }
 
-    // Enviar dados para API
     const response = await signUp({
       name: state.name,
       email: state.email,
@@ -126,14 +129,46 @@ const handleSignUp = async () => {
       passwordConfirm: state.passwordConfirm,
     });
 
-    // Sucesso
     toast.add({
       title: "Sucesso!",
       description: "Conta criada com sucesso",
       color: "success",
     });
 
-    // Redirecionar para login
+    try {
+      const emailResponse = await $fetch("/api/send-email", {
+        method: "POST",
+        body: {
+          to: state.email,
+          subject: "Bem-vindo ao Collabus Transportes!",
+          text: `Olá ${state.name}!\n\nSua conta foi criada com sucesso no Collabus Transportes.\n\nPara ativar sua conta, clique no link abaixo:\n\nObrigado!`,
+          html: `
+            <h2>Bem-vindo ao Collabus Transportes!</h2>
+            <p>Olá <strong>${state.name}</strong>!</p>
+            <p>Sua conta foi criada com sucesso.</p>
+            <p>Para ativar sua conta, clique no botão abaixo:</p>
+            <a href="#" style="background-color: #008080; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Ativar Conta</a>
+            <p/>
+          `
+        },
+      });
+      
+      toast.add({
+        title: "Email enviado!",
+        description: "Verifique sua caixa de entrada para ativar a conta",
+        color: "success",
+      });
+      
+    } catch (emailError: any) {
+      console.error("Email error:", emailError);
+      
+      toast.add({
+        title: "Aviso",
+        description: "Conta criada, mas houve problema no envio do email",
+        color: "warning",
+      });
+    }
+
     await router.push("/sign-in");
   } catch (error: any) {
     console.error("Erro ao cadastrar:", error);
