@@ -136,32 +136,44 @@ const handleSignUp = async () => {
     });
 
     try {
-      const emailResponse = await $fetch("/api/send-email", {
+      const activationUrl = `${window.location.origin}/api/users/activate?token=${response.user.token}`;
+
+      await $fetch("/api/send-email", {
         method: "POST",
         body: {
           to: state.email,
-          subject: "Bem-vindo ao Collabus Transportes!",
-          text: `Olá ${state.name}!\n\nSua conta foi criada com sucesso no Collabus Transportes.\n\nPara ativar sua conta, clique no link abaixo:\n\nObrigado!`,
+          subject: "Ative sua conta - Collabus Transportes",
+          text: `Olá ${state.name}!\n\nSua conta foi criada com sucesso no Collabus Transportes.\n\nPara ativar sua conta, acesse o link:\n${activationUrl}\n\nObrigado!`,
           html: `
-            <h2>Bem-vindo ao Collabus Transportes!</h2>
-            <p>Olá <strong>${state.name}</strong>!</p>
-            <p>Sua conta foi criada com sucesso.</p>
-            <p>Para ativar sua conta, clique no botão abaixo:</p>
-            <a href="#" style="background-color: #008080; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Ativar Conta</a>
-            <p/>
-          `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #008080;">Bem-vindo ao Collabus Transportes!</h2>
+              <p>Olá <strong>${state.name}</strong>!</p>
+              <p>Sua conta foi criada com sucesso no Collabus Transportes.</p>
+              <p>Para ativar sua conta, clique no botão abaixo:</p>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${activationUrl}" style="background-color: #008080; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                  Ativar Conta
+                </a>
+              </div>
+              <p style="font-size: 12px; color: #666;">
+                Se o botão não funcionar, copie e cole este link no seu navegador:<br>
+                <a href="${activationUrl}">${activationUrl}</a>
+              </p>
+              <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+              <p style="font-size: 12px; color: #999;">
+                Este email foi enviado automaticamente. Não responda a este email.
+              </p>
+            </div>
+          `,
         },
       });
-      
+
       toast.add({
         title: "Email enviado!",
         description: "Verifique sua caixa de entrada para ativar a conta",
         color: "success",
       });
-      
     } catch (emailError: any) {
-      console.error("Email error:", emailError);
-      
       toast.add({
         title: "Aviso",
         description: "Conta criada, mas houve problema no envio do email",

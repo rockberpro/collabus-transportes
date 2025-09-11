@@ -1,10 +1,11 @@
-// Interface para o frontend (português)
+// Interface para o frontend
 export interface User {
   id?: string;
-  nome: string;
+  name: string;
   email: string;
-  tipo: 'passageiro' | 'motorista' | 'admin';
-  dataCriacao: Date;
+  type: 'passenger' | 'driver' | 'admin';
+  createdAt: Date;
+  token: string;
 }
 
 // Interface para dados de cadastro (API format)
@@ -30,6 +31,7 @@ export interface UserDocument {
   type: 'passenger' | 'driver' | 'admin';
   createdAt: Date;
   active: boolean;
+  token: string;
 }
 
 // Interface para criar usuário no banco (sem _id)
@@ -40,21 +42,23 @@ export interface CreateUserDocument {
   type: 'passenger' | 'driver' | 'admin';
   createdAt: Date;
   active: boolean;
+  token: string;
 }
 
 // Funções utilitárias para mapeamento
 export const mapUserDocumentToUser = (doc: UserDocument): User => ({
   id: doc._id?.toString(),
-  nome: doc.name,
+  name: doc.name,
   email: doc.email,
-  tipo: doc.type === 'passenger' ? 'passageiro' : 
-        doc.type === 'driver' ? 'motorista' : 'admin',
-  dataCriacao: doc.createdAt,
+  type: doc.type,
+  createdAt: doc.createdAt,
+  token: doc.token,
 });
 
 export const mapSignUpDataToUserDocument = (
   data: SignUpData, 
-  hashedPassword: string
+  hashedPassword: string,
+  token: string
 ): CreateUserDocument => ({
   name: data.name,
   email: data.email,
@@ -62,4 +66,5 @@ export const mapSignUpDataToUserDocument = (
   type: 'passenger',
   createdAt: new Date(),
   active: false,
+  token: token,
 });

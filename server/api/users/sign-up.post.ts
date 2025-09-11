@@ -1,5 +1,6 @@
 import { MongoClient } from "mongodb";
 import bcrypt from "bcryptjs";
+import { randomUUID } from "crypto";
 import type { SignUpData } from "../../../types/user";
 import { mapSignUpDataToUserDocument, mapUserDocumentToUser } from "../../../types/user";
 
@@ -60,19 +61,20 @@ export default defineEventHandler(async (event) => {
     // Criptografar a senha
     const hashedPassword = await bcrypt.hash(body.password, 12);
 
-    // Mapear dados do frontend para o banco (português → inglês)
-    const userDocument = mapSignUpDataToUserDocument(body, hashedPassword);
+    // Gerar token de ativação único (UUID v4)
+    const activationToken = randomUUID();
+
+    // Mapear dados do frontend para o banco
+    const userDocument = mapSignUpDataToUserDocument(body, hashedPassword, activationToken);
 
     const result = await usuarios.insertOne(userDocument);
     await client.close();
 
-    // Mapear dados do banco para o frontend (inglês → português)
     const createdUser = mapUserDocumentToUser({
       _id: result.insertedId.toString(),
       ...userDocument,
     });
 
-    // Retornar sucesso (sem a senha)
     return {
       success: true,
       user: createdUser,

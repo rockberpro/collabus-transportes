@@ -85,7 +85,6 @@ const handleSignIn = async () => {
       password: state.password,
     });
 
-    // Redireciona imediatamente para a página inicial
     await router.push("/home");
   } catch (error: any) {
     toast.add({
