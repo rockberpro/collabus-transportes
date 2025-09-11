@@ -1,5 +1,6 @@
 import { MongoClient } from "mongodb";
 import { mapUserDocumentToUser } from "../../../types/user";
+import { EmailService } from "../../services/email";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -48,6 +49,16 @@ export default defineEventHandler(async (event) => {
 
     // Mapear usuário ativado
     const activatedUser = mapUserDocumentToUser(user as any);
+
+    // Enviar e-mail de boas-vindas
+    try {
+      const emailService = new EmailService();
+      await emailService.sendWelcomeEmail(user.email, user.name);
+      console.log("✅ Welcome email sent successfully");
+    } catch (emailError) {
+      console.error("❌ Failed to send welcome email:", emailError);
+      // Não interrompe a ativação se o e-mail falhar
+    }
 
     return {
       success: true,

@@ -1,68 +1,41 @@
-import nodemailer from "nodemailer";
+import { EmailService } from "../services/email";
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event);
 
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS) {
-      console.error("❌ Gmail credentials not configured");
+    // Validação básica
+    if (!body.to || !body.subject || (!body.text && !body.html)) {
       throw createError({
-        statusCode: 500,
-        statusMessage: "Email configuration missing"
+        statusCode: 400,
+        statusMessage: "Campos obrigatórios: to, subject e (text ou html)"
       });
     }
 
-    console.log("📧 Attempting to send email to:", body.to);
-    console.log("📧 Using Gmail user:", process.env.GMAIL_USER);
-
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587, // TLS port
-      secure: false, // true for 465 false for other ports
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
-
-    await transporter.verify();
-    console.log("✅ SMTP connection verified");
-
-    const mailOptions = {
-      from: `"Collabus Transportes" <${process.env.GMAIL_USER}>`,
+    const emailService = new EmailService();
+    
+    const result = await emailService.sendEmail({
       to: body.to,
       subject: body.subject,
-      text: body.text,
-      html: body.html,
-    };
+      text: body.text || "",
+      html: body.html || body.text || ""
+    });
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Email sent successfully:", info.messageId);
-
-    return { 
-      success: true, 
-      messageId: info.messageId
-    };
+    return result;
 
   } catch (error: any) {
     console.error("❌ Email send failed:", error);
     
-    if (error.code) {
-      console.error("Error code:", error.code);
-    }
-    if (error.response) {
-      console.error("SMTP Response:", error.response);
+    // Se for um erro conhecido do EmailService, repassa
+    if (error.statusCode) {
+      throw error;
     }
 
     throw createError({
       statusCode: 500,
       statusMessage: "Failed to send email",
       data: {
-        error: error.message,
-        code: error.code
+        error: error.message
       }
     });
   }

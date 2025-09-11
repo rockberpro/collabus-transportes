@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import type { SignUpData } from "../../../types/user";
 import { mapSignUpDataToUserDocument, mapUserDocumentToUser } from "../../../types/user";
+import { EmailService } from "../../services/email";
 
 // Type guard para verificar se o erro tem statusCode
 function isErrorWithStatusCode(
@@ -74,6 +75,16 @@ export default defineEventHandler(async (event) => {
       _id: result.insertedId.toString(),
       ...userDocument,
     });
+
+    // Enviar e-mail de ativação
+    try {
+      const emailService = new EmailService();
+      await emailService.sendActivationEmail(body.email, body.name, activationToken);
+      console.log("✅ Activation email sent successfully");
+    } catch (emailError) {
+      console.error("❌ Failed to send activation email:", emailError);
+      // Não interrompe o cadastro se o e-mail falhar
+    }
 
     return {
       success: true,
