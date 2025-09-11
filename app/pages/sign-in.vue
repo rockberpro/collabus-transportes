@@ -20,9 +20,9 @@
           </UFormField>
         </div>
         <div class="mb-12">
-          <UFormField label="Senha" name="password">
+          <UFormField label="Senha" name="senha">
             <InputPasswordLarge
-              :v-model="state.password"
+              v-model="state.password"
               id="password"
               :type="state.showPassword ? 'text' : 'password'"
               icon="mdi:lock-outline"
@@ -34,11 +34,7 @@
         </div>
         <div class="mb-4">
           <UFormField>
-            <ButtonLarge
-              label="login"
-              variant="solid"
-              type="submit"
-            >
+            <ButtonLarge label="login" variant="solid" type="submit">
               Entrar
               <UIcon name="mdi:login" />
             </ButtonLarge>
@@ -64,6 +60,8 @@
 import { reactive } from "vue";
 
 const router = useRouter();
+const toast = useToast();
+const { signIn } = useUsers();
 
 const state = reactive({
   email: "",
@@ -72,7 +70,30 @@ const state = reactive({
 });
 
 const handleSignIn = async () => {
-  // TODO
-  await router.push("/home");
+  try {
+    if (!state.email || !state.password) {
+      toast.add({
+        title: "Erro",
+        description: "Todos os campos são obrigatórios!",
+        color: "error",
+      });
+      return;
+    }
+
+    await signIn({
+      email: state.email,
+      password: state.password,
+    });
+
+    // Redireciona imediatamente para a página inicial
+    await router.push("/home");
+  } catch (error: any) {
+    toast.add({
+      title: "Erro",
+      description: error.data?.message || "Erro ao fazer login",
+      color: "error",
+    });
+    return;
+  }
 };
 </script>

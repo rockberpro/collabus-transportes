@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
 import bcrypt from "bcryptjs";
-import type { SignUpData } from "../../../types/user";
-import { mapSignUpDataToUserDocument, mapUserDocumentToUser } from "../../../types/user";
+import type { SignInData } from "../../../types/user";
+import { mapUserDocumentToUser } from "../../../types/user";
 
 // Type guard para verificar se o erro tem statusCode
 function isErrorWithStatusCode(
@@ -16,21 +16,13 @@ function isErrorWithStatusCode(
 
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody<SignUpData>(event);
+    const body = await readBody<SignInData>(event);
 
     // Validação básica
-    if (!body.name || !body.email || !body.password) {
+    if (!body.email || !body.password) {
       throw createError({
         statusCode: 400,
-        statusMessage: "Nome, email e senha são obrigatórios",
-      });
-    }
-
-    // Validar se as senhas coincidem
-    if (body.password !== body.passwordConfirm) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: "As senhas não coincidem",
+        statusMessage: "Email e senha são obrigatórios",
       });
     }
 
@@ -47,38 +39,47 @@ export default defineEventHandler(async (event) => {
     const db = client.db(dbName);
     const usuarios = db.collection("usuarios");
 
-    // Verificar se o usuário já existe
-    const existingUser = await usuarios.findOne({ email: body.email });
-    if (existingUser) {
+    // Buscar o usuário pelo email
+    const user = await usuarios.findOne({ email: body.email });
+    if (!user) {
       await client.close();
       throw createError({
-        statusCode: 409,
-        statusMessage: "Usuário já existe com este email",
+        statusCode: 401,
+        statusMessage: "Email ou senha incorretos",
       });
     }
 
-    // Criptografar a senha
-    const hashedPassword = await bcrypt.hash(body.password, 12);
+    // Verificar se o usuário está ativo
+    if (!user.active) {
+      await client.close()
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'Conta não ativada! Verifique seu email para ativar a conta.'
+      })
+    }
 
-    // Mapear dados do frontend para o banco (português → inglês)
-    const userDocument = mapSignUpDataToUserDocument(body, hashedPassword);
+    // Verificar a senha
+    const isPasswordValid = await bcrypt.compare(body.password, user.password);
+    if (!isPasswordValid) {
+      await client.close();
+      throw createError({
+        statusCode: 401,
+        statusMessage: "Email ou senha incorretos.",
+      });
+    }
 
-    const result = await usuarios.insertOne(userDocument);
     await client.close();
 
     // Mapear dados do banco para o frontend (inglês → português)
-    const createdUser = mapUserDocumentToUser({
-      _id: result.insertedId.toString(),
-      ...userDocument,
-    });
+    const mappedUser = mapUserDocumentToUser(user as any);
 
     // Retornar sucesso (sem a senha)
     return {
       success: true,
-      user: createdUser,
+      user: mappedUser,
     };
   } catch (error: unknown) {
-    console.error("Erro ao cadastrar usuário:", error);
+    console.error("Erro ao fazer login:", error);
 
     if (isErrorWithStatusCode(error)) {
       throw error;
@@ -86,7 +87,7 @@ export default defineEventHandler(async (event) => {
 
     throw createError({
       statusCode: 500,
-      statusMessage: "Erro interno do servidor",
+      statusMessage: "Erro interno do servidor.",
     });
   }
 });

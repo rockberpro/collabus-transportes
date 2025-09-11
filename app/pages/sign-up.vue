@@ -13,8 +13,8 @@
         <div class="mb-4">
           <UFormField label="Nome">
             <InputTextLarge
-              id="full-name"
-              v-model="state.fullName"
+              id="name"
+              v-model="state.name"
               placeholder="Seu nome completo"
               icon="mdi:card-account-details-outline"
               :required="true"
@@ -44,26 +44,24 @@
           </UFormField>
         </div>
         <div class="mb-12">
-          <UFormField>
+          <UFormField label="Confirmar Senha">
             <InputPasswordLarge
-              id="password-again"
-              v-model="state.passwordAgain"
+              id="password-confirm"
+              v-model="state.passwordConfirm"
               placeholder="Repita a senha"
               type="password"
               icon="mdi:lock-check-outline"
-              :trailing-icon="state.showPasswordAgain ? 'mdi:eye' : 'mdi:eye-off'"
+              :trailing-icon="
+                state.showPasswordAgain ? 'mdi:eye' : 'mdi:eye-off'
+              "
             />
           </UFormField>
         </div>
         <div class="mb-4">
           <UFormField>
-            <ButtonLarge
-              label="cadastrar"
-              variant="solid"
-              type="submit"
-            >
+            <ButtonLarge label="cadastrar" variant="solid" type="submit">
               Cadastrar
-              <UIcon name="mdi:account-plus" size="xl"/>
+              <UIcon name="mdi:account-plus" size="xl" />
             </ButtonLarge>
           </UFormField>
         </div>
@@ -91,10 +89,10 @@ const toast = useToast();
 const { signUp } = useUsers();
 
 const state = reactive({
-  fullName: "",
+  name: "",
   email: "",
   password: "",
-  passwordAgain: "",
+  passwordConfirm: "",
   showPassword: false,
   showPasswordAgain: false,
 });
@@ -102,50 +100,49 @@ const state = reactive({
 const handleSignUp = async () => {
   try {
     // Validações básicas no frontend
-    if (!state.fullName || !state.email || !state.password || !state.passwordAgain) {
+    if (!state.name || !state.email || !state.password || !state.passwordConfirm) {
       toast.add({
-        title: 'Erro',
-        description: 'Todos os campos são obrigatórios',
-        color: 'error'
-      })
-      return
+        title: "Erro",
+        description: "Todos os campos são obrigatórios",
+        color: "error",
+      });
+      return;
     }
 
-    if (state.password !== state.passwordAgain) {
+    if (state.password !== state.passwordConfirm) {
       toast.add({
-        title: 'Erro',
-        description: 'As senhas não coincidem',
-        color: 'error'
-      })
-      return
+        title: "Erro",
+        description: "As senhas não coincidem",
+        color: "error",
+      });
+      return;
     }
 
-    // Fazer a requisição usando o composable
+    // Enviar dados para API
     const response = await signUp({
-      fullName: state.fullName,
+      name: state.name,
       email: state.email,
       password: state.password,
-      passwordAgain: state.passwordAgain
-    })
+      passwordConfirm: state.passwordConfirm,
+    });
 
     // Sucesso
     toast.add({
-      title: 'Sucesso!',
-      description: 'Conta criada com sucesso',
-      color: 'success'
-    })
+      title: "Sucesso!",
+      description: "Conta criada com sucesso",
+      color: "success",
+    });
 
     // Redirecionar para login
-    await router.push('/sign-in')
-
+    await router.push("/sign-in");
   } catch (error: any) {
-    console.error('Erro ao cadastrar:', error)
-    
+    console.error("Erro ao cadastrar:", error);
+
     toast.add({
-      title: 'Erro',
-      description: error.data?.message || 'Erro ao criar conta',
-      color: 'error'
-    })
+      title: "Erro",
+      description: error.data?.message || "Erro ao criar conta",
+      color: "error",
+    });
   }
 };
 </script>
