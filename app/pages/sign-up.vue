@@ -13,8 +13,8 @@
         <div class="mb-4">
           <UFormField label="Nome">
             <InputTextLarge
-              id="full-name"
-              v-model="state.fullName"
+              id="name"
+              v-model="state.name"
               placeholder="Seu nome completo"
               icon="mdi:card-account-details-outline"
               :required="true"
@@ -44,26 +44,24 @@
           </UFormField>
         </div>
         <div class="mb-12">
-          <UFormField>
+          <UFormField label="Confirmar Senha">
             <InputPasswordLarge
-              id="password-again"
-              v-model="state.passwordAgain"
+              id="password-confirm"
+              v-model="state.passwordConfirm"
               placeholder="Repita a senha"
               type="password"
               icon="mdi:lock-check-outline"
-              :trailing-icon="state.showPasswordAgain ? 'mdi:eye' : 'mdi:eye-off'"
+              :trailing-icon="
+                state.showPasswordAgain ? 'mdi:eye' : 'mdi:eye-off'
+              "
             />
           </UFormField>
         </div>
         <div class="mb-4">
           <UFormField>
-            <ButtonLarge
-              label="cadastrar"
-              variant="solid"
-              type="submit"
-            >
+            <ButtonLarge label="cadastrar" variant="solid" type="submit">
               Cadastrar
-              <UIcon name="mdi:account-plus" size="xl"/>
+              <UIcon name="mdi:account-plus" size="xl" />
             </ButtonLarge>
           </UFormField>
         </div>
@@ -88,64 +86,97 @@ import { reactive } from "vue";
 
 const router = useRouter();
 const toast = useToast();
-const { signUp } = useUsers();
+const { signUpWithPerson } = useUsersWithPersons();
+const logger = useLogger();
 
 const state = reactive({
-  fullName: "",
+  name: "",
   email: "",
   password: "",
-  passwordAgain: "",
+  passwordConfirm: "",
   showPassword: false,
   showPasswordAgain: false,
 });
 
 const handleSignUp = async () => {
+  const startTime = Date.now();
+  
   try {
-    // Validações básicas no frontend
-    if (!state.fullName || !state.email || !state.password || !state.passwordAgain) {
+    logger.userAction("Sign-up attempt started", {
+      email: state.email,
+      hasName: !!state.name
+    });
+
+    if (
+      !state.name ||
+      !state.email ||
+      !state.password ||
+      !state.passwordConfirm
+    ) {
+      logger.validationError("required_fields", "Missing required fields", {
+        hasName: !!state.name,
+        hasEmail: !!state.email,
+        hasPassword: !!state.password,
+        hasPasswordConfirm: !!state.passwordConfirm
+      });
+
       toast.add({
-        title: 'Erro',
-        description: 'Todos os campos são obrigatórios',
-        color: 'error'
-      })
-      return
+        title: "Erro",
+        description: "Todos os campos são obrigatórios",
+        color: "error",
+      });
+      return;
     }
 
-    if (state.password !== state.passwordAgain) {
+    if (state.password !== state.passwordConfirm) {
+      logger.validationError("password_confirmation", "Passwords don't match", {
+        email: state.email
+      });
+
       toast.add({
-        title: 'Erro',
-        description: 'As senhas não coincidem',
-        color: 'error'
-      })
-      return
+        title: "Erro",
+        description: "As senhas não coincidem",
+        color: "error",
+      });
+      return;
     }
 
-    // Fazer a requisição usando o composable
-    const response = await signUp({
-      fullName: state.fullName,
+    const response = await signUpWithPerson({
+      name: state.name,
       email: state.email,
       password: state.password,
-      passwordAgain: state.passwordAgain
-    })
+      passwordConfirm: state.passwordConfirm,
+    });
 
-    // Sucesso
+    const duration = Date.now() - startTime;
+    logger.userAction("Sign-up completed successfully", {
+      email: state.email,
+      userId: response?.user?.id,
+      duration: `${duration}ms`
+    });
+
     toast.add({
-      title: 'Sucesso!',
-      description: 'Conta criada com sucesso',
-      color: 'success'
-    })
+      title: "Sucesso!",
+      description: "Conta criada! Verifique seu e-mail para ativar a conta.",
+      color: "success",
+    });
 
-    // Redirecionar para login
-    await router.push('/sign-in')
-
+    await router.push("/sign-in");
   } catch (error: any) {
-    console.error('Erro ao cadastrar:', error)
+    const duration = Date.now() - startTime;
     
+    logger.apiError("/api/users/sign-up", error, {
+      email: state.email,
+      duration: `${duration}ms`,
+      statusCode: error.statusCode,
+      statusMessage: error.statusMessage
+    });
+
     toast.add({
-      title: 'Erro',
-      description: error.data?.message || 'Erro ao criar conta',
-      color: 'error'
-    })
+      title: "Erro",
+      description: error.data?.message || "Erro ao criar conta",
+      color: "error",
+    });
   }
 };
 </script>

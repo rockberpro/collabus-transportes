@@ -1,33 +1,40 @@
-interface User {
-  id?: string
-  nome: string
-  email: string
-  tipo: string
-  dataCriacao: Date
-}
-
-interface UserData {
-  fullName: string
-  email: string
-  password: string
-  passwordAgain: string
-}
+import type { User, SignUpData, SignInData } from '../../types/user'
 
 export const useUsers = () => {
-  const signUp = async (userData: UserData) => {
+  const signUp = async (signUpData: SignUpData) => {
     try {
-      const response = await $fetch<{ success: boolean; user: User }>('/api/users/sign-up', {
-        method: 'POST',
-        body: userData
-      })
+      const response = await $fetch<{ success: boolean; user: User }>(
+        "/api/users/sign-up",
+        {
+          method: "POST",
+          body: signUpData,
+        }
+      );
 
-      return response
+      return response;
     } catch (error) {
-      throw error
+      throw error;
     }
-  }
+  };
+
+  const signIn = async (signInData: SignInData) => {
+    try {
+      const response = await $fetch<{ success: boolean; user: User }>(
+        "/api/users/sign-in",
+        {
+          method: "POST",
+          body: signInData,
+        }
+      );
+
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  };
 
   return {
-    signUp
-  }
-}
+    signUp,
+    signIn,
+  };
+};
