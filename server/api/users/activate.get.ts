@@ -28,13 +28,13 @@ export default defineEventHandler(async (event) => {
       authSource,
     });
 
-    logger.databaseAction("Connecting to MongoDB for activation", "usuarios");
+    logger.databaseAction("Connecting to MongoDB for activation", "users");
     await client.connect();
     const db = client.db(dbName);
-    const usuarios = db.collection("usuarios");
+    const users = db.collection("users");
 
-    logger.databaseAction("Searching for user with activation token", "usuarios");
-    const user = await usuarios.findOne({ token: token, active: false });
+    logger.databaseAction("Searching for user with activation token", "users");
+    const user = await users.findOne({ token: token, active: false });
     
     if (!user) {
       await client.close();
@@ -46,12 +46,12 @@ export default defineEventHandler(async (event) => {
     }
 
     // Ativar a conta e remover o token
-    logger.databaseAction("Activating user account", "usuarios", { 
+    logger.databaseAction("Activating user account", "users", { 
       userId: user._id.toString(),
       email: user.email 
     });
     
-    await usuarios.updateOne(
+    await users.updateOne(
       { _id: user._id },
       { 
         $set: { active: true },

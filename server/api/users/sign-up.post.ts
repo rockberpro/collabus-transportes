@@ -59,14 +59,14 @@ export default defineEventHandler(async (event) => {
       authSource,
     });
 
-    logger.databaseAction("Connecting to MongoDB", "usuarios");
+    logger.databaseAction("Connecting to MongoDB", "users");
     await client.connect();
     const db = client.db(dbName);
-    const usuarios = db.collection("usuarios");
+    const users = db.collection("users");
 
     // Verificar se o usuário já existe
-    logger.databaseAction("Checking if user exists", "usuarios", { email: body.email });
-    const existingUser = await usuarios.findOne({ email: body.email });
+    logger.databaseAction("Checking if user exists", "users", { email: body.email });
+    const existingUser = await users.findOne({ email: body.email });
     if (existingUser) {
       await client.close();
       logger.warn("Sign-up failed: user already exists", { email: body.email });
@@ -80,10 +80,10 @@ export default defineEventHandler(async (event) => {
     logger.debug("Processing user data and generating security tokens");
     const userDocument = await mapSignUpDataToUserDocument(body);
 
-    logger.databaseAction("Creating new user", "usuarios", { email: body.email });
-    const result = await usuarios.insertOne(userDocument);
+    logger.databaseAction("Creating new user", "users", { email: body.email });
+    const result = await users.insertOne(userDocument);
     await client.close();
-    logger.databaseAction("User created successfully", "usuarios", { 
+    logger.databaseAction("User created successfully", "users", { 
       userId: result.insertedId.toString(),
       email: body.email 
     });

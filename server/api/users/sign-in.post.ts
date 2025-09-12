@@ -44,14 +44,14 @@ export default defineEventHandler(async (event) => {
       authSource,
     });
 
-    logger.databaseAction("Connecting to MongoDB for sign-in", "usuarios");
+    logger.databaseAction("Connecting to MongoDB for sign-in", "users");
     await client.connect();
     const db = client.db(dbName);
-    const usuarios = db.collection("usuarios");
+    const users = db.collection("users");
 
     // Buscar o usuário pelo email
-    logger.databaseAction("Searching for user by email", "usuarios", { email: body.email });
-    const user = await usuarios.findOne({ email: body.email });
+    logger.databaseAction("Searching for user by email", "users", { email: body.email });
+    const user = await users.findOne({ email: body.email });
     if (!user) {
       await client.close();
       logger.warn("Sign-in failed: user not found", { email: body.email });

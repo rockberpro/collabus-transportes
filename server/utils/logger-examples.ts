@@ -10,7 +10,7 @@ import { logger } from "./logger";
 export function exemploLogsBasicos() {
   // Log de erro com informações detalhadas
   logger.error("Falha na conexão com o banco de dados", {
-    database: "usuarios",
+    database: "users",
     connection: "mongodb://localhost:27017",
     timeout: 5000
   });
@@ -55,7 +55,7 @@ export function exemploLogsContextuais() {
   });
 
   // Ações de banco de dados
-  logger.databaseAction("User profile updated", "usuarios", {
+  logger.databaseAction("User profile updated", "users", {
     userId: "user123",
     fieldsChanged: ["name", "phone"],
     previousValues: { name: "Old Name" },
@@ -81,7 +81,7 @@ export function exemploLogsErro() {
     // Log de erro com contexto completo
     logger.logError(error as Error, "DATABASE_CONNECTION", {
       operation: "findUser",
-      collection: "usuarios",
+      collection: "users",
       query: { email: "user@example.com" },
       timeout: 5000,
       retryAttempt: 3

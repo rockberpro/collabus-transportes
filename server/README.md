@@ -171,7 +171,7 @@ logger.info("Operação realizada");
 // Logs contextuais
 logger.userAction("Login attempt", "user@email.com");
 logger.emailAction("Email sent", "user@email.com", "Welcome");
-logger.databaseAction("User created", "usuarios");
+logger.databaseAction("User created", "users");
 logger.authAction("Authentication failed", "user@email.com");
 ```
 

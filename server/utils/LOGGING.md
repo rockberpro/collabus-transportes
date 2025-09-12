@@ -71,7 +71,7 @@ logger.userAction("Sign-up attempt", "userId123", { email: "user@email.com" });
 logger.emailAction("Email sent", "user@email.com", "Welcome Email");
 
 // Ações de banco de dados
-logger.databaseAction("User created", "usuarios", { userId: "123" });
+logger.databaseAction("User created", "users", { userId: "123" });
 
 // Ações de autenticação
 logger.authAction("Login successful", "user@email.com", { userId: "123" });
