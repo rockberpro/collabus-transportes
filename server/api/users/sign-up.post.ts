@@ -82,14 +82,49 @@ export default defineEventHandler(async (event) => {
 
     logger.databaseAction("Creating new user", "users", { email: body.email });
     const result = await users.insertOne(userDocument);
-    await client.close();
+    const userId = result.insertedId.toString();
+    
     logger.databaseAction("User created successfully", "users", { 
-      userId: result.insertedId.toString(),
+      userId,
       email: body.email 
     });
 
+    // Criar entrada na coleção persons
+    try {
+      const persons = db.collection("persons");
+      const { mapCreatePersonDataToPersonDocument } = await import("../../../types/person");
+      
+      const personData = {
+        name: body.name,
+        userId: userId,
+      };
+      
+      const personDocument = mapCreatePersonDataToPersonDocument(personData);
+      
+      logger.databaseAction("Creating person entry", "persons", { 
+        name: body.name, 
+        userId 
+      });
+      
+      await persons.insertOne(personDocument);
+      
+      logger.databaseAction("Person entry created successfully", "persons", { 
+        name: body.name, 
+        userId 
+      });
+    } catch (personError) {
+      logger.logError(personError as Error, "PERSON_CREATION", {
+        userId,
+        email: body.email,
+        name: body.name
+      });
+      // Não interrompe o cadastro se a criação da person falhar
+    }
+
+    await client.close();
+
     const createdUser = mapUserDocumentToUser({
-      _id: result.insertedId.toString(),
+      _id: userId,
       ...userDocument,
     });
 

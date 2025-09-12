@@ -86,7 +86,7 @@ import { reactive } from "vue";
 
 const router = useRouter();
 const toast = useToast();
-const { signUp } = useUsers();
+const { signUpWithPerson } = useUsersWithPersons();
 const logger = useLogger();
 
 const state = reactive({
@@ -141,7 +141,7 @@ const handleSignUp = async () => {
       return;
     }
 
-    const response = await signUp({
+    const response = await signUpWithPerson({
       name: state.name,
       email: state.email,
       password: state.password,
