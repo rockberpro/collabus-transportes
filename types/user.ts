@@ -55,16 +55,22 @@ export const mapUserDocumentToUser = (doc: UserDocument): User => ({
   token: doc.token,
 });
 
-export const mapSignUpDataToUserDocument = (
-  data: SignUpData, 
-  hashedPassword: string,
-  token: string
-): CreateUserDocument => ({
-  name: data.name,
-  email: data.email,
-  password: hashedPassword,
-  type: 'passenger',
-  createdAt: new Date(),
-  active: false,
-  token: token,
-});
+export const mapSignUpDataToUserDocument = async (
+  data: SignUpData
+): Promise<CreateUserDocument> => {
+  const bcrypt = await import('bcryptjs');
+  const { randomUUID } = await import('crypto');
+  
+  const hashedPassword = await bcrypt.hash(data.password, 12);
+  const activationToken = randomUUID();
+  
+  return {
+    name: data.name,
+    email: data.email,
+    password: hashedPassword,
+    type: 'passenger',
+    createdAt: new Date(),
+    active: false,
+    token: activationToken,
+  };
+};

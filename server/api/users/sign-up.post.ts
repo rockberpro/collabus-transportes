@@ -1,6 +1,4 @@
 import { MongoClient } from "mongodb";
-import bcrypt from "bcryptjs";
-import { randomUUID } from "crypto";
 import type { SignUpData } from "../../../types/user";
 import { mapSignUpDataToUserDocument, mapUserDocumentToUser } from "../../../types/user";
 import { EmailService } from "../../services/email";
@@ -78,16 +76,9 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Criptografar a senha
-    logger.debug("Hashing user password");
-    const hashedPassword = await bcrypt.hash(body.password, 12);
-
-    // Gerar token de ativação único (UUID v4)
-    const activationToken = randomUUID();
-    logger.debug("Generated activation token for user", { email: body.email });
-
-    // Mapear dados do frontend para o banco
-    const userDocument = mapSignUpDataToUserDocument(body, hashedPassword, activationToken);
+    // Mapear dados do frontend para o banco (inclui hash da senha e token)
+    logger.debug("Processing user data and generating security tokens");
+    const userDocument = await mapSignUpDataToUserDocument(body);
 
     logger.databaseAction("Creating new user", "usuarios", { email: body.email });
     const result = await usuarios.insertOne(userDocument);
@@ -105,7 +96,7 @@ export default defineEventHandler(async (event) => {
     // Enviar e-mail de ativação
     try {
       const emailService = new EmailService();
-      await emailService.sendActivationEmail(body.email, body.name, activationToken);
+      await emailService.sendActivationEmail(body.email, body.name, userDocument.token);
       logger.emailAction("Activation email sent successfully", body.email, "Account Activation");
     } catch (emailError) {
       logger.logError(emailError as Error, "ACTIVATION_EMAIL", {
