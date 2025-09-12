@@ -1,12 +1,10 @@
 import { logger } from "../utils/logger";
 
 export default defineEventHandler(async (event) => {
-  // Apenas aplicar autenticação para rotas da API que precisam de proteção
   if (!event.node.req.url?.startsWith('/api/')) {
     return;
   }
 
-  // Rotas que não precisam de autenticação (públicas)
   const publicRoutes = [
     '/api/users/sign-in',
     '/api/users/sign-up', 
@@ -22,11 +20,6 @@ export default defineEventHandler(async (event) => {
     return;
   }
 
-  // Por padrão, todas as outras rotas da API precisam de autenticação
-  // Exceto as rotas públicas listadas acima
-  // As rotas protegidas incluem:
-  // - /api/persons/* (todas as operações com pessoas)
-
   const method = event.node.req.method || 'GET';
   const ip = getHeader(event, 'x-forwarded-for') || 
              getHeader(event, 'x-real-ip') || 
@@ -40,7 +33,6 @@ export default defineEventHandler(async (event) => {
     timestamp: new Date().toISOString()
   });
 
-  // Obter o token do cabeçalho Authorization
   const authHeader = getHeader(event, 'authorization');
   
   if (!authHeader) {
@@ -55,7 +47,6 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Verificar se é um Bearer token
   if (!authHeader.startsWith('Bearer ')) {
     logger.warn("API authentication failed: invalid authorization format", {
       method,
@@ -69,8 +60,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Extrair o token
-  const token = authHeader.substring(7); // Remove 'Bearer '
+  const token = authHeader.substring(7);
   
   if (!token) {
     logger.warn("API authentication failed: empty token", {
@@ -84,7 +74,6 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Verificar se o token corresponde ao API_TOKEN do ambiente
   const apiToken = process.env.API_TOKEN;
   
   if (!apiToken) {

@@ -1,7 +1,6 @@
 import winston from "winston";
 import path from "path";
 
-// Configuração dos níveis de log personalizados
 const logLevels = {
   error: 0,
   warn: 1,
@@ -18,10 +17,7 @@ const logColors = {
   debug: 'blue',
 };
 
-// Colorir os logs no console
 winston.addColors(logColors);
-
-// Formato personalizado para os logs
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
   winston.format.colorize({ all: true }),
@@ -30,31 +26,24 @@ const logFormat = winston.format.combine(
   ),
 );
 
-// Formato para arquivos (sem cores)
 const fileLogFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
   winston.format.errors({ stack: true }),
   winston.format.json(),
 );
-
-// Determinar nível de log baseado no ambiente
 const level = () => {
   const env = process.env.NODE_ENV || 'development';
   const isDevelopment = env === 'development';
   return isDevelopment ? 'debug' : 'warn';
 };
 
-// Criar diretório de logs se não existir
 const logsDir = path.join(process.cwd(), 'logs');
 
 const transports = [
-  // Console transport
   new winston.transports.Console({
     level: level(),
     format: logFormat,
   }),
-  
-  // Arquivo para todos os logs
   new winston.transports.File({
     filename: path.join(logsDir, 'all.log'),
     level: 'debug',
@@ -62,8 +51,7 @@ const transports = [
     maxsize: 5242880, // 5MB
     maxFiles: 5,
   }),
-  
-  // Arquivo apenas para erros
+
   new winston.transports.File({
     filename: path.join(logsDir, 'error.log'),
     level: 'error',
@@ -73,15 +61,12 @@ const transports = [
   }),
 ];
 
-// Criar o logger winston
 const winstonLogger = winston.createLogger({
   level: level(),
   levels: logLevels,
   format: fileLogFormat,
   transports,
 });
-
-// Classe wrapper para facilitar o uso
 export class Logger {
   private static instance: Logger;
   private winston: winston.Logger;
@@ -118,7 +103,6 @@ export class Logger {
     this.winston.debug(message, meta);
   }
 
-  // Métodos específicos para contextos
   userAction(action: string, userId?: string, details?: any) {
     this.info(`[USER_ACTION] ${action}`, {
       userId,
@@ -152,7 +136,6 @@ export class Logger {
     });
   }
 
-  // Método para logging de erros com contexto completo
   logError(error: Error, context?: string, additionalInfo?: any) {
     this.error(`[${context || 'ERROR'}] ${error.message}`, {
       stack: error.stack,
@@ -161,8 +144,6 @@ export class Logger {
       timestamp: new Date().toISOString(),
     });
   }
-
-  // Método para logging de requests HTTP
   logRequest(method: string, url: string, statusCode: number, responseTime?: number) {
     this.http(`${method} ${url} ${statusCode}`, {
       method,
@@ -174,8 +155,5 @@ export class Logger {
   }
 }
 
-// Exportar instância singleton
 export const logger = Logger.getInstance();
-
-// Exportar também o winston logger para casos específicos
 export { winston };

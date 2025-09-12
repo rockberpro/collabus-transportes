@@ -8,28 +8,24 @@ import { logger } from "./logger";
 // ==================== LOGS BÁSICOS ====================
 
 export function exemploLogsBasicos() {
-  // Log de erro com informações detalhadas
   logger.error("Falha na conexão com o banco de dados", {
     database: "users",
     connection: "mongodb://localhost:27017",
     timeout: 5000
   });
 
-  // Log de aviso
   logger.warn("Rate limit próximo do limite", {
     currentRequests: 95,
     limit: 100,
     timeWindow: "1 minuto"
   });
 
-  // Log informativo
   logger.info("Servidor iniciado com sucesso", {
     port: 3000,
     environment: "development",
     version: "1.0.0"
   });
 
-  // Log de debug (apenas em desenvolvimento)
   logger.debug("Variáveis de ambiente carregadas", {
     nodeEnv: process.env.NODE_ENV,
     hasMongoUri: !!process.env.MONGODB_URI,
@@ -40,21 +36,18 @@ export function exemploLogsBasicos() {
 // ==================== LOGS CONTEXTUAIS ====================
 
 export function exemploLogsContextuais() {
-  // Ações de usuário
   logger.userAction("Password change request", "user123", {
     email: "user@example.com",
     ipAddress: "192.168.1.1",
     userAgent: "Mozilla/5.0..."
   });
 
-  // Ações de e-mail
   logger.emailAction("Password reset email sent", "user@example.com", "Password Reset", {
     templateUsed: "password-reset",
     recipientStatus: "active",
     deliveryAttempt: 1
   });
 
-  // Ações de banco de dados
   logger.databaseAction("User profile updated", "users", {
     userId: "user123",
     fieldsChanged: ["name", "phone"],
@@ -62,7 +55,6 @@ export function exemploLogsContextuais() {
     newValues: { name: "New Name" }
   });
 
-  // Ações de autenticação
   logger.authAction("Failed login attempt", "user@example.com", {
     reason: "invalid_password",
     attempts: 3,
@@ -75,10 +67,8 @@ export function exemploLogsContextuais() {
 
 export function exemploLogsErro() {
   try {
-    // Código que pode gerar erro
     throw new Error("Conexão timeout");
   } catch (error) {
-    // Log de erro com contexto completo
     logger.logError(error as Error, "DATABASE_CONNECTION", {
       operation: "findUser",
       collection: "users",
@@ -92,10 +82,8 @@ export function exemploLogsErro() {
 // ==================== LOGS HTTP ====================
 
 export function exemploLogsHttp() {
-  // Log de request HTTP (feito automaticamente pelo middleware)
   logger.logRequest("POST", "/api/users/sign-up", 201, 250);
   
-  // Log HTTP manual para casos específicos
   logger.http("External API call", {
     method: "POST",
     url: "https://api.external.com/notify",
@@ -108,7 +96,6 @@ export function exemploLogsHttp() {
 // ==================== LOGS PARA AUDITORIA ====================
 
 export function exemploLogsAuditoria() {
-  // Log de mudanças sensíveis
   logger.info("[AUDIT] User permissions changed", {
     adminUserId: "admin123",
     targetUserId: "user456",
@@ -119,7 +106,6 @@ export function exemploLogsAuditoria() {
     timestamp: new Date().toISOString()
   });
 
-  // Log de acesso a dados sensíveis
   logger.info("[AUDIT] Sensitive data accessed", {
     userId: "user123",
     dataType: "personal_information",
@@ -135,7 +121,6 @@ export function exemploLogsAuditoria() {
 export function exemploLogsPerformance() {
   const startTime = Date.now();
   
-  // Simulação de operação
   setTimeout(() => {
     const duration = Date.now() - startTime;
     
@@ -153,7 +138,6 @@ export function exemploLogsPerformance() {
 // ==================== LOGS DE NEGÓCIO ====================
 
 export function exemploLogsNegocio() {
-  // Eventos importantes do negócio
   logger.info("[BUSINESS] New subscription created", {
     userId: "user123",
     planType: "premium",
@@ -180,7 +164,6 @@ export function exemploLogsNegocio() {
 // ==================== LOGS DE SISTEMA ====================
 
 export function exemploLogsSistema() {
-  // Status do sistema
   logger.info("[SYSTEM] Health check completed", {
     status: "healthy",
     checks: {
@@ -193,7 +176,6 @@ export function exemploLogsSistema() {
     uptime: "5 days, 3 hours"
   });
 
-  // Recursos do sistema
   logger.warn("[SYSTEM] High memory usage detected", {
     currentUsage: "85%",
     threshold: "80%",

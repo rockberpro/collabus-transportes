@@ -31,12 +31,10 @@ export const useLogger = () => {
       timestamp: new Date().toISOString(),
       url: window.location.href,
       userAgent: navigator.userAgent,
-      // userId pode ser obtido de um store/context de autenticação
     };
   };
 
   const sendToServer = async (logEntry: LogEntry) => {
-    // Em produção, enviar logs críticos para o servidor
     if (!isDevelopment && (logEntry.level === 'error' || logEntry.level === 'warn')) {
       try {
         await $fetch('/api/client-logs', {
@@ -44,7 +42,6 @@ export const useLogger = () => {
           body: logEntry
         });
       } catch (err) {
-        // Falha silenciosa para não impactar a UX
         console.warn('Failed to send log to server:', err);
       }
     }
@@ -81,10 +78,7 @@ export const useLogger = () => {
   ) => {
     const logEntry = createLogEntry(level, message, context, data);
     
-    // Sempre logar no console
     logToConsole(logEntry);
-    
-    // Enviar para servidor se necessário
     await sendToServer(logEntry);
   };
 
@@ -101,7 +95,6 @@ export const useLogger = () => {
     debug: (message: string, context?: string, data?: any) => 
       log('debug', message, context, data),
 
-    // Métodos específicos para contextos comuns
     userAction: (action: string, data?: any) =>
       log('info', action, 'USER_ACTION', data),
 

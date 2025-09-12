@@ -7,7 +7,6 @@ export const useUsersWithPersons = () => {
 
   const signUpWithPerson = async (signUpData: any) => {
     try {
-      // O sign-up já cria automaticamente uma person
       const response = await baseSignUp(signUpData);
       return response;
     } catch (error) {
@@ -20,8 +19,6 @@ export const useUsersWithPersons = () => {
       const signInResponse = await baseSignIn(signInData);
       
       if (signInResponse.success && signInResponse.user.id) {
-        // Durante o login, retornamos o usuário sem persons
-        // As persons serão carregadas após a autenticação estar completa
         const userWithPersons: UserWithPersons = {
           ...signInResponse.user,
           persons: []
@@ -46,10 +43,10 @@ export const useUsersWithPersons = () => {
       if (personsResponse.success) {
         return {
           id: userId,
-          email: '', // Seria necessário buscar do usuário se precisar
-          type: 'passenger', // Seria necessário buscar do usuário se precisar
-          createdAt: new Date(), // Seria necessário buscar do usuário se precisar
-          token: '', // Seria necessário buscar do usuário se precisar
+          email: '',
+          type: 'passenger',
+          createdAt: new Date(),
+          token: '',
           persons: personsResponse.persons
         };
       }

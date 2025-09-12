@@ -93,7 +93,6 @@ const handleSignIn = async () => {
       return;
     }
 
-    // Configurar o token antes de fazer a requisição
     const config = useRuntimeConfig()
     const apiToken = config.public.apiToken
     

@@ -87,12 +87,9 @@
 import { reactive, ref, onMounted } from 'vue'
 import type { UserWithPersons, Person } from '../../types/person'
 
-// Middleware de autenticação
 definePageMeta({
   middleware: 'auth'
 })
-
-// Estado reativo para informações do usuário
 const userInfo = reactive<UserWithPersons>({
   id: '',
   email: '',
@@ -116,8 +113,7 @@ const { setToken, isAuthenticated } = useAuth()
 const toast = useToast()
 const router = useRouter()
 
-// Simular dados do usuário logado (em um app real, isso viria do estado global)
-const currentUserId = 'user-id-example' // Isso deveria vir do contexto de autenticação
+const currentUserId = 'user-id-example'
 
 onMounted(async () => {
   await loadUserData()
@@ -126,14 +122,10 @@ onMounted(async () => {
 const loadUserData = async () => {
   loading.value = true
   try {
-    // Verificar se o usuário está autenticado
     if (!isAuthenticated.value) {
       router.push('/sign-in')
       return
     }
-
-    // Em um app real, você pegaria esses dados do estado de autenticação
-    // Por enquanto, vamos simular dados básicos
     Object.assign(userInfo, {
       id: currentUserId,
       email: 'usuario@exemplo.com',
@@ -143,15 +135,12 @@ const loadUserData = async () => {
       persons: []
     })
 
-    // Carregar persons reais do banco
     const persons = await getPersonsByUserId(currentUserId)
     if (persons.success) {
       userInfo.persons = persons.persons
     }
   } catch (error: any) {
     console.error('Erro ao carregar dados do usuário:', error)
-    
-    // Se o erro for de autenticação, redirecionar para login
     if (error?.statusCode === 401 || error?.statusCode === 403) {
       toast.add({
         title: 'Erro de Autenticação',
@@ -219,7 +208,6 @@ const handleAddPerson = async () => {
 }
 
 const editPerson = (person: Person) => {
-  // Implementar edição futuramente
   toast.add({
     title: 'Em desenvolvimento',
     description: 'Funcionalidade de edição será implementada em breve',

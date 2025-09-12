@@ -23,7 +23,6 @@ export default defineEventHandler(async (event) => {
 
     logger.authAction("Sign-in attempt started", body.email);
 
-    // Validação básica
     if (!body.email || !body.password) {
       logger.warn("Sign-in validation failed: missing email or password", {
         email: body.email,
@@ -35,7 +34,6 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Conectar ao MongoDB usando variáveis de ambiente
     const mongoUri = process.env.MONGODB_URI || "";
     const dbName = process.env.MONGODB_DB_NAME || "";
     const authSource = process.env.MONGODB_AUTH_SOURCE || "";
@@ -49,7 +47,6 @@ export default defineEventHandler(async (event) => {
     const db = client.db(dbName);
     const users = db.collection("users");
 
-    // Buscar o usuário pelo email
     logger.databaseAction("Searching for user by email", "users", { email: body.email });
     const user = await users.findOne({ email: body.email });
     if (!user) {
@@ -61,7 +58,6 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Verificar se o usuário está ativo
     if (!user.active) {
       await client.close();
       logger.warn("Sign-in failed: account not activated", { 
