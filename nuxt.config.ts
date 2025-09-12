@@ -27,4 +27,9 @@ export default defineNuxtConfig({
     ],
   },
   css: ["~/assets/css/main.css"],
+  runtimeConfig: {
+    public: {
+      apiToken: process.env.API_TOKEN
+    }
+  }
 });

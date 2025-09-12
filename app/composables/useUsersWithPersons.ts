@@ -20,33 +20,17 @@ export const useUsersWithPersons = () => {
       const signInResponse = await baseSignIn(signInData);
       
       if (signInResponse.success && signInResponse.user.id) {
-        // Buscar persons associadas ao usuário
-        try {
-          const personsResponse = await getPersonsByUserId(signInResponse.user.id);
-          
-          const userWithPersons: UserWithPersons = {
-            ...signInResponse.user,
-            persons: personsResponse.success ? personsResponse.persons : []
-          };
+        // Durante o login, retornamos o usuário sem persons
+        // As persons serão carregadas após a autenticação estar completa
+        const userWithPersons: UserWithPersons = {
+          ...signInResponse.user,
+          persons: []
+        };
 
-          return {
-            success: true,
-            user: userWithPersons
-          };
-        } catch (personsError) {
-          // Se falhar ao buscar persons, retorna usuário sem persons
-          console.warn('Erro ao buscar persons do usuário:', personsError);
-          
-          const userWithPersons: UserWithPersons = {
-            ...signInResponse.user,
-            persons: []
-          };
-
-          return {
-            success: true,
-            user: userWithPersons
-          };
-        }
+        return {
+          success: true,
+          user: userWithPersons
+        };
       }
 
       return signInResponse as { success: boolean; user: UserWithPersons };

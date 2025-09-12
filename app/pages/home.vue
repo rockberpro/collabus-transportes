@@ -87,6 +87,11 @@
 import { reactive, ref, onMounted } from 'vue'
 import type { UserWithPersons, Person } from '../../types/person'
 
+// Middleware de autenticação
+definePageMeta({
+  middleware: 'auth'
+})
+
 // Estado reativo para informações do usuário
 const userInfo = reactive<UserWithPersons>({
   id: '',
@@ -107,7 +112,9 @@ const newPersonState = reactive({
 
 const { createPerson, getPersonsByUserId } = usePersons()
 const { getUserWithPersons } = useUsersWithPersons()
+const { setToken, isAuthenticated } = useAuth()
 const toast = useToast()
+const router = useRouter()
 
 // Simular dados do usuário logado (em um app real, isso viria do estado global)
 const currentUserId = 'user-id-example' // Isso deveria vir do contexto de autenticação
@@ -119,6 +126,12 @@ onMounted(async () => {
 const loadUserData = async () => {
   loading.value = true
   try {
+    // Verificar se o usuário está autenticado
+    if (!isAuthenticated.value) {
+      router.push('/sign-in')
+      return
+    }
+
     // Em um app real, você pegaria esses dados do estado de autenticação
     // Por enquanto, vamos simular dados básicos
     Object.assign(userInfo, {
@@ -126,7 +139,7 @@ const loadUserData = async () => {
       email: 'usuario@exemplo.com',
       type: 'passenger',
       createdAt: new Date('2024-01-01'),
-      token: 'example-token',
+      token: 'authenticated',
       persons: []
     })
 
@@ -135,13 +148,24 @@ const loadUserData = async () => {
     if (persons.success) {
       userInfo.persons = persons.persons
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro ao carregar dados do usuário:', error)
-    toast.add({
-      title: 'Erro',
-      description: 'Não foi possível carregar os dados do usuário',
-      color: 'error'
-    })
+    
+    // Se o erro for de autenticação, redirecionar para login
+    if (error?.statusCode === 401 || error?.statusCode === 403) {
+      toast.add({
+        title: 'Erro de Autenticação',
+        description: 'Sua sessão expirou. Faça login novamente.',
+        color: 'error'
+      })
+      router.push('/sign-in')
+    } else {
+      toast.add({
+        title: 'Erro',
+        description: 'Não foi possível carregar os dados do usuário',
+        color: 'error'
+      })
+    }
   } finally {
     loading.value = false
   }

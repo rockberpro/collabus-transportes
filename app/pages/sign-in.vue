@@ -62,6 +62,7 @@ import { reactive } from "vue";
 const router = useRouter();
 const toast = useToast();
 const { signInWithPersons } = useUsersWithPersons();
+const { setToken } = useAuth();
 const logger = useLogger();
 
 const state = reactive({
@@ -91,6 +92,21 @@ const handleSignIn = async () => {
       });
       return;
     }
+
+    // Configurar o token antes de fazer a requisição
+    const config = useRuntimeConfig()
+    const apiToken = config.public.apiToken
+    
+    if (!apiToken) {
+      toast.add({
+        title: "Erro de Configuração",
+        description: "Token de API não configurado",
+        color: "error",
+      });
+      return;
+    }
+    
+    setToken(apiToken);
 
     const response = await signInWithPersons({
       email: state.email,

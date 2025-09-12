@@ -1,6 +1,8 @@
 import type { Person, CreatePersonData } from '../../types/person'
 
 export const usePersons = () => {
+  const { getAuthHeaders } = useAuth()
+
   const createPerson = async (personData: CreatePersonData) => {
     try {
       const response = await $fetch<{ success: boolean; person: Person }>(
@@ -8,6 +10,7 @@ export const usePersons = () => {
         {
           method: "POST",
           body: personData,
+          headers: getAuthHeaders()
         }
       );
 
@@ -23,6 +26,7 @@ export const usePersons = () => {
         `/api/persons/${userId}`,
         {
           method: "GET",
+          headers: getAuthHeaders()
         }
       );
 
