@@ -62,6 +62,7 @@ import { reactive } from "vue";
 const router = useRouter();
 const toast = useToast();
 const { signIn } = useUsers();
+const logger = useLogger();
 
 const state = reactive({
   email: "",
@@ -70,8 +71,19 @@ const state = reactive({
 });
 
 const handleSignIn = async () => {
+  const startTime = Date.now();
+  
   try {
+    logger.userAction("Sign-in attempt started", {
+      email: state.email
+    });
+
     if (!state.email || !state.password) {
+      logger.validationError("required_fields", "Missing email or password", {
+        hasEmail: !!state.email,
+        hasPassword: !!state.password
+      });
+
       toast.add({
         title: "Erro",
         description: "Todos os campos são obrigatórios!",
@@ -80,13 +92,29 @@ const handleSignIn = async () => {
       return;
     }
 
-    await signIn({
+    const response = await signIn({
       email: state.email,
       password: state.password,
     });
 
+    const duration = Date.now() - startTime;
+    logger.userAction("Sign-in completed successfully", {
+      email: state.email,
+      userId: response?.user?.id,
+      duration: `${duration}ms`
+    });
+
     await router.push("/home");
   } catch (error: any) {
+    const duration = Date.now() - startTime;
+    
+    logger.apiError("/api/users/sign-in", error, {
+      email: state.email,
+      duration: `${duration}ms`,
+      statusCode: error.statusCode,
+      statusMessage: error.statusMessage
+    });
+
     toast.add({
       title: "Erro",
       description: error.data?.message || "Erro ao fazer login",

@@ -1,13 +1,19 @@
 import { MongoClient } from "mongodb";
 import { mapUserDocumentToUser } from "../../../types/user";
 import { EmailService } from "../../services/email";
+import { logger } from "../../utils/logger";
 
 export default defineEventHandler(async (event) => {
+  const startTime = Date.now();
+  
   try {
     const query = getQuery(event);
     const token = query.token as string;
 
+    logger.authAction("Account activation attempt", undefined, { token: token ? "present" : "missing" });
+
     if (!token) {
+      logger.warn("Account activation failed: missing token");
       throw createError({
         statusCode: 400,
         statusMessage: "Token de ativação é obrigatório",
@@ -22,14 +28,17 @@ export default defineEventHandler(async (event) => {
       authSource,
     });
 
+    logger.databaseAction("Connecting to MongoDB for activation", "usuarios");
     await client.connect();
     const db = client.db(dbName);
     const usuarios = db.collection("usuarios");
 
+    logger.databaseAction("Searching for user with activation token", "usuarios");
     const user = await usuarios.findOne({ token: token, active: false });
     
     if (!user) {
       await client.close();
+      logger.warn("Account activation failed: invalid or expired token");
       throw createError({
         statusCode: 404,
         statusMessage: "Token inválido ou conta já ativada",
@@ -37,6 +46,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // Ativar a conta e remover o token
+    logger.databaseAction("Activating user account", "usuarios", { 
+      userId: user._id.toString(),
+      email: user.email 
+    });
+    
     await usuarios.updateOne(
       { _id: user._id },
       { 
@@ -54,11 +68,20 @@ export default defineEventHandler(async (event) => {
     try {
       const emailService = new EmailService();
       await emailService.sendWelcomeEmail(user.email, user.name);
-      console.log("✅ Welcome email sent successfully");
+      logger.emailAction("Welcome email sent successfully", user.email, "Welcome");
     } catch (emailError) {
-      console.error("❌ Failed to send welcome email:", emailError);
+      logger.logError(emailError as Error, "WELCOME_EMAIL", {
+        userId: user._id.toString(),
+        email: user.email
+      });
       // Não interrompe a ativação se o e-mail falhar
     }
+
+    const responseTime = Date.now() - startTime;
+    logger.authAction("Account activated successfully", user.email, {
+      userId: user._id.toString(),
+      responseTime: `${responseTime}ms`
+    });
 
     return {
       success: true,
@@ -66,11 +89,20 @@ export default defineEventHandler(async (event) => {
     };
 
   } catch (error: any) {
-    console.error("Erro ao ativar conta:", error);
-
+    const responseTime = Date.now() - startTime;
+    
     if (error.statusCode) {
+      logger.warn("Account activation failed with known error", {
+        statusCode: error.statusCode,
+        message: error.statusMessage,
+        responseTime: `${responseTime}ms`
+      });
       throw error;
     }
+
+    logger.logError(error, "ACCOUNT_ACTIVATION_UNEXPECTED", {
+      responseTime: `${responseTime}ms`
+    });
 
     throw createError({
       statusCode: 500,

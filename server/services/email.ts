@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { emailConfig, validateEmailConfig } from "../config/email";
+import { logger } from "../utils/logger";
 
 export interface EmailOptions {
   to: string;
@@ -23,16 +24,19 @@ export class EmailService {
   async verifyConnection(): Promise<void> {
     try {
       await this.transporter.verify();
-      console.log("✅ SMTP connection verified");
+      logger.info("SMTP connection verified successfully");
     } catch (error) {
-      console.error("❌ SMTP connection failed:", error);
+      logger.logError(error as Error, "SMTP_CONNECTION", {
+        host: emailConfig.smtp.host,
+        port: emailConfig.smtp.port
+      });
       throw error;
     }
   }
 
   async sendEmail(options: EmailOptions): Promise<{ success: boolean; messageId: string }> {
     try {
-      console.log("📧 Attempting to send email to:", options.to);
+      logger.emailAction("Attempting to send email", options.to, options.subject);
       
       await this.verifyConnection();
 
@@ -45,21 +49,21 @@ export class EmailService {
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      console.log("✅ Email sent successfully:", info.messageId);
+      logger.emailAction("Email sent successfully", options.to, options.subject, {
+        messageId: info.messageId
+      });
 
       return {
         success: true,
         messageId: info.messageId
       };
     } catch (error: any) {
-      console.error("❌ Email send failed:", error);
-      
-      if (error.code) {
-        console.error("Error code:", error.code);
-      }
-      if (error.response) {
-        console.error("SMTP Response:", error.response);
-      }
+      logger.logError(error, "EMAIL_SEND", {
+        to: options.to,
+        subject: options.subject,
+        errorCode: error.code,
+        smtpResponse: error.response
+      });
 
       throw createError({
         statusCode: 500,
