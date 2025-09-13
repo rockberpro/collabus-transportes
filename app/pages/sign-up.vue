@@ -87,7 +87,6 @@ import { reactive } from "vue";
 const router = useRouter();
 const toast = useToast();
 const { signUpWithPerson } = useUsersWithPersons();
-const logger = useLogger();
 
 const state = reactive({
   name: "",
@@ -99,27 +98,13 @@ const state = reactive({
 });
 
 const handleSignUp = async () => {
-  const startTime = Date.now();
-  
   try {
-    logger.userAction("Sign-up attempt started", {
-      email: state.email,
-      hasName: !!state.name
-    });
-
     if (
       !state.name ||
       !state.email ||
       !state.password ||
       !state.passwordConfirm
     ) {
-      logger.validationError("required_fields", "Missing required fields", {
-        hasName: !!state.name,
-        hasEmail: !!state.email,
-        hasPassword: !!state.password,
-        hasPasswordConfirm: !!state.passwordConfirm
-      });
-
       toast.add({
         title: "Erro",
         description: "Todos os campos são obrigatórios",
@@ -129,10 +114,6 @@ const handleSignUp = async () => {
     }
 
     if (state.password !== state.passwordConfirm) {
-      logger.validationError("password_confirmation", "Passwords don't match", {
-        email: state.email
-      });
-
       toast.add({
         title: "Erro",
         description: "As senhas não coincidem",
@@ -148,13 +129,6 @@ const handleSignUp = async () => {
       passwordConfirm: state.passwordConfirm,
     });
 
-    const duration = Date.now() - startTime;
-    logger.userAction("Sign-up completed successfully", {
-      email: state.email,
-      userId: response?.user?.id,
-      duration: `${duration}ms`
-    });
-
     toast.add({
       title: "Sucesso!",
       description: "Conta criada! Verifique seu e-mail para ativar a conta.",
@@ -163,15 +137,6 @@ const handleSignUp = async () => {
 
     await router.push("/sign-in");
   } catch (error: any) {
-    const duration = Date.now() - startTime;
-    
-    logger.apiError("/api/users/sign-up", error, {
-      email: state.email,
-      duration: `${duration}ms`,
-      statusCode: error.statusCode,
-      statusMessage: error.statusMessage
-    });
-
     toast.add({
       title: "Erro",
       description: error.data?.message || "Erro ao criar conta",
