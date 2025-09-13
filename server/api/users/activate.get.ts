@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     if (!user) {
       await client.close();
       throw createError({
-        statusCode: 404,
+        statusCode: 401,
         statusMessage: "Token inválido ou conta já ativada",
       });
     }
