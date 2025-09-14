@@ -111,14 +111,14 @@ export class UserService {
     }
   }
 
-  async findUserWithPerson(token: string): Promise<any> {
+  async findUserWithPersonByToken(token: string): Promise<any> {
     const client = await this.getClient();
     try {
       const db = client.db(this.dbName);
       const users = db.collection("users");
       
       const result = await users.aggregate([
-        { $match: { token: token, active: false } },
+        { $match: { token: token } },
         {
           $lookup: {
             from: "persons",
@@ -131,6 +131,78 @@ export class UserService {
       ]).next();
 
       return result;
+    } finally {
+      await client.close();
+    }
+  }
+
+  async findUserWithPerson(id: string): Promise<any> {
+    const client = await this.getClient();
+    try {
+      const db = client.db(this.dbName);
+      const users = db.collection("users");
+      
+      const result = await users.aggregate([
+        { $match: { _id: new ObjectId(id) } },
+        {
+          $lookup: {
+            from: "persons",
+            localField: "_id",
+            foreignField: "userId",
+            as: "person"
+          }
+        },
+        { $unwind: "$person" }
+      ]).next();
+
+      return result;
+    } finally {
+      await client.close();
+    }
+  }
+
+  async authenticateUser(email: string, password: string): Promise<any> {
+    const client = await this.getClient();
+    try {
+      const db = client.db(this.dbName);
+      const users = db.collection("users");
+      
+      const user = await users.findOne({ email });
+      
+      if (!user) {
+        throw createError({
+          statusCode: 401,
+          statusMessage: "Email ou senha incorretos",
+        });
+      }
+
+      if (!user.active) {
+        throw createError({
+          statusCode: 403,
+          statusMessage: "Conta não ativada! Verifique seu email para ativar a conta.",
+        });
+      }
+
+      const bcrypt = await import('bcryptjs');
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      
+      if (!isPasswordValid) {
+        throw createError({
+          statusCode: 401,
+          statusMessage: "Email ou senha incorretos.",
+        });
+      }
+
+      // Return clean user object without password
+      return {
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        type: user.type,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        token: user.token,
+      };
     } finally {
       await client.close();
     }

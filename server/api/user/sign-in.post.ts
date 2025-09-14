@@ -1,7 +1,5 @@
-import { MongoClient } from "mongodb";
-import bcrypt from "bcryptjs";
 import type { SignInData } from "../../../types/user";
-import { mapUserDocumentToUser } from "../../../types/user";
+import { UserService } from "../../services/user";
 
 function isErrorWithStatusCode(
   error: unknown
@@ -24,52 +22,16 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const mongoUri = process.env.MONGODB_URI || "";
-    const dbName = process.env.MONGODB_DB_NAME || "";
-    const authSource = process.env.MONGODB_AUTH_SOURCE || "";
-
-    const client = new MongoClient(mongoUri, {
-      authSource,
-    });
-
-    await client.connect();
-    const db = client.db(dbName);
-    const users = db.collection("users");
-
-    const user = await users.findOne({ email: body.email });
-    if (!user) {
-      await client.close();
-      throw createError({
-        statusCode: 401,
-        statusMessage: "Email ou senha incorretos",
-      });
-    }
-
-    if (!user.active) {
-      await client.close();
-      throw createError({
-        statusCode: 403,
-        statusMessage:
-          "Conta não ativada! Verifique seu email para ativar a conta.",
-      });
-    }
-
-    const isPasswordValid = await bcrypt.compare(body.password, user.password);
-    if (!isPasswordValid) {
-      await client.close();
-      throw createError({
-        statusCode: 401,
-        statusMessage: "Email ou senha incorretos.",
-      });
-    }
-
-    await client.close();
-
-    const mappedUser = mapUserDocumentToUser(user as any);
+    const userService = new UserService();
+    
+    const authenticatedUser = await userService.authenticateUser(
+      body.email, 
+      body.password
+    );
 
     return {
       success: true,
-      user: mappedUser,
+      user: authenticatedUser,
     };
   } catch (error: unknown) {
     if (isErrorWithStatusCode(error)) {

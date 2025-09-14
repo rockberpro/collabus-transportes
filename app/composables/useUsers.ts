@@ -33,8 +33,24 @@ export const useUsers = () => {
     }
   };
 
+  const findUserWithPerson = async (userId: string): Promise<User | null> => {
+    try {
+      const response = await $fetch<{ user: User }>(
+        `/api/user/${userId}/person`,
+        {
+          method: "GET",
+        }
+      );
+
+      return response.user || null;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   return {
     signUp,
     signIn,
+    findUserWithPerson
   };
 };

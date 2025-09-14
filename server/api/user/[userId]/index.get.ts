@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const userService = new UserService();
-    const user = await userService.findUserWithPerson(userId);
+    const user = await userService.findUserById(userId);
 
     return {
       user,

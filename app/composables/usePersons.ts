@@ -36,30 +36,8 @@ export const usePersons = () => {
     }
   };
 
-  const getPersonWithUser = async (personId: string): Promise<PersonWithUser | null> => {
-    try {
-      const response = await $fetch<{ success: boolean; person: PersonWithUser }>(
-        `/api/person/details/${personId}`,
-        {
-          method: "GET",
-          headers: getAuthHeaders()
-        }
-      );
-
-      if (response.success) {
-        return response.person;
-      }
-
-      return null;
-    } catch (error) {
-      console.error('Erro ao buscar person com usuário:', error);
-      return null;
-    }
-  };
-
   return {
     createPerson,
-    getPersonsByUserId,
-    getPersonWithUser,
+    getPersonsByUserId
   };
 };
