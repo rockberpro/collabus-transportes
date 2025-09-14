@@ -1,5 +1,5 @@
-import { MongoClient } from "mongodb";
 import type { CreatePersonData } from "../../../types/person";
+import { PersonService } from "../../services/person";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,43 +12,34 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const mongoUri = process.env.MONGODB_URI || "";
-    const dbName = process.env.MONGODB_DB_NAME || "";
-    const authSource = process.env.MONGODB_AUTH_SOURCE || "";
+    const personService = new PersonService();
 
-    const client = new MongoClient(mongoUri, {
-      authSource,
-    });
+    logger.databaseAction("Creating person", "persons");
 
-    logger.databaseAction("Connecting to MongoDB", "persons");
-    await client.connect();
-    const db = client.db(dbName);
-    const persons = db.collection("persons");
-
-    const existingPerson = await persons.findOne({
-      name: body.name,
-      userId: body.userId,
-    });
+    // Check if person already exists for this user
+    const existingPerson = await personService.findPersonByNameAndUserId(
+      body.name, 
+      body.userId.toString()
+    );
 
     if (existingPerson) {
-      await client.close();
       throw createError({
         statusCode: 409,
         statusMessage: "Já existe uma pessoa com este nome para este usuário",
       });
     }
 
+    // Create person document
     const { mapCreatePersonDataToPersonDocument } = await import(
       "../../../types/person"
     );
     const personDocument = mapCreatePersonDataToPersonDocument(body);
 
-    const result = await persons.insertOne(personDocument);
-    await client.close();
+    const personId = await personService.createPerson(personDocument);
 
     const { mapPersonDocumentToPerson } = await import("../../../types/person");
     const createdPerson = mapPersonDocumentToPerson({
-      _id: result.insertedId.toString(),
+      _id: personId,
       ...personDocument,
     });
 

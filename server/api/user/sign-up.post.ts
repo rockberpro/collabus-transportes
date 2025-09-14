@@ -1,10 +1,12 @@
-import { MongoClient, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
 import type { SignUpData } from "../../../types/user";
 import {
   mapSignUpDataToUserDocument,
   mapUserDocumentToUser,
 } from "../../../types/user";
 import { EmailService } from "../../services/email";
+import { UserService } from "../../services/user";
+import { PersonService } from "../../services/person";
 
 function isErrorWithStatusCode(
   error: unknown
@@ -34,21 +36,11 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const mongoUri = process.env.MONGODB_URI || "";
-    const dbName = process.env.MONGODB_DB_NAME || "";
-    const authSource = process.env.MONGODB_AUTH_SOURCE || "";
+    const userService = new UserService();
+    const personService = new PersonService();
 
-    const client = new MongoClient(mongoUri, {
-      authSource,
-    });
-
-    await client.connect();
-    const db = client.db(dbName);
-    const users = db.collection("users");
-
-    const existingUser = await users.findOne({ email: body.email });
+    const existingUser = await userService.findUserByEmail(body.email);
     if (existingUser) {
-      await client.close();
       logger.warn("Sign-up failed: user already exists", { email: body.email });
       throw createError({
         statusCode: 409,
@@ -57,12 +49,9 @@ export default defineEventHandler(async (event) => {
     }
 
     const userDocument = await mapSignUpDataToUserDocument(body);
-
-    const result = await users.insertOne(userDocument);
-    const userId = result.insertedId.toString();
+    const userId = await userService.createUser(userDocument);
 
     try {
-      const persons = db.collection("persons");
       const { mapCreatePersonDataToPersonDocument } = await import(
         "../../../types/person"
       );
@@ -73,8 +62,7 @@ export default defineEventHandler(async (event) => {
       };
 
       const personDocument = mapCreatePersonDataToPersonDocument(personData);
-
-      await persons.insertOne(personDocument);
+      await personService.createPerson(personDocument);
 
       logger.databaseAction("Person entry created successfully", "persons", {
         name: body.name,
@@ -87,8 +75,6 @@ export default defineEventHandler(async (event) => {
         name: body.name,
       });
     }
-
-    await client.close();
 
     const createdUser = mapUserDocumentToUser({
       _id: userId,
