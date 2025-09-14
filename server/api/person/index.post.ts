@@ -13,14 +13,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const personService = new PersonService();
-
-    logger.databaseAction("Creating person", "persons");
-
     const existingPerson = await personService.findPersonByNameAndUserId(
-      body.name, 
+      body.name,
       body.userId.toString()
     );
-
     if (existingPerson) {
       throw createError({
         statusCode: 409,
@@ -28,18 +24,7 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const { mapCreatePersonDataToPersonDocument } = await import(
-      "../../../types/person"
-    );
-    const personDocument = mapCreatePersonDataToPersonDocument(body);
-
-    const personId = await personService.createPerson(personDocument);
-
-    const { mapPersonDocumentToPerson } = await import("../../../types/person");
-    const createdPerson = mapPersonDocumentToPerson({
-      _id: personId,
-      ...personDocument,
-    });
+    const createdPerson = await personService.createPersonFromData(body);
 
     return {
       success: true,

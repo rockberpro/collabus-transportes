@@ -80,6 +80,33 @@ export class PersonService {
     }
   }
 
+  async createPersonFromData(data: { name: string; userId: any }): Promise<Person> {
+    const client = await this.getClient();
+    try {
+      const db = client.db(this.dbName);
+      const persons = db.collection<PersonDocument>("persons");
+      
+      const personDocument: CreatePersonDocument = {
+        name: data.name,
+        userId: new ObjectId(data.userId),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      
+      const result = await persons.insertOne(personDocument);
+      
+      return {
+        id: result.insertedId.toString(),
+        name: personDocument.name,
+        userId: data.userId.toString(),
+        createdAt: personDocument.createdAt,
+        updatedAt: personDocument.updatedAt,
+      };
+    } finally {
+      await client.close();
+    }
+  }
+
   async updatePerson(personId: string, updateData: Partial<PersonDocument>): Promise<void> {
     const client = await this.getClient();
     try {
