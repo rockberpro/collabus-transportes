@@ -11,7 +11,7 @@ export interface Person {
 
 // Interface para o documento no banco de dados
 export interface PersonDocument {
-  _id?: string;
+  _id?: ObjectId;
   name: string;
   userId: ObjectId;
   createdAt: Date;

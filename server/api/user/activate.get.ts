@@ -1,3 +1,4 @@
+import { PersonService } from "~~/server/services/person";
 import { EmailService } from "../../services/email";
 import { UserService } from "../../services/user";
 
@@ -14,20 +15,22 @@ export default defineEventHandler(async (event) => {
     }
 
     const userService = new UserService();
-    const userWithPerson = await userService.findUserWithPerson(token);
-    if (!userWithPerson) {
+    const personService = new PersonService();
+    const user = await userService.findUserByToken(token);
+    if (!user) {
       throw createError({
         statusCode: 401,
         message: "Token inválido ou conta já ativada",
       });
     }
+    const person = await personService.findPersonsByUserId(user._id!);
 
-    await userService.activateUser(userWithPerson._id);
+    await userService.activateUser(user._id!);
     try {
       const emailService = new EmailService();
       await emailService.sendWelcomeEmail(
-        userWithPerson.email,
-        userWithPerson.person.name
+        user.email,
+        person.name
       );
     } catch (emailError) {
       console.error("Failed to send welcome email:", emailError);

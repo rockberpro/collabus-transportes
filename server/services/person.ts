@@ -38,15 +38,15 @@ export class PersonService {
     }
   }
 
-  async findPersonsByUserId(userId: string): Promise<PersonDocument[]> {
+  async findPersonsByUserId(userId: ObjectId): Promise<PersonDocument> {
     const client = await this.getClient();
     try {
       const db = client.db(this.dbName);
       const persons = db.collection("persons");
       
       return await persons.find({ 
-        userId: new ObjectId(userId) 
-      }).next() as unknown as PersonDocument[];
+        userId: userId 
+      }).next() as unknown as PersonDocument;
     } finally {
       await client.close();
     }

@@ -1,3 +1,5 @@
+import { ObjectId } from 'mongodb';
+
 // Interface para o frontend
 export interface User {
   id?: string;
@@ -23,7 +25,7 @@ export interface SignInData {
 
 // Interface para o documento no banco de dados (inglês)
 export interface UserDocument {
-  _id?: string;
+  _id?: ObjectId;
   email: string;
   password: string;
   type: 'passenger' | 'driver' | 'admin';

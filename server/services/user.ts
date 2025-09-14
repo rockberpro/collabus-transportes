@@ -33,7 +33,7 @@ export class UserService {
       return await users.findOne({ 
         token: token, 
         active: false 
-      }) as UserDocument | null;
+      }) as UserDocument;
     } finally {
       await client.close();
     }
@@ -193,7 +193,6 @@ export class UserService {
         });
       }
 
-      // Return clean user object without password
       return {
         id: user._id.toString(),
         name: user.name,
@@ -202,6 +201,71 @@ export class UserService {
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         token: user.token,
+      };
+    } finally {
+      await client.close();
+    }
+  }
+
+  async createUserWithPerson(signUpData: {
+    name: string;
+    email: string;
+    password: string;
+  }): Promise<{ user: any; activationToken: string }> {
+    const client = await this.getClient();
+    try {
+      const db = client.db(this.dbName);
+      const users = db.collection("users");
+      const persons = db.collection("persons");
+
+      const existingUser = await users.findOne({ email: signUpData.email });
+      if (existingUser) {
+        throw createError({
+          statusCode: 409,
+          statusMessage: "Usuário já existe com este email",
+        });
+      }
+
+      const bcrypt = await import('bcryptjs');
+      const { randomUUID } = await import('crypto');
+      
+      const hashedPassword = await bcrypt.hash(signUpData.password, 12);
+      const activationToken = randomUUID();
+
+      const userDocument = {
+        name: signUpData.name,
+        email: signUpData.email,
+        password: hashedPassword,
+        type: 'passenger' as const,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        active: false,
+        token: activationToken,
+      };
+
+      const userResult = await users.insertOne(userDocument);
+      const userId = userResult.insertedId;
+
+      const personDocument = {
+        name: signUpData.name,
+        userId: userId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      await persons.insertOne(personDocument);
+
+      return {
+        user: {
+          id: userId.toString(),
+          name: userDocument.name,
+          email: userDocument.email,
+          type: userDocument.type,
+          createdAt: userDocument.createdAt,
+          updatedAt: userDocument.updatedAt,
+          token: userDocument.token,
+        },
+        activationToken,
       };
     } finally {
       await client.close();

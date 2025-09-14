@@ -1,12 +1,6 @@
-import { ObjectId } from "mongodb";
 import type { SignUpData } from "../../../types/user";
-import {
-  mapSignUpDataToUserDocument,
-  mapUserDocumentToUser,
-} from "../../../types/user";
 import { EmailService } from "../../services/email";
 import { UserService } from "../../services/user";
-import { PersonService } from "../../services/person";
 
 function isErrorWithStatusCode(
   error: unknown
@@ -37,48 +31,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const userService = new UserService();
-    const personService = new PersonService();
-
-    const existingUser = await userService.findUserByEmail(body.email);
-    if (existingUser) {
-      logger.warn("Sign-up failed: user already exists", { email: body.email });
-      throw createError({
-        statusCode: 409,
-        statusMessage: "Usuário já existe com este email",
-      });
-    }
-
-    const userDocument = await mapSignUpDataToUserDocument(body);
-    const userId = await userService.createUser(userDocument);
-
-    try {
-      const { mapCreatePersonDataToPersonDocument } = await import(
-        "../../../types/person"
-      );
-
-      const personData = {
-        name: body.name,
-        userId: new ObjectId(userId),
-      };
-
-      const personDocument = mapCreatePersonDataToPersonDocument(personData);
-      await personService.createPerson(personDocument);
-
-      logger.databaseAction("Person entry created successfully", "persons", {
-        name: body.name,
-        userId,
-      });
-    } catch (personError) {
-      logger.logError(personError as Error, "PERSON_CREATION", {
-        userId,
-        email: body.email,
-        name: body.name,
-      });
-    }
-
-    const createdUser = mapUserDocumentToUser({
-      _id: userId,
-      ...userDocument,
+    const { user: createdUser, activationToken } = await userService.createUserWithPerson({
+      name: body.name,
+      email: body.email,
+      password: body.password,
     });
 
     try {
@@ -86,9 +42,11 @@ export default defineEventHandler(async (event) => {
       await emailService.sendActivationEmail(
         body.email,
         body.name,
-        userDocument.token
+        activationToken
       );
-    } catch (emailError) {}
+    } catch (emailError) {
+      console.error("Failed to send activation email:", emailError);
+    }
 
     return {
       success: true,
