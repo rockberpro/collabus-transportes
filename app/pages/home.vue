@@ -120,54 +120,7 @@ onMounted(async () => {
 })
 
 const loadUserData = async () => {
-  loading.value = true
-  try {
-    if (!isAuthenticated.value) {
-      router.push('/sign-in')
-      return
-    }
-    Object.assign(userInfo, {
-      id: currentUserId,
-      email: 'usuario@exemplo.com',
-      type: 'passenger',
-      createdAt: new Date('2024-01-01'),
-      token: 'authenticated',
-    })
-
-    const persons = await getPersonsByUserId(currentUserId)
-    if (persons.success && persons.persons) {
-      personsWithUser.value = persons.persons.map(person => ({
-        ...person,
-        user: {
-          id: userInfo.id,
-          email: userInfo.email,
-          type: userInfo.type,
-          createdAt: userInfo.createdAt,
-          token: userInfo.token
-        }
-      }))
-    } else {
-      personsWithUser.value = []
-    }
-  } catch (error: any) {
-    console.error('Erro ao carregar dados do usuário:', error)
-    if (error?.statusCode === 401 || error?.statusCode === 403) {
-      toast.add({
-        title: 'Erro de Autenticação',
-        description: 'Sua sessão expirou. Faça login novamente.',
-        color: 'error'
-      })
-      router.push('/sign-in')
-    } else {
-      toast.add({
-        title: 'Erro',
-        description: 'Não foi possível carregar os dados do usuário',
-        color: 'error'
-      })
-    }
-  } finally {
-    loading.value = false
-  }
+  //
 }
 
 const openAddPersonModal = () => {
@@ -181,50 +134,7 @@ const closeAddPersonModal = () => {
 }
 
 const handleAddPerson = async () => {
-  if (!newPersonState.name.trim()) {
-    toast.add({
-      title: 'Erro',
-      description: 'Nome é obrigatório',
-      color: 'error'
-    })
-    return
-  }
-
-  addingPerson.value = true
-  try {
-    const response = await createPerson({
-      name: newPersonState.name,
-      userId: userInfo.id!
-    })
-
-    if (response.success) {
-      // Add the new person with user data
-      personsWithUser.value.push({
-        ...response.person,
-        user: {
-          id: userInfo.id,
-          email: userInfo.email,
-          type: userInfo.type,
-          createdAt: userInfo.createdAt,
-          token: userInfo.token
-        }
-      })
-      closeAddPersonModal()
-      toast.add({
-        title: 'Sucesso',
-        description: 'Pessoa adicionada com sucesso',
-        color: 'success'
-      })
-    }
-  } catch (error: any) {
-    toast.add({
-      title: 'Erro',
-      description: error.data?.message || 'Erro ao adicionar pessoa',
-      color: 'error'
-    })
-  } finally {
-    addingPerson.value = false
-  }
+  //
 }
 
 const editPerson = (person: PersonWithUser) => {
