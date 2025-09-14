@@ -46,7 +46,7 @@ export class PersonService {
       
       return await persons.find({ 
         userId: new ObjectId(userId) 
-      }).toArray() as unknown as PersonDocument[];
+      }).next() as unknown as PersonDocument[];
     } finally {
       await client.close();
     }

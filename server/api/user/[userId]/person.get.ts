@@ -1,9 +1,9 @@
-import { MongoClient } from "mongodb";
+import { PersonService } from "~~/server/services/person";
 
 export default defineEventHandler(async (event) => {
+
   try {
     const userId = getRouterParam(event, "userId");
-
     if (!userId) {
       throw createError({
         statusCode: 400,
@@ -11,35 +11,11 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const mongoUri = process.env.MONGODB_URI || "";
-    const dbName = process.env.MONGODB_DB_NAME || "";
-    const authSource = process.env.MONGODB_AUTH_SOURCE || "";
-
-    const client = new MongoClient(mongoUri, {
-      authSource,
-    });
-
-    await client.connect();
-    const db = client.db(dbName);
-    const persons = db.collection("persons");
-
-    const personDocs = await persons.find({ userId: userId }).toArray();
-    await client.close();
-
-    const { mapPersonDocumentToPerson } = await import("../../../../types/person");
-    const mappedPersons = personDocs.map((doc) =>
-      mapPersonDocumentToPerson({
-        _id: doc._id?.toString(),
-        name: doc.name,
-        userId: doc.userId,
-        createdAt: doc.createdAt,
-        updatedAt: doc.updatedAt,
-      })
-    );
+    const personService = new PersonService();
+    const personDocs = await personService.findPersonsByUserId(userId);
 
     return {
-      success: true,
-      persons: mappedPersons,
+      person: personDocs,
     };
   } catch (error: any) {
     if (error.statusCode) {
