@@ -4,7 +4,7 @@ export const useUsers = () => {
   const signUp = async (signUpData: SignUpData) => {
     try {
       const response = await $fetch<{ success: boolean; user: User }>(
-        "/api/users/sign-up",
+        "/api/user/sign-up",
         {
           method: "POST",
           body: signUpData,
@@ -20,7 +20,7 @@ export const useUsers = () => {
   const signIn = async (signInData: SignInData) => {
     try {
       const response = await $fetch<{ success: boolean; user: User }>(
-        "/api/users/sign-in",
+        "/api/user/sign-in",
         {
           method: "POST",
           body: signInData,

@@ -82,7 +82,7 @@ export function exemploLogsErro() {
 // ==================== LOGS HTTP ====================
 
 export function exemploLogsHttp() {
-  logger.logRequest("POST", "/api/users/sign-up", 201, 250);
+  logger.logRequest("POST", "/api/user/sign-up", 201, 250);
   
   logger.http("External API call", {
     method: "POST",

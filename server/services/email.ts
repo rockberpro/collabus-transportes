@@ -67,7 +67,7 @@ export class EmailService {
     name: string,
     activationToken: string
   ): Promise<{ success: boolean; messageId: string }> {
-    const activationUrl = `${emailConfig.baseUrl}/api/users/activate?token=${activationToken}`;
+    const activationUrl = `${emailConfig.baseUrl}/api/user/activate?token=${activationToken}`;
 
     const { generateActivationEmailTemplate } = await import(
       "../templates/activation-email"

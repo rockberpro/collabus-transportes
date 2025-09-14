@@ -4,9 +4,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const publicRoutes = [
-    "/api/users/sign-in",
-    "/api/users/sign-up",
-    "/api/users/activate",
+    "/api/user/sign-in",
+    "/api/user/sign-up",
+    "/api/user/activate",
     "/api/client-logs",
     "/api/send-email",
   ];

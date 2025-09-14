@@ -6,7 +6,7 @@ export const usePersons = () => {
   const createPerson = async (personData: CreatePersonData) => {
     try {
       const response = await $fetch<{ success: boolean; person: Person }>(
-        "/api/persons",
+        "/api/person",
         {
           method: "POST",
           body: personData,
@@ -23,7 +23,7 @@ export const usePersons = () => {
   const getPersonsByUserId = async (userId: string) => {
     try {
       const response = await $fetch<{ success: boolean; persons: Person[] }>(
-        `/api/users/${userId}/persons`,
+        `/api/user/${userId}/person`,
         {
           method: "GET",
           headers: getAuthHeaders()
@@ -39,7 +39,7 @@ export const usePersons = () => {
   const getPersonWithUser = async (personId: string): Promise<PersonWithUser | null> => {
     try {
       const response = await $fetch<{ success: boolean; person: PersonWithUser }>(
-        `/api/persons/details/${personId}`,
+        `/api/person/details/${personId}`,
         {
           method: "GET",
           headers: getAuthHeaders()
