@@ -233,7 +233,6 @@ export class UserService {
       const activationToken = randomUUID();
 
       const userDocument = {
-        name: signUpData.name,
         email: signUpData.email,
         password: hashedPassword,
         type: 'passenger' as const,
@@ -258,7 +257,6 @@ export class UserService {
       return {
         user: {
           id: userId.toString(),
-          name: userDocument.name,
           email: userDocument.email,
           type: userDocument.type,
           createdAt: userDocument.createdAt,
