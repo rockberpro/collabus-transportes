@@ -24,6 +24,12 @@ export default defineEventHandler(async (event) => {
       });
     }
     const person = await personService.findPersonsByUserId(user._id!);
+    if (!person) {
+      throw createError({
+        statusCode: 404,
+        message: "Pessoa associada ao usuário não encontrada",
+      });
+    }
 
     await userService.activateUser(user._id!);
     try {
