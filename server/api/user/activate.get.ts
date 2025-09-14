@@ -1,6 +1,7 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import { mapUserDocumentToUser } from "../../../types/user";
 import { EmailService } from "../../services/email";
+import { mapPersonDocumentToPerson } from "~~/types/person";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -8,12 +9,13 @@ export default defineEventHandler(async (event) => {
     const token = query.token as string;
 
     if (!token) {
-      logger.warn("Account activation failed: missing token");
       throw createError({
         statusCode: 400,
-        statusMessage: "Token de ativação é obrigatório",
+        message: "Token de ativação é obrigatório",
       });
     }
+
+    console.log("Activation token received:", token);
 
     const mongoUri = process.env.MONGODB_URI || "";
     const dbName = process.env.MONGODB_DB_NAME || "";
@@ -27,16 +29,28 @@ export default defineEventHandler(async (event) => {
     const db = client.db(dbName);
     const users = db.collection("users");
 
-    const user = await users.findOne({ token: token, active: false });
-
+    const user = await users.aggregate([
+      { $match: { token: token, active: false } },
+      {
+        $lookup: {
+          from: "persons",
+          localField: "_id",
+          foreignField: "userId",
+          as: "person"
+        }
+      },
+      { $unwind: "$person" }
+    ]).next();
+    const person = user?.person;
+    
     if (!user) {
       await client.close();
       throw createError({
         statusCode: 401,
-        statusMessage: "Token inválido ou conta já ativada",
+        message: "Token inválido ou conta já ativada",
       });
     }
-
+    
     await users.updateOne(
       { _id: user._id },
       {
@@ -48,10 +62,11 @@ export default defineEventHandler(async (event) => {
     await client.close();
 
     const activatedUser = mapUserDocumentToUser(user as any);
+    const activatedPerson = mapPersonDocumentToPerson(person as any);
 
     try {
       const emailService = new EmailService();
-      await emailService.sendWelcomeEmail(user.email, user.name);
+      await emailService.sendWelcomeEmail(activatedUser.email, activatedPerson.name);
       logger.emailAction(
         "Welcome email sent successfully",
         user.email,
@@ -70,7 +85,7 @@ export default defineEventHandler(async (event) => {
 
     throw createError({
       statusCode: 500,
-      statusMessage: "Erro interno do servidor",
+      message: "Erro interno do servidor",
     });
   }
 });

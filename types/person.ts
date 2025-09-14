@@ -1,8 +1,10 @@
+import { ObjectId } from "mongodb";
+
 // Interface para o frontend - Person
 export interface Person {
   id?: string;
   name: string;
-  userId: string; // Referência ao usuário
+  userId: ObjectId;
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -11,7 +13,7 @@ export interface Person {
 export interface PersonDocument {
   _id?: string;
   name: string;
-  userId: string; // Referência ao usuário (ObjectId como string)
+  userId: ObjectId;
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -19,7 +21,7 @@ export interface PersonDocument {
 // Interface para criar person no banco (sem _id)
 export interface CreatePersonDocument {
   name: string;
-  userId: string;
+  userId: ObjectId;
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -27,7 +29,7 @@ export interface CreatePersonDocument {
 // Interface para dados de criação de person (API format)
 export interface CreatePersonData {
   name: string;
-  userId: string;
+  userId: ObjectId;
 }
 
 // Funções utilitárias para mapeamento

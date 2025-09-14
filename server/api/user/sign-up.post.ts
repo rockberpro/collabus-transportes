@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import type { SignUpData } from "../../../types/user";
 import {
   mapSignUpDataToUserDocument,
@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
 
       const personData = {
         name: body.name,
-        userId: userId,
+        userId: new ObjectId(userId),
       };
 
       const personDocument = mapCreatePersonDataToPersonDocument(personData);
