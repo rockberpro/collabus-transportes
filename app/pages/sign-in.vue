@@ -61,7 +61,7 @@ import { reactive } from "vue";
 
 const router = useRouter();
 const toast = useToast();
-const { signInWithPersons } = useUsersWithPersons();
+const { signIn } = useUsers();
 const { setToken } = useAuth();
 
 const state = reactive({
@@ -71,7 +71,6 @@ const state = reactive({
 });
 
 const handleSignIn = async () => {
-  const startTime = Date.now();
 
   try {
     if (!state.email || !state.password) {
@@ -97,7 +96,7 @@ const handleSignIn = async () => {
 
     setToken(apiToken);
 
-    const response = await signInWithPersons({
+    await signIn({
       email: state.email,
       password: state.password,
     });

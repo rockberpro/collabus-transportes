@@ -108,7 +108,6 @@ const newPersonState = reactive({
 })
 
 const { createPerson, getPersonsByUserId } = usePersons()
-const { getUserWithPersons } = useUsersWithPersons()
 const { setToken, isAuthenticated } = useAuth()
 const toast = useToast()
 const router = useRouter()

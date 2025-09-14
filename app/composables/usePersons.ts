@@ -1,4 +1,4 @@
-import type { Person, CreatePersonData } from '../../types/person'
+import type { Person, CreatePersonData, PersonWithUser } from '../../types/person'
 
 export const usePersons = () => {
   const { getAuthHeaders } = useAuth()
@@ -23,7 +23,7 @@ export const usePersons = () => {
   const getPersonsByUserId = async (userId: string) => {
     try {
       const response = await $fetch<{ success: boolean; persons: Person[] }>(
-        `/api/persons/${userId}`,
+        `/api/users/${userId}/persons`,
         {
           method: "GET",
           headers: getAuthHeaders()
@@ -36,8 +36,30 @@ export const usePersons = () => {
     }
   };
 
+  const getPersonWithUser = async (personId: string): Promise<PersonWithUser | null> => {
+    try {
+      const response = await $fetch<{ success: boolean; person: PersonWithUser }>(
+        `/api/persons/details/${personId}`,
+        {
+          method: "GET",
+          headers: getAuthHeaders()
+        }
+      );
+
+      if (response.success) {
+        return response.person;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Erro ao buscar person com usuário:', error);
+      return null;
+    }
+  };
+
   return {
     createPerson,
     getPersonsByUserId,
+    getPersonWithUser,
   };
 };

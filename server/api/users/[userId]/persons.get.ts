@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     const personDocs = await persons.find({ userId: userId }).toArray();
     await client.close();
 
-    const { mapPersonDocumentToPerson } = await import("../../../types/person");
+    const { mapPersonDocumentToPerson } = await import("../../../../types/person");
     const mappedPersons = personDocs.map((doc) =>
       mapPersonDocumentToPerson({
         _id: doc._id?.toString(),
