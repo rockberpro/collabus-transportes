@@ -55,10 +55,10 @@
 </template>
 
 <script setup lang="ts">
-import type { Person } from '../../types/person'
+import type { PersonWithUser } from '../../types/person'
 
 interface Props {
-  persons?: Person[]
+  persons?: PersonWithUser[]
   loading?: boolean
 }
 
@@ -66,7 +66,7 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   addPerson: []
-  editPerson: [person: Person]
+  editPerson: [person: PersonWithUser]
 }>()
 
 const formatDate = (date: Date | string) => {

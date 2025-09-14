@@ -30,14 +30,14 @@
           </div>
           <div>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pessoas Associadas</p>
-            <p class="text-gray-900 dark:text-white">{{ userInfo.persons?.length || 0 }}</p>
+            <p class="text-gray-900 dark:text-white">{{ personsWithUser.length || 0 }}</p>
           </div>
         </div>
       </div>
 
       <!-- Lista de Pessoas -->
       <PersonsList
-        :persons="userInfo.persons"
+        :persons="personsWithUser"
         :loading="loading"
         @add-person="openAddPersonModal"
         @edit-person="editPerson"
@@ -85,19 +85,20 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
-import type { UserWithPersons, Person } from '../../types/person'
+import type { PersonWithUser, Person } from '../../types/person'
 
 definePageMeta({
   middleware: 'auth'
 })
-const userInfo = reactive<UserWithPersons>({
+const userInfo = reactive({
   id: '',
   email: '',
-  type: 'passenger',
+  type: 'passenger' as 'passenger' | 'driver' | 'admin',
   createdAt: new Date(),
   token: '',
-  persons: []
 })
+
+const personsWithUser = ref<PersonWithUser[]>([])
 
 const loading = ref(false)
 const showAddPersonModal = ref(false)
@@ -131,12 +132,22 @@ const loadUserData = async () => {
       type: 'passenger',
       createdAt: new Date('2024-01-01'),
       token: 'authenticated',
-      persons: []
     })
 
     const persons = await getPersonsByUserId(currentUserId)
-    if (persons.success) {
-      userInfo.persons = persons.persons
+    if (persons.success && persons.persons) {
+      personsWithUser.value = persons.persons.map(person => ({
+        ...person,
+        user: {
+          id: userInfo.id,
+          email: userInfo.email,
+          type: userInfo.type,
+          createdAt: userInfo.createdAt,
+          token: userInfo.token
+        }
+      }))
+    } else {
+      personsWithUser.value = []
     }
   } catch (error: any) {
     console.error('Erro ao carregar dados do usuário:', error)
@@ -187,7 +198,17 @@ const handleAddPerson = async () => {
     })
 
     if (response.success) {
-      userInfo.persons?.push(response.person)
+      // Add the new person with user data
+      personsWithUser.value.push({
+        ...response.person,
+        user: {
+          id: userInfo.id,
+          email: userInfo.email,
+          type: userInfo.type,
+          createdAt: userInfo.createdAt,
+          token: userInfo.token
+        }
+      })
       closeAddPersonModal()
       toast.add({
         title: 'Sucesso',
@@ -206,7 +227,7 @@ const handleAddPerson = async () => {
   }
 }
 
-const editPerson = (person: Person) => {
+const editPerson = (person: PersonWithUser) => {
   toast.add({
     title: 'Em desenvolvimento',
     description: 'Funcionalidade de edição será implementada em breve',

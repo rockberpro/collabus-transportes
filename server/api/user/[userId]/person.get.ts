@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      person: {...mappedPersons[0]} // Assuming one person per userId,
+      persons: mappedPersons,
     };
   } catch (error: any) {
     if (error.statusCode) {
