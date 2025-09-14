@@ -16,7 +16,6 @@ export default defineEventHandler(async (event) => {
 
     logger.databaseAction("Creating person", "persons");
 
-    // Check if person already exists for this user
     const existingPerson = await personService.findPersonByNameAndUserId(
       body.name, 
       body.userId.toString()
@@ -29,7 +28,6 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Create person document
     const { mapCreatePersonDataToPersonDocument } = await import(
       "../../../types/person"
     );
