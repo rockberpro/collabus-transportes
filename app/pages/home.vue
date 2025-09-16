@@ -87,9 +87,6 @@
 import { reactive, ref, onMounted } from 'vue'
 import type { PersonWithUser, Person } from '../../types/person'
 
-definePageMeta({
-  middleware: 'auth'
-})
 const userInfo = reactive({
   id: '',
   email: '',
@@ -109,7 +106,6 @@ const newPersonState = reactive({
 })
 
 const { createPerson, getPersonsByUserId } = usePersons()
-const { setToken, isAuthenticated } = useAuth()
 const toast = useToast()
 const router = useRouter()
 
