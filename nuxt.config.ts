@@ -15,6 +15,7 @@ export default defineNuxtConfig({
     "@nuxt/image",
     "@nuxt/test-utils",
     "@nuxt/ui-pro",
+    '@nuxt/test-utils/module'
   ],
   fonts: {
     families: [
