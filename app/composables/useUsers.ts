@@ -20,7 +20,7 @@ export const useUsers = () => {
   const signIn = async (signInData: SignInData) => {
     try {
       const response = await $fetch<{ success: boolean; user: User }>(
-        "/api/user/sign-in",
+        "/api/auth/sign-in",
         {
           method: "POST",
           body: signInData,

@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 export interface User {
   id?: string;
   email: string;
-  type: 'passenger' | 'driver' | 'admin';
+  role: 'passenger' | 'driver' | 'admin';
   createdAt: Date;
   token: string;
 }
@@ -28,7 +28,7 @@ export interface UserDocument {
   _id?: ObjectId;
   email: string;
   password: string;
-  type: 'passenger' | 'driver' | 'admin';
+  role: 'passenger' | 'driver' | 'admin';
   createdAt: Date;
   active: boolean;
   token: string;
@@ -38,7 +38,7 @@ export interface UserDocument {
 export interface CreateUserDocument {
   email: string;
   password: string;
-  type: 'passenger' | 'driver' | 'admin';
+  role: 'passenger' | 'driver' | 'admin';
   createdAt: Date;
   active: boolean;
   token: string;
@@ -48,7 +48,7 @@ export interface CreateUserDocument {
 export const mapUserDocumentToUser = (doc: UserDocument): User => ({
   id: doc._id?.toString(),
   email: doc.email,
-  type: doc.type,
+  role: doc.role,
   createdAt: doc.createdAt,
   token: doc.token,
 });
@@ -65,7 +65,7 @@ export const mapSignUpDataToUserDocument = async (
   return {
     email: data.email,
     password: hashedPassword,
-    type: 'passenger',
+    role: 'passenger',
     createdAt: new Date(),
     active: false,
     token: activationToken,

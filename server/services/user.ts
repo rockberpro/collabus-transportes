@@ -195,9 +195,9 @@ export class UserService {
 
       return {
         id: user._id.toString(),
-        name: user.name,
         email: user.email,
-        type: user.type,
+        role: user.role,
+        password: user.password,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         token: user.token,
@@ -235,7 +235,7 @@ export class UserService {
       const userDocument = {
         email: signUpData.email,
         password: hashedPassword,
-        type: 'passenger' as const,
+        role: 'passenger' as const,
         createdAt: new Date(),
         updatedAt: new Date(),
         active: false,
@@ -258,7 +258,7 @@ export class UserService {
         user: {
           id: userId.toString(),
           email: userDocument.email,
-          type: userDocument.type,
+          role: userDocument.role,
           createdAt: userDocument.createdAt,
           updatedAt: userDocument.updatedAt,
           token: userDocument.token,
