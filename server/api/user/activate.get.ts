@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
         message: "Token inválido ou conta já ativada",
       });
     }
+
     const person = await personService.findPersonsByUserId(user._id!);
     if (!person) {
       throw createError({
@@ -34,10 +35,7 @@ export default defineEventHandler(async (event) => {
     await userService.activateUser(user._id!);
     try {
       const emailService = new EmailService();
-      await emailService.sendWelcomeEmail(
-        user.email,
-        person.name
-      );
+      await emailService.sendWelcomeEmail(user.email, person.name);
     } catch (emailError) {
       console.error("Failed to send welcome email:", emailError);
     }

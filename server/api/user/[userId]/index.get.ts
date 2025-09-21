@@ -12,6 +12,12 @@ export default defineEventHandler(async (event) => {
 
     const userService = new UserService();
     const user = await userService.findUserById(userId);
+    if (!user) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Usuário não encontrado",
+      });
+    }
 
     return {
       user,

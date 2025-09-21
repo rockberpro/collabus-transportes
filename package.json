@@ -9,7 +9,10 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "test": "vitest --project=unit",
+    "test:server": "vitest --project=server",
+    "test:all": "vitest",
     "test:watch": "vitest --project=unit --watch",
+    "test:server:watch": "vitest --project=server --watch",
     "test:coverage": "vitest --project=unit --coverage"
   },
   "dependencies": {
