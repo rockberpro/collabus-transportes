@@ -4,13 +4,21 @@
     :type="type"
     :placeholder="placeholder"
     :icon="icon"
-    :trailing-icon="trailingIcon"
     :required="required"
     class="w-full text-xl"
     size="xl"
+  >
+  <UIcon
+    v-if="trailingIcon"
+    :name="trailingIcon"
+    class="absolute right-3 top-3 cursor-pointer"
+    @click="$emit('trailing-click')"
   />
+  </UInput>
 </template>
 <script setup lang="ts">
+const emit = defineEmits(['trailing-click'])
+
 defineProps({
   id: {
     type: String,

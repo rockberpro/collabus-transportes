@@ -15,7 +15,7 @@
               id="email"
               icon="mdi:at"
               :required="true"
-              placeholder="Digite seu e-mail"
+              placeholder="seu@email.com"
             />
           </UFormField>
         </div>
@@ -27,6 +27,7 @@
               :type="state.showPassword ? 'text' : 'password'"
               icon="mdi:lock-outline"
               :trailing-icon="state.showPassword ? 'mdi:eye' : 'mdi:eye-off'"
+              @trailing-click="state.showPassword = !state.showPassword"
               :required="true"
               placeholder="Digite sua senha"
             />
