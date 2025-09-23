@@ -41,12 +41,9 @@ export const useAuth = () => {
   const signOut = async () => {
     const { clear } = useUserSession();
     try {
-      await $fetch<{}>(
-        "/api/auth/sign-out",
-        {
-          method: "POST",
-        }
-      );
+      await $fetch<{}>("/api/auth/sign-out", {
+        method: "POST",
+      });
 
       clear();
     } catch (error) {
