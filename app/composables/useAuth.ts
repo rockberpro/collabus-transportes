@@ -38,10 +38,20 @@ export const useAuth = () => {
     }
   };
 
-  const signOut = () => {
+  const signOut = async () => {
     const { clear } = useUserSession();
-    user.value = null;
-    clear();
+    try {
+      await $fetch<{}>(
+        "/api/auth/sign-out",
+        {
+          method: "POST",
+        }
+      );
+
+      clear();
+    } catch (error) {
+      throw error;
+    }
   };
 
   const findUserWithPerson = async (userId: string): Promise<User | null> => {
