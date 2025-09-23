@@ -1,69 +1,77 @@
-import { ref } from 'vue'
-
-interface AuthState {
-  token: string | null
-  isAuthenticated: boolean
-}
-
-const authState = ref<AuthState>({
-  token: null,
-  isAuthenticated: false
-})
+import type { User, SignUpData, SignInData } from "../../types/user";
 
 export const useAuth = () => {
-  const setToken = (token: string) => {
-    authState.value.token = token
-    authState.value.isAuthenticated = true
-    
-    if (process.client) {
-      localStorage.setItem('auth_token', token)
-    }
-  }
-  const clearToken = () => {
-    authState.value.token = null
-    authState.value.isAuthenticated = false
-    
-    if (process.client) {
-      localStorage.removeItem('auth_token')
-    }
-  }
-  const restoreToken = () => {
-    if (process.client) {
-      const token = localStorage.getItem('auth_token')
-      if (token) {
-        authState.value.token = token
-        authState.value.isAuthenticated = true
-      }
-    }
-  }
+  const user = ref<User | null>(null);
+  const isLoggedIn = computed(() => !!user.value);
 
-  const getToken = () => {
-    return authState.value.token
-  }
-  const isAuthenticated = computed(() => {
-    return authState.value.isAuthenticated && authState.value.token !== null
-  })
-  const getAuthHeaders = () => {
-    const token = getToken()
-    if (!token) {
-      throw new Error('Token de autorização não encontrado')
-    }
-    
-    return {
-      'Authorization': `Bearer ${token}`
-    }
-  }
+  const signUp = async (signUpData: SignUpData) => {
+    try {
+      const response = await $fetch<{ success: boolean; user: User }>(
+        "/api/auth/sign-up",
+        {
+          method: "POST",
+          body: signUpData,
+        }
+      );
 
-  if (process.client && authState.value.token === null) {
-    restoreToken()
-  }
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const signIn = async (signInData: SignInData) => {
+    try {
+      const response = await $fetch<{ accessToken: string; user: User }>(
+        "/api/auth/sign-in",
+        {
+          method: "POST",
+          body: signInData,
+        }
+      );
+
+      user.value = response.user;
+
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const signOut = async () => {
+    const { clear } = useUserSession();
+    try {
+      await $fetch<{}>("/api/auth/sign-out", {
+        method: "POST",
+      });
+
+      clear();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const findUserWithPerson = async (userId: string): Promise<User | null> => {
+    try {
+      const response = await $fetch<{ user: User }>(
+        `/api/user/${userId}/person`,
+        {
+          method: "GET",
+        }
+      );
+
+      return response.user || null;
+    } catch (error) {
+      throw error;
+    }
+  };
 
   return {
-    setToken,
-    clearToken,
-    restoreToken,
-    getToken,
-    isAuthenticated: readonly(isAuthenticated),
-    getAuthHeaders
-  }
-}
+    user: readonly(user),
+    isLoggedIn: readonly(isLoggedIn),
+    signUp,
+    signIn,
+    signOut,
+    findUserWithPerson,
+  };
+};

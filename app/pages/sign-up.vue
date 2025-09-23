@@ -35,25 +35,26 @@
         <div class="mb-4">
           <UFormField label="Senha">
             <InputPasswordLarge
-              id="password"
               v-model="state.password"
+              id="password"
+              :type="state.showPassword ? 'text' : 'password'"
               placeholder="Crie uma senha"
               icon="mdi:lock-outline"
-              :trailing-icon="state.showPassword ? 'mdi:eye' : 'mdi:eye-off'"
+              :trailing-icon="state.showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'"
+              @trailing-click="state.showPassword = !state.showPassword"
             />
           </UFormField>
         </div>
         <div class="mb-12">
           <UFormField label="Confirmar Senha">
             <InputPasswordLarge
-              id="password-confirm"
               v-model="state.passwordConfirm"
+              id="password-confirm"
+              :type="state.showPasswordConfirm ? 'text' : 'password'"
               placeholder="Repita a senha"
-              type="password"
               icon="mdi:lock-check-outline"
-              :trailing-icon="
-                state.showPasswordAgain ? 'mdi:eye' : 'mdi:eye-off'
-              "
+              :trailing-icon="state.showPasswordConfirm ? 'mdi:eye-outline' : 'mdi:eye-off-outline'"
+              @trailing-click="state.showPasswordConfirm = !state.showPasswordConfirm"
             />
           </UFormField>
         </div>
@@ -94,7 +95,7 @@ const state = reactive({
   password: "",
   passwordConfirm: "",
   showPassword: false,
-  showPasswordAgain: false,
+  showPasswordConfirm: false,
 });
 
 const handleSignUp = async () => {

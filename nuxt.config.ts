@@ -15,7 +15,9 @@ export default defineNuxtConfig({
     "@nuxt/image",
     "@nuxt/test-utils",
     "@nuxt/ui-pro",
-    '@nuxt/test-utils/module'
+    '@nuxt/test-utils/module',
+    "@pinia/nuxt",
+    "nuxt-auth-utils"
   ],
   fonts: {
     families: [

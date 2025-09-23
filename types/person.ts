@@ -9,7 +9,7 @@ export interface Person {
   updatedAt?: Date;
 }
 
-// Interface para o documento no banco de dados
+// // Interface para o documento no banco de dados
 export interface PersonDocument {
   _id?: ObjectId;
   name: string;
@@ -30,10 +30,28 @@ export interface CreatePersonDocument {
 export interface CreatePersonData {
   name: string;
   userId: ObjectId;
+  createdAt: Date;
+  updatedAt?: Date;
 }
 
 // Interface para person com informações do usuário
 export interface PersonWithUser {
+  id?: string;
+  name: string;
+  userId: string;
+  user?: {
+    id?: string;
+    email: string;
+    password: string;
+    type: 'passenger' | 'driver' | 'admin';
+    createdAt: Date;
+    token: string;
+  };
+  createdAt: Date;
+  updatedAt?: Date;
+}
+
+export interface PersonWithUserNoPassword {
   id?: string;
   name: string;
   userId: string;
@@ -49,11 +67,21 @@ export interface PersonWithUser {
 }
 
 // Interface para usuário com suas pessoas associadas
-export interface UserWithPersons {
+export interface UserWithPerson {
+  id?: string;
+  email: string;
+  password: string;
+  type: 'passenger' | 'driver' | 'admin';
+  createdAt: Date;
+  token: string;
+  persons?: Person;
+}
+
+export interface UserWithPersonNoPassword {
   id?: string;
   email: string;
   type: 'passenger' | 'driver' | 'admin';
   createdAt: Date;
   token: string;
-  persons?: Person[];
+  person?: Person;
 }

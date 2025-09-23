@@ -15,7 +15,7 @@
               id="email"
               icon="mdi:at"
               :required="true"
-              placeholder="Digite seu e-mail"
+              placeholder="seu@email.com"
             />
           </UFormField>
         </div>
@@ -26,7 +26,10 @@
               id="password"
               :type="state.showPassword ? 'text' : 'password'"
               icon="mdi:lock-outline"
-              :trailing-icon="state.showPassword ? 'mdi:eye' : 'mdi:eye-off'"
+              :trailing-icon="
+                state.showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'
+              "
+              @trailing-click="state.showPassword = !state.showPassword"
               :required="true"
               placeholder="Digite sua senha"
             />
@@ -61,8 +64,7 @@ import { reactive } from "vue";
 
 const router = useRouter();
 const toast = useToast();
-const { signIn } = useUsers();
-const { setToken } = useAuth();
+const { signIn } = useAuth();
 
 const state = reactive({
   email: "",
@@ -71,7 +73,6 @@ const state = reactive({
 });
 
 const handleSignIn = async () => {
-
   try {
     if (!state.email || !state.password) {
       toast.add({
@@ -81,20 +82,6 @@ const handleSignIn = async () => {
       });
       return;
     }
-
-    const config = useRuntimeConfig();
-    const apiToken = config.public.apiToken;
-
-    if (!apiToken) {
-      toast.add({
-        title: "Erro de Configuração",
-        description: "Token de API não configurado",
-        color: "error",
-      });
-      return;
-    }
-
-    setToken(apiToken);
 
     await signIn({
       email: state.email,

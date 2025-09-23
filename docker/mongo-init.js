@@ -16,9 +16,10 @@ db.createUser({
 });
 
 // Criar algumas coleções iniciais (opcional)
-db.createCollection('users');
 db.createCollection('persons');
-db.createCollection('transport_lines');
+db.createCollection('routes');
+db.createCollection('users');
+db.createCollection('tokens');
 db.createCollection('vehicles');
 
 print('MongoDB inicializado com sucesso para o projeto Collabus!');
