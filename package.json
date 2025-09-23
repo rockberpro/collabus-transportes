@@ -31,6 +31,7 @@
     "mongodb": "^6.19.0",
     "nodemailer": "^7.0.6",
     "nuxt": "^4.0.3",
+    "nuxt-auth-utils": "^0.5.25",
     "pinia": "^3.0.3",
     "vue": "^3.5.18",
     "vue-router": "^4.5.1"
