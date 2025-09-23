@@ -40,7 +40,7 @@
               :type="state.showPassword ? 'text' : 'password'"
               placeholder="Crie uma senha"
               icon="mdi:lock-outline"
-              :trailing-icon="state.showPassword ? 'mdi:eye' : 'mdi:eye-off'"
+              :trailing-icon="state.showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'"
               @trailing-click="state.showPassword = !state.showPassword"
             />
           </UFormField>
@@ -53,7 +53,7 @@
               :type="state.showPasswordConfirm ? 'text' : 'password'"
               placeholder="Repita a senha"
               icon="mdi:lock-check-outline"
-              :trailing-icon="state.showPasswordConfirm ? 'mdi:eye' : 'mdi:eye-off'"
+              :trailing-icon="state.showPasswordConfirm ? 'mdi:eye-outline' : 'mdi:eye-off-outline'"
               @trailing-click="state.showPasswordConfirm = !state.showPasswordConfirm"
             />
           </UFormField>
