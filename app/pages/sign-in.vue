@@ -26,7 +26,9 @@
               id="password"
               :type="state.showPassword ? 'text' : 'password'"
               icon="mdi:lock-outline"
-              :trailing-icon="state.showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'"
+              :trailing-icon="
+                state.showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'
+              "
               @trailing-click="state.showPassword = !state.showPassword"
               :required="true"
               placeholder="Digite sua senha"
@@ -62,7 +64,7 @@ import { reactive } from "vue";
 
 const router = useRouter();
 const toast = useToast();
-const { signIn } = useUsers();
+const { signIn } = useAuth();
 
 const state = reactive({
   email: "",
@@ -71,7 +73,6 @@ const state = reactive({
 });
 
 const handleSignIn = async () => {
-
   try {
     if (!state.email || !state.password) {
       toast.add({

@@ -75,6 +75,13 @@
               >
                 Adicionar
               </UButton>
+              <UButton
+                color="error"
+                type="button"
+                @click="handleSignOut"
+              >
+                Sair
+              </UButton>
             </div>
           </UForm>
         </UCard>
@@ -105,11 +112,26 @@ const newPersonState = reactive({
   name: ''
 })
 
-const { createPerson, getPersonsByUserId } = usePersons()
 const toast = useToast()
 const router = useRouter()
+const { signOut } = useAuth();
 
-const currentUserId = 'user-id-example'
+const handleSignOut = async () => {
+  try {
+    await signOut()
+    toast.add({
+      title: 'Logout realizado',
+      description: 'Você foi desconectado com sucesso',
+    })
+    await router.push('/sign-in')
+  } catch (error) {
+    console.log(error)
+    toast.add({
+      title: 'Erro ao sair',
+      description: 'Ocorreu um erro ao tentar fazer logout',
+    })
+  }
+}
 
 onMounted(async () => {
   await loadUserData()

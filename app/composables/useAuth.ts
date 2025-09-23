@@ -1,6 +1,9 @@
-import type { User, SignUpData, SignInData } from '../../types/user'
+import type { User, SignUpData, SignInData } from "../../types/user";
 
-export const useUsers = () => {
+export const useAuth = () => {
+  const user = ref<User | null>(null);
+  const isLoggedIn = computed(() => !!user.value);
+
   const signUp = async (signUpData: SignUpData) => {
     try {
       const response = await $fetch<{ success: boolean; user: User }>(
@@ -19,7 +22,7 @@ export const useUsers = () => {
 
   const signIn = async (signInData: SignInData) => {
     try {
-      const response = await $fetch<{ success: boolean; user: User }>(
+      const response = await $fetch<{ accessToken: string; user: User }>(
         "/api/auth/sign-in",
         {
           method: "POST",
@@ -27,10 +30,18 @@ export const useUsers = () => {
         }
       );
 
+      user.value = response.user;
+
       return response;
     } catch (error) {
       throw error;
     }
+  };
+
+  const signOut = () => {
+    const { clear } = useUserSession();
+    user.value = null;
+    clear();
   };
 
   const findUserWithPerson = async (userId: string): Promise<User | null> => {
@@ -49,8 +60,11 @@ export const useUsers = () => {
   };
 
   return {
+    user: readonly(user),
+    isLoggedIn: readonly(isLoggedIn),
     signUp,
     signIn,
-    findUserWithPerson
+    signOut,
+    findUserWithPerson,
   };
 };

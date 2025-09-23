@@ -26,9 +26,18 @@ export default defineEventHandler(async (event) => {
     { expiresIn: "7d" }
   );
 
+  await setUserSession(event, {
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
+      token: refreshToken,
+      tokenType: 'refreshToken'
+    });
+
   return {
-    refreshToken: refreshToken,
-    accessToken: accessToken,
+    token: accessToken,
     user: {
       id: user.id,
       email: user.email,
