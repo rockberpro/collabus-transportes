@@ -1,9 +1,17 @@
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-import { UserService } from "../../services/user";
+import { TokenService } from "../../services/token";
 
 export default defineEventHandler(async (event) => {
+  const tokenService = new TokenService();
   try {
+    const session = await getUserSession(event) as any;
+    const userId = session.user.id;
+    if (!userId) {
+      throw createError({
+        statusCode: 401,
+        message: "Usuário não autenticado",
+      });
+    }
+    await tokenService.revokeToken(userId);
     await clearUserSession(event);
 
     return { message: "Desconectado com sucesso!" };

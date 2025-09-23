@@ -1,11 +1,13 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { UserService } from "../../services/user";
+import { TokenService } from "../../services/token";
 
 export default defineEventHandler(async (event) => {
   const { email, password } = await readBody(event);
 
   const userService = new UserService();
+  const tokenService = new TokenService();
   const user = await userService.authenticateUser(email, password);
 
   if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -35,6 +37,8 @@ export default defineEventHandler(async (event) => {
       token: refreshToken,
       tokenType: 'refreshToken'
     });
+
+    tokenService.setToken(refreshToken, user.id);
 
   return {
     token: accessToken,
