@@ -87,7 +87,7 @@ import { reactive } from "vue";
 
 const router = useRouter();
 const toast = useToast();
-const { signUp } = useUsers();
+const { signUp } = useAuth();
 
 const state = reactive({
   name: "",

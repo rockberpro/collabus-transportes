@@ -65,6 +65,8 @@ import { reactive } from "vue";
 const router = useRouter();
 const toast = useToast();
 const { signIn } = useAuth();
+const { fetch } = useUserSession();
+const { setUser } = useAuthStore();
 
 const state = reactive({
   email: "",
@@ -83,9 +85,16 @@ const handleSignIn = async () => {
       return;
     }
 
-    await signIn({
+    // handle sign in
+    const response = await signIn({
       email: state.email,
       password: state.password,
+    });
+    await fetch();
+    setUser({
+      user: response.user,
+      token: response.accessToken,
+      tokenType: "accessToken",
     });
 
     await router.push("/home");
