@@ -23,12 +23,12 @@ export default defineEventHandler(async (event) => {
   const accessToken = jwt.sign(
     { userId: user.id, type: "access" },
     process.env.JWT_SECRET as string,
-    { expiresIn: accessTokenExpiry }
+    { expiresIn: accessTokenExpiry, algorithm: "HS512" }
   );
   const refreshToken = jwt.sign(
     { userId: user.id, type: "refresh" },
     process.env.JWT_SECRET as string,
-    { expiresIn: refreshTokenExpiry }
+    { expiresIn: refreshTokenExpiry, algorithm: "HS512" }
   );
 
   try {
