@@ -104,14 +104,6 @@ const loadUserData = async () => {
   // TODO
 };
 
-const editPerson = (person: any) => {
-  toast.add({
-    title: "Em desenvolvimento",
-    description: "Funcionalidade de edição será implementada em breve",
-    color: "info",
-  });
-};
-
 const getUserTypeLabel = (type: string) => {
   const labels: Record<string, string> = {
     passenger: "Passageiro",
