@@ -60,6 +60,9 @@
 
 <script setup lang="ts">
 import { reactive, onMounted } from "vue";
+definePageMeta({
+  middleware: ["authenticated"],
+});
 
 const userInfo = reactive({
   id: "",
