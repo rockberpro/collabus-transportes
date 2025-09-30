@@ -1,20 +1,16 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-@theme {
+@theme static {
   --font-sans: 'Montserrat', sans-serif;
   --breakpoint-3xl: 1920px;
 
   --color-primary: var(--color-amber-500);
   --color-secondary: var(--color-teal-500);
-
-  --color-neutral: var(--color-zinc-500);
-  --color-neutral-foreground: var(--color-zinc-50);
 }
 
 :root {
   --ui-header-height: --spacing(30);
-  --ui-primary: var(--ui-color-primary-700);
 }
 
 .dark {

@@ -15,10 +15,25 @@ export default defineNuxtConfig({
     "@nuxt/image",
     "@nuxt/test-utils",
     "@nuxt/ui",
-    '@nuxt/test-utils/module',
+    "@nuxt/test-utils/module",
     "@pinia/nuxt",
-    "nuxt-auth-utils"
+    "nuxt-auth-utils",
   ],
+  ui: {
+    theme: {
+      colors: [
+        "primary",
+        "secondary", 
+        "tertiary",
+        "neutral",
+        "zinc",
+        "info",
+        "success",
+        "warning",
+        "error",
+      ],
+    },
+  },
   fonts: {
     families: [
       {
@@ -32,7 +47,7 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
   runtimeConfig: {
     public: {
-      apiToken: process.env.API_TOKEN
-    }
+      apiToken: process.env.API_TOKEN,
+    },
   },
 });
