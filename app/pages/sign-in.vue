@@ -2,10 +2,8 @@
   <div class="flex items-center justify-center min-h-full p-8">
     <UCard class="w-full max-w-md">
       <div class="text-center">
-        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Entrar</h2>
-        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 mb-8">
-          Entre na sua conta do Collabus
-        </p>
+        <h2 class="text-3xl font-bold">Entrar</h2>
+        <p class="mt-2 text-sm mb-8">Entre na sua conta do Collabus</p>
       </div>
       <UForm @submit.prevent="handleSignIn" :state="state">
         <div class="mb-4">

@@ -1,24 +1,18 @@
 <template>
-  <div class="min-h-full bg-gray-50 dark:bg-gray-900 p-8">
+  <div class="min-h-full p-8">
     <div class="max-w-4xl mx-auto">
       <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Dashboard
-        </h1>
-        <p class="text-gray-600 dark:text-gray-400">Página incial</p>
+        <h1 class="text-3xl font-bol mb-2">Dashboard</h1>
+        <p>Página incial</p>
       </div>
 
       <!-- Informações do Usuário -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow mb-6">
-        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          Informações da Conta
-        </h2>
+      <div class="rounded-lg p-6 shadow mb-6">
+        <h2 class="text-xl font-semibold mb-4">Informações da Conta</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
-              Nome
-            </p>
-            <p class="text-gray-900 dark:text-white">
+            <p class="text-sm font-medium">Nome</p>
+            <p>
               {{ userInfo.name || "Não disponível" }}
             </p>
           </div>
@@ -26,7 +20,7 @@
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
               E-mail
             </p>
-            <p class="text-gray-900 dark:text-white">
+            <p>
               {{ userInfo.email || "Não disponível" }}
             </p>
           </div>
@@ -34,15 +28,13 @@
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
               Tipo de Conta
             </p>
-            <p class="text-gray-900 dark:text-white">
+            <p>
               {{ getUserTypeLabel(userInfo.type) }}
             </p>
           </div>
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
-              Membro desde
-            </p>
-            <p class="text-gray-900 dark:text-white">
+            <p>Membro desde</p>
+            <p>
               {{ formatDate(userInfo.createdAt) }}
             </p>
           </div>

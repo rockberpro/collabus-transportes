@@ -19,21 +19,6 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "nuxt-auth-utils",
   ],
-  ui: {
-    theme: {
-      colors: [
-        "primary",
-        "secondary", 
-        "tertiary",
-        "neutral",
-        "zinc",
-        "info",
-        "success",
-        "warning",
-        "error",
-      ],
-    },
-  },
   fonts: {
     families: [
       {

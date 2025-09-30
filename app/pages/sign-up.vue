@@ -2,12 +2,8 @@
   <div class="flex items-center justify-center min-h-full p-8">
     <UCard class="w-full max-w-md">
       <div class="text-center">
-        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
-          Cadastrar
-        </h2>
-        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 mb-8">
-          Crie sua conta no Collabus
-        </p>
+        <h2 class="text-3xl font-bold">Cadastrar</h2>
+        <p class="mt-2 text-sm mb-8">Crie sua conta no Collabus</p>
       </div>
       <UForm @submit.prevent="handleSignUp" :state="state">
         <div class="mb-4">
@@ -40,7 +36,9 @@
               :type="state.showPassword ? 'text' : 'password'"
               placeholder="Crie uma senha"
               icon="mdi:lock-outline"
-              :trailing-icon="state.showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'"
+              :trailing-icon="
+                state.showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'
+              "
               @trailing-click="state.showPassword = !state.showPassword"
             />
           </UFormField>
@@ -53,8 +51,14 @@
               :type="state.showPasswordConfirm ? 'text' : 'password'"
               placeholder="Repita a senha"
               icon="mdi:lock-check-outline"
-              :trailing-icon="state.showPasswordConfirm ? 'mdi:eye-outline' : 'mdi:eye-off-outline'"
-              @trailing-click="state.showPasswordConfirm = !state.showPasswordConfirm"
+              :trailing-icon="
+                state.showPasswordConfirm
+                  ? 'mdi:eye-outline'
+                  : 'mdi:eye-off-outline'
+              "
+              @trailing-click="
+                state.showPasswordConfirm = !state.showPasswordConfirm
+              "
             />
           </UFormField>
         </div>
@@ -67,7 +71,7 @@
           </UFormField>
         </div>
         <div class="mb-4 text-center">
-          <p class="text-sm text-gray-600">
+          <p class="text-sm">
             Já tem conta?
             <NuxtLink
               to="/sign-in"
