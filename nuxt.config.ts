@@ -14,7 +14,7 @@ export default defineNuxtConfig({
     "@nuxt/icon",
     "@nuxt/image",
     "@nuxt/test-utils",
-    "@nuxt/ui-pro",
+    "@nuxt/ui",
     '@nuxt/test-utils/module',
     "@pinia/nuxt",
     "nuxt-auth-utils"
@@ -34,5 +34,5 @@ export default defineNuxtConfig({
     public: {
       apiToken: process.env.API_TOKEN
     }
-  }
+  },
 });

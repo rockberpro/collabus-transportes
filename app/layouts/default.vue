@@ -1,6 +1,6 @@
 <template>
-  <UDashboardPanel class="py-5">
-    <UDashboardNavbar class="pb-10 pt-10">
+  <UDashboardPanel>
+    <UDashboardNavbar>
       <template #toggle>
         <UIcon name="mdi:menu" :size="20" />
       </template>
