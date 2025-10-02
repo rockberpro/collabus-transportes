@@ -11,8 +11,10 @@
 
 :root {
   --ui-header-height: --spacing(30);
+  --ui-bg: var(--color-zinc-50);
 }
 
 .dark {
-  --ui-primary: var(--ui-color-primary-200);
+  --color-gray: var(--color-zinc-700);
+  --ui-bg: var(--color-zinc-900);
 }

@@ -42,7 +42,7 @@
           </UFormField>
         </div>
         <div class="mb-4 text-center">
-          <p class="text-sm text-gray-600">
+          <p class="text-sm">
             Não tem conta?
             <NuxtLink
               to="/sign-up"
