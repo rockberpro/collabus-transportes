@@ -10,32 +10,36 @@ export default defineEventHandler(async (event) => {
     if (!token) {
       throw createError({
         statusCode: 400,
-        message: "Token de ativação é obrigatório",
+        statusMessage: "Token de ativação é obrigatório",
       });
     }
 
     const userService = new UserService();
     const personService = new PersonService();
-    const user = await userService.findUserByToken(token);
+    
+    const user = await userService.findUserByActivationToken(token);
+    console.log("Dados do usuario: ", user);
     if (!user) {
       throw createError({
         statusCode: 401,
-        message: "Token inválido ou conta já ativada",
+        statusMessage: "Token inválido, expirado ou conta já ativada",
       });
     }
 
-    const person = await personService.findPersonsByUserId(user._id!);
+    const person = await personService.findPersonByUserId(user.id);
     if (!person) {
       throw createError({
         statusCode: 404,
-        message: "Pessoa associada ao usuário não encontrada",
+        statusMessage: "Pessoa associada ao usuário não encontrada",
       });
     }
 
-    await userService.activateUser(user._id!);
+    await userService.activateUser(user.id);
+    
     try {
       const emailService = new EmailService();
-      await emailService.sendWelcomeEmail(user.email, person.name);
+      const fullName = `${person.firstName} ${person.lastName}`.trim();
+      await emailService.sendWelcomeEmail(user.email, fullName);
     } catch (emailError) {
       console.error("Failed to send welcome email:", emailError);
     }
@@ -51,7 +55,7 @@ export default defineEventHandler(async (event) => {
 
     throw createError({
       statusCode: 500,
-      message: "Erro interno do servidor",
+      statusMessage: "Erro interno do servidor",
     });
   }
 });

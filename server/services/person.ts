@@ -1,107 +1,136 @@
-import { ObjectId } from "mongodb";
-import type {
-  Person,
-  PersonDocument,
-  PersonWithUser,
-  PersonWithUserNoPassword,
-} from "../../types/person";
-import { MongoDBFactory } from "../factories/mongoFactory";
+import { Person, User } from "@prisma/client";
+import { PrismaFactory } from "../factories/prismaFactory";
+
+type PersonWithUserNoPassword = Person & { 
+  user: Omit<User, 'password'> | null;
+};
 
 export class PersonService {
-  private dbFactory: MongoDBFactory;
+  private prismaFactory: PrismaFactory;
 
   constructor() {
-    this.dbFactory = MongoDBFactory.getInstance();
+    this.prismaFactory = PrismaFactory.getInstance();
   }
 
-  async findPersonById(personId: string): Promise<PersonDocument | null> {
-    const db = await this.dbFactory.getDatabase();
-    const persons = db.collection("persons");
-
-    return (await persons.findOne({
-      _id: new ObjectId(personId),
-    })) as PersonDocument | null;
+  async findPersonById(personId: string): Promise<Person | null> {
+    const prisma = await this.prismaFactory.getClient();
+    
+    return await prisma.person.findUnique({
+      where: { id: personId }
+    });
   }
 
-  async findPersonsByUserId(userId: ObjectId): Promise<Person> {
-    const db = await this.dbFactory.getDatabase();
-    const persons = db.collection("persons");
-
-    return (await persons
-      .find({
-        userId: userId,
-      })
-      .next()) as unknown as Person;
+  async findPersonByUserId(userId: string): Promise<Person | null> {
+    const prisma = await this.prismaFactory.getClient();
+    
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        person: true
+      }
+    });
+    
+    return user?.person || null;
   }
 
-  async createPerson(personDocument: PersonDocument): Promise<string> {
-    const db = await this.dbFactory.getDatabase();
-    const persons = db.collection("persons");
-
-    const result = await persons.insertOne(personDocument);
-    return result.insertedId.toString();
+  async createPerson(personData: {
+    firstName: string;
+    lastName: string;
+    cpf?: string;
+    phone?: string;
+    address?: string;
+    birthDate?: Date;
+  }): Promise<string> {
+    const prisma = await this.prismaFactory.getClient();
+    
+    const person = await prisma.person.create({
+      data: personData
+    });
+    
+    return person.id;
   }
 
   async updatePerson(
     personId: string,
-    updateData: Partial<PersonDocument>
+    updateData: Partial<Omit<Person, 'id' | 'createdAt'>>
   ): Promise<void> {
-    const db = await this.dbFactory.getDatabase();
-    const persons = db.collection("persons");
-
-    await persons.updateOne(
-      { _id: new ObjectId(personId) },
-      {
-        $set: {
-          ...updateData,
-          updatedAt: new Date(),
-        },
+    const prisma = await this.prismaFactory.getClient();
+    
+    await prisma.person.update({
+      where: { id: personId },
+      data: {
+        ...updateData,
+        updatedAt: new Date(),
       }
-    );
-  }
-
-  async deletePerson(personId: string): Promise<void> {
-    const db = await this.dbFactory.getDatabase();
-    const persons = db.collection("persons");
-
-    await persons.deleteOne({
-      _id: new ObjectId(personId),
     });
   }
 
-  async findPersonWithUser(
-    personId: string
-  ): Promise<PersonWithUserNoPassword | null> {
-    const db = await this.dbFactory.getDatabase();
-    const persons = db.collection("persons");
+  async deletePerson(personId: string): Promise<void> {
+    const prisma = await this.prismaFactory.getClient();
+    
+    await prisma.person.delete({
+      where: { id: personId }
+    });
+  }
 
-    const personWithUser = (await persons
-      .aggregate([
-        { $match: { _id: new ObjectId(personId) } },
-        {
-          $lookup: {
-            from: "users",
-            localField: "userId",
-            foreignField: "_id",
-            as: "user",
-          },
-        },
-        { $unwind: "$user" },
-      ])
-      .next()) as PersonWithUser | null;
+  async findPersonWithUser(personId: string): Promise<PersonWithUserNoPassword | null> {
+    const prisma = await this.prismaFactory.getClient();
+    
+    const personWithUser = await prisma.person.findUnique({
+      where: { id: personId },
+      include: {
+        user: true
+      }
+    });
+
     if (!personWithUser) {
       return null;
     }
 
-    const { user, ...personWithoutUserNoPassword } =
-      personWithUser as PersonWithUser;
-
-    if (!user) {
-      return null;
+    if (!personWithUser.user) {
+      return { ...personWithUser, user: null };
     }
 
-    const { password, ...userWithoutPassword } = user;
+    const { password, ...userWithoutPassword } = personWithUser.user;
+    
+    return {
+      ...personWithUser,
+      user: userWithoutPassword
+    };
+  }
 
-    return { ...personWithoutUserNoPassword, user: userWithoutPassword };
+  async findAllPersons(): Promise<Person[]> {
+    const prisma = await this.prismaFactory.getClient();
+    
+    return await prisma.person.findMany({
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+  }
+
+  async findPersonsWithUsers(): Promise<PersonWithUserNoPassword[]> {
+    const prisma = await this.prismaFactory.getClient();
+    
+    const personsWithUsers = await prisma.person.findMany({
+      include: {
+        user: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    return personsWithUsers.map(person => {
+      if (!person.user) {
+        return { ...person, user: null };
+      }
+
+      const { password, ...userWithoutPassword } = person.user;
+      return {
+        ...person,
+        user: userWithoutPassword
+      };
+    });
   }
 }

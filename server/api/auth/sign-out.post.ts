@@ -8,17 +8,19 @@ export default defineEventHandler(async (event) => {
     if (!userId) {
       throw createError({
         statusCode: 401,
-        message: "Usuário não autenticado",
+        statusMessage: "Usuário não autenticado",
       });
     }
-    await tokenService.revokeToken(userId);
+    
+    // Revogar todos os tokens do usuário
+    await tokenService.revokeUserTokens(userId);
     await clearUserSession(event);
 
     return { message: "Desconectado com sucesso!" };
   } catch (error) {
     throw createError({
       statusCode: 500,
-      message: "Erro ao desconectar",
+      statusMessage: "Erro ao desconectar",
     });
   }
 });

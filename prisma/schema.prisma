@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(PASSAGEIRO)
+  isActive  Boolean  @default(true)
+  personId  String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tokens    Token[]
+  person    Person?  @relation(fields: [personId], references: [id])
+
+  @@map("users")
+}
+
+model Person {
+  id        String    @id @default(cuid())
+  firstName String
+  lastName  String
+  cpf       String?   @unique
+  phone     String?
+  address   String?
+  birthDate DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User?
+
+  @@map("persons")
+}
+
+model Token {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  type      TokenType
+  expiresAt DateTime
+  usedAt    DateTime?
+  userId    String
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("tokens")
+}
+
+enum Role {
+  ADMINISTRADOR @map("administrador")
+  PASSAGEIRO    @map("passageiro")
+  MOTORISTA     @map("motorista")
+  SUPERVISOR    @map("supervisor")
+}
+
+enum TokenType {
+  EMAIL_VERIFICATION @map("email_verification")
+  PASSWORD_RESET     @map("password_reset")
+  ACCESS_TOKEN       @map("access_token")
+  REFRESH_TOKEN      @map("refresh_token")
+}

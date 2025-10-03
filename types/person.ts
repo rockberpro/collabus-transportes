@@ -1,19 +1,17 @@
-import { ObjectId } from "mongodb";
-
 // Interface para o frontend - Person
 export interface Person {
   id?: string;
   name: string;
-  userId: ObjectId;
+  userId: string;
   createdAt: Date;
   updatedAt?: Date;
 }
 
 // // Interface para o documento no banco de dados
 export interface PersonDocument {
-  _id?: ObjectId;
+  id?: string;
   name: string;
-  userId: ObjectId;
+  userId: string;
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -21,7 +19,7 @@ export interface PersonDocument {
 // Interface para criar person no banco (sem _id)
 export interface CreatePersonDocument {
   name: string;
-  userId: ObjectId;
+  userId: string;
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -29,7 +27,7 @@ export interface CreatePersonDocument {
 // Interface para dados de criação de person (API format)
 export interface CreatePersonData {
   name: string;
-  userId: ObjectId;
+  userId: string;
   createdAt: Date;
   updatedAt?: Date;
 }

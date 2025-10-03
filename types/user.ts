@@ -1,5 +1,3 @@
-import { ObjectId } from "mongodb";
-
 // Interface para o frontend
 export interface User {
   id?: string;
@@ -25,7 +23,7 @@ export interface SignInData {
 
 // Interface para o documento
 export interface UserDocument {
-  _id?: ObjectId;
+  id?: string;
   email: string;
   password: string;
   role: "passenger" | "driver" | "admin";
@@ -36,7 +34,7 @@ export interface UserDocument {
 }
 
 export interface UserDocumentNoPassword {
-  _id?: ObjectId;
+  id?: string;
   email: string;
   role: "passenger" | "driver" | "admin";
   active: boolean;
