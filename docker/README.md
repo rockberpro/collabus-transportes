@@ -1,69 +1,40 @@
-# Docker Setup para Collabus Transporte
+# Docker Configuration for Collabus Transportes
 
-Este diretório contém a configuração Docker para a aplicação Collabus Transporte.
+## Services
 
-## Como usar
+- **Nuxt**: localhost:3000 (Main application)
+- **Redis**: localhost:6379 (Cache and sessions)
+- **Database**: Supabase PostgreSQL (Cloud)
 
-### Executar da pasta docker
+## Quick Start
 
 ```bash
-cd docker
+# Start services
 docker-compose up -d
-```
 
-### Executar apenas o frontend (Nuxt)
+# View logs
+docker-compose logs -f
 
-```bash
-cd docker
-docker-compose up nuxt -d
-```
-
-### Executar com todos os serviços
-
-```bash
-cd docker
-docker-compose up -d
-```
-
-## Serviços disponíveis
-
-- **Nuxt**: http://localhost:3000 (Frontend + API)
-- **MongoDB**: localhost:27017
-- **Redis**: localhost:6379
-
-## Comandos úteis
-
-```bash
-# Ver logs
-docker-compose logs -f nuxt
-
-# Parar todos os serviços
+# Stop services
 docker-compose down
-
-# Reconstruir imagens
-docker-compose build --no-cache
-
-# Executar comandos no container Nuxt
-docker-compose exec nuxt npm run dev
-
-# Executar comandos do Composer
-docker-compose run --rm composer install
-
-# Conectar ao MongoDB
-docker-compose exec mongodb mongosh -u root -p mongodb
-
-# Conectar ao MongoDB como usuário da aplicação
-docker-compose exec mongodb mongosh -u collabus_user -p collabus_password collabus
 ```
 
-## Configuração do MongoDB
+## Database
 
-### Credenciais:
-- **Admin**: root / mongodb
-- **Usuário da aplicação**: collabus_user / collabus_password
-- **Database**: collabus
+Using **Supabase PostgreSQL** (cloud-hosted):
+- Configured via environment variables
+- Managed with Prisma ORM
+- Migrations handled by `prisma migrate`
 
-### String de conexão:
-```
-mongodb://collabus_user:collabus_password@localhost:27017/collabus
+## Development Commands
+
+```bash
+# Start development environment
+docker-compose up
+
+# Access Nuxt container
+docker-compose exec nuxt sh
+
+# View Redis data
+docker-compose exec redis redis-cli
 ```
