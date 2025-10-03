@@ -1,122 +1,142 @@
-import { ObjectId } from "mongodb";
-import type { UserDocumentNoPassword, UserDocument } from "../../types/user";
-import { MongoDBFactory } from "../factories/mongoFactory";
-import { UserWithPerson, UserWithPersonNoPassword } from "~~/types/person";
+import { User, Person, Role, TokenType } from "@prisma/client";
+import { PrismaFactory } from "../factories/prismaFactory";
+
+type UserWithoutPassword = Omit<User, 'password'>;
+type UserWithPerson = User & { person: Person | null };
+type UserWithPersonNoPassword = Omit<UserWithPerson, 'password'>;
 
 export class UserService {
-  private dbFactory: MongoDBFactory;
+  private prismaFactory: PrismaFactory;
 
   constructor() {
-    this.dbFactory = MongoDBFactory.getInstance();
+    this.prismaFactory = PrismaFactory.getInstance();
   }
 
-  async findUserByToken(token: string): Promise<UserDocumentNoPassword | null> {
-    const db = await this.dbFactory.getDatabase();
-    const users = db.collection("users");
-
-    const user = (await users.findOne({
-      token: token,
-      active: false,
-    })) as UserDocument | null;
-    if (!user) {
-      return null;
-    }
-    const { password, ...userWithoutPassword } = user;
-
-    return userWithoutPassword;
-  }
-
-  async findUserByEmail(email: string): Promise<UserDocumentNoPassword | null> {
-    const db = await this.dbFactory.getDatabase();
-    const users = db.collection("users");
-
-    const user = (await users.findOne({ email })) as UserDocument | null;
-    if (!user) {
-      return null;
-    }
-    const { password, ...userWithoutPassword } = user;
-
-    return userWithoutPassword;
-  }
-
-  async findUserById(userId: string): Promise<UserDocumentNoPassword | null> {
-    const db = await this.dbFactory.getDatabase();
-    const users = db.collection("users");
-
-    const user = (await users.findOne({
-      _id: new ObjectId(userId),
-    })) as UserDocument | null;
-    if (!user) {
-      return null;
-    }
-    const { password, ...userWithoutPassword } = user;
-
-    return userWithoutPassword;
-  }
-
-  async activateUser(userId: ObjectId): Promise<void> {
-    const db = await this.dbFactory.getDatabase();
-    const users = db.collection("users");
-
-    await users.updateOne(
-      { _id: userId },
-      {
-        $set: { active: true },
-        $unset: { token: "" },
+  async findUserByActivationToken(token: string): Promise<UserWithoutPassword | null> {
+    const prisma = await this.prismaFactory.getClient();
+    
+    const tokenRecord = await prisma.token.findFirst({
+      where: {
+        token: token,
+        type: 'EMAIL_VERIFICATION',
+        usedAt: null,
+        expiresAt: {
+          gt: new Date()
+        }
+      },
+      include: {
+        user: true
       }
-    );
+    });
+
+    if (!tokenRecord || !tokenRecord.user) {
+      return null;
+    }
+
+    const { password, ...userWithoutPassword } = tokenRecord.user;
+    return userWithoutPassword;
+  }
+
+  async findUserByEmail(email: string): Promise<UserWithoutPassword | null> {
+    const prisma = await this.prismaFactory.getClient();
+    
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
+
+  async findUserById(userId: string): Promise<UserWithoutPassword | null> {
+    const prisma = await this.prismaFactory.getClient();
+    
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
+
+  async activateUser(userId: string): Promise<void> {
+    const prisma = await this.prismaFactory.getClient();
+    
+    await prisma.$transaction(async (tx) => {
+      // Ativar usuário
+      await tx.user.update({
+        where: { id: userId },
+        data: { isActive: true }
+      });
+
+      // Marcar token de ativação como usado
+      await tx.token.updateMany({
+        where: {
+          userId: userId,
+          type: 'EMAIL_VERIFICATION',
+          usedAt: null
+        },
+        data: { usedAt: new Date() }
+      });
+    });
   }
 
   async updateUser(
     userId: string,
-    updateData: Partial<UserDocument>
+    updateData: Partial<Omit<User, 'id' | 'createdAt'>>
   ): Promise<void> {
-    const db = await this.dbFactory.getDatabase();
-    const users = db.collection("users");
-
-    await users.updateOne({ _id: new ObjectId(userId) }, { $set: updateData });
+    const prisma = await this.prismaFactory.getClient();
+    
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...updateData,
+        updatedAt: new Date()
+      }
+    });
   }
 
-  async findUserWithPerson(
-    id: string
-  ): Promise<UserWithPersonNoPassword | null> {
-    const db = await this.dbFactory.getDatabase();
-    const users = db.collection("users");
+  async findUserWithPerson(id: string): Promise<UserWithPersonNoPassword | null> {
+    const prisma = await this.prismaFactory.getClient();
+    
+    const userWithPerson = await prisma.user.findUnique({
+      where: { id },
+      include: {
+        person: true
+      }
+    });
 
-    const userWithPerson = (await users
-      .aggregate([
-        { $match: { _id: new ObjectId(id) } },
-        {
-          $lookup: {
-            from: "persons",
-            localField: "_id",
-            foreignField: "userId",
-            as: "person",
-          },
-        },
-        { $unwind: "$person" },
-      ])
-      .next()) as UserWithPerson | null;
     if (!userWithPerson) {
       return null;
     }
-    const { password, ...userWithoutPassword } = userWithPerson;
 
+    const { password, ...userWithoutPassword } = userWithPerson;
     return userWithoutPassword;
   }
 
   async authenticateUser(email: string, password: string): Promise<any> {
-    const db = await this.dbFactory.getDatabase();
-    const users = db.collection("users");
+    const prisma = await this.prismaFactory.getClient();
+    
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
 
-    const user = await users.findOne({ email });
     if (!user) {
       throw createError({
         statusCode: 401,
         statusMessage: "Email ou senha incorretos",
       });
     }
-    if (!user.active) {
+
+    if (!user.isActive) {
       throw createError({
         statusCode: 403,
         statusMessage:
@@ -134,13 +154,11 @@ export class UserService {
     }
 
     return {
-      id: user._id.toString(),
+      id: user.id,
       email: user.email,
       role: user.role,
-      password: user.password,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-      token: user.token,
     };
   }
 
@@ -149,11 +167,12 @@ export class UserService {
     email: string;
     password: string;
   }): Promise<{ user: any; activationToken: string }> {
-    const db = await this.dbFactory.getDatabase();
-    const users = db.collection("users");
-    const persons = db.collection("persons");
+    const prisma = await this.prismaFactory.getClient();
+    
+    const existingUser = await prisma.user.findUnique({
+      where: { email: signUpData.email }
+    });
 
-    const existingUser = await users.findOne({ email: signUpData.email });
     if (existingUser) {
       throw createError({
         statusCode: 409,
@@ -167,36 +186,46 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(signUpData.password, 12);
     const activationToken = randomUUID();
 
-    const userDocument = {
-      email: signUpData.email,
-      password: hashedPassword,
-      role: "passenger" as const,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      active: false,
-      token: activationToken,
-    };
+    const result = await prisma.$transaction(async (tx) => {
+      // Criar pessoa primeiro
+      const person = await tx.person.create({
+        data: {
+          firstName: signUpData.name.split(' ')[0] || signUpData.name,
+          lastName: signUpData.name.split(' ').slice(1).join(' ') || '',
+        }
+      });
 
-    const userResult = await users.insertOne(userDocument);
-    const userId = userResult.insertedId;
+      // Criar usuário
+      const user = await tx.user.create({
+        data: {
+          email: signUpData.email,
+          password: hashedPassword,
+          role: 'PASSAGEIRO',
+          isActive: false,
+          personId: person.id,
+        }
+      });
 
-    const personDocument = {
-      name: signUpData.name,
-      userId: userId,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+      // Criar token de ativação
+      await tx.token.create({
+        data: {
+          token: activationToken,
+          type: 'EMAIL_VERIFICATION',
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 horas
+          userId: user.id,
+        }
+      });
 
-    await persons.insertOne(personDocument);
+      return { user, person };
+    });
 
     return {
       user: {
-        id: userId.toString(),
-        email: userDocument.email,
-        role: userDocument.role,
-        createdAt: userDocument.createdAt,
-        updatedAt: userDocument.updatedAt,
-        token: userDocument.token,
+        id: result.user.id,
+        email: result.user.email,
+        role: result.user.role,
+        createdAt: result.user.createdAt,
+        updatedAt: result.user.updatedAt,
       },
       activationToken,
     };

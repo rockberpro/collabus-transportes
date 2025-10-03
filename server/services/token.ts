@@ -1,63 +1,140 @@
-import { ObjectId } from "mongodb";
-import { MongoDBFactory } from "../factories/mongoFactory";
+import { Token, TokenType } from "@prisma/client";
+import { PrismaFactory } from "../factories/prismaFactory";
 
 export class TokenService {
-  private dbFactory: MongoDBFactory;
+  private prismaFactory: PrismaFactory;
 
   constructor() {
-    this.dbFactory = MongoDBFactory.getInstance();
+    this.prismaFactory = PrismaFactory.getInstance();
   }
 
-  async setToken(token: string, userId: string): Promise<void> {
-    const db = await this.dbFactory.getDatabase();
-    const tokens = db.collection("tokens");
+  async createToken(
+    token: string, 
+    userId: string, 
+    type: TokenType, 
+    expiresAt: Date
+  ): Promise<void> {
+    const prisma = await this.prismaFactory.getClient();
 
-    const existingToken = await tokens.findOne({ 
-      userId: new ObjectId(userId), 
-      revokedAt: { $exists: false } 
+    await prisma.token.create({
+      data: {
+        token,
+        userId,
+        type,
+        expiresAt,
+      }
     });
-    
-    if (!existingToken) {
-      // No existing token, insert a new one
-      await tokens.insertOne({
-        userId: new ObjectId(userId),
-        token: token,
-        createdAt: new Date(),
-        // revokedAt não existe para tokens ativos
+  }
+
+  async setRefreshToken(token: string, userId: string): Promise<void> {
+    const prisma = await this.prismaFactory.getClient();
+
+    await prisma.$transaction(async (tx) => {
+      // Marcar tokens de refresh existentes como usados
+      await tx.token.updateMany({
+        where: {
+          userId,
+          type: 'REFRESH_TOKEN',
+          usedAt: null
+        },
+        data: {
+          usedAt: new Date()
+        }
       });
-      return;
+
+      // Criar novo refresh token
+      await tx.token.create({
+        data: {
+          token,
+          userId,
+          type: 'REFRESH_TOKEN',
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
+        }
+      });
+    });
+  }
+
+  async revokeUserTokens(userId: string, type?: TokenType): Promise<void> {
+    const prisma = await this.prismaFactory.getClient();
+
+    const where: any = {
+      userId,
+      usedAt: null
+    };
+
+    if (type) {
+      where.type = type;
     }
 
-    // Revoke existing token
-    await tokens.updateOne(
-      { _id: existingToken._id },
-      { $set: { revokedAt: new Date() } }
-    );
-
-    // Insert a new token
-    await tokens.insertOne({
-      userId: new ObjectId(userId),
-      token: token,
-      createdAt: new Date(),
-      // revokedAt: active tokens don't have this field
+    await prisma.token.updateMany({
+      where,
+      data: {
+        usedAt: new Date()
+      }
     });
   }
 
-  async revokeToken(userId: string): Promise<void> {
-    const db = await this.dbFactory.getDatabase();
-    const tokens = db.collection("tokens");
+  async isTokenValid(token: string): Promise<boolean> {
+    const prisma = await this.prismaFactory.getClient();
 
-    await tokens.updateMany(
-      { userId: new ObjectId(userId), revokedAt: { $exists: false } },
-      { $set: { revokedAt: new Date() } }
-    );
+    const tokenRecord = await prisma.token.findUnique({
+      where: { token }
+    });
+
+    if (!tokenRecord) {
+      return false;
+    }
+
+    // Verificar se o token não foi usado e não expirou
+    return !tokenRecord.usedAt && tokenRecord.expiresAt > new Date();
   }
 
-  async isTokenRevoked(token: string): Promise<boolean> {
-    const db = await this.dbFactory.getDatabase();
-    const tokens = db.collection("tokens");
+  async findTokenByValue(token: string): Promise<Token | null> {
+    const prisma = await this.prismaFactory.getClient();
 
-    const tokenDoc = await tokens.findOne({ token: token });
-    return !!(tokenDoc && tokenDoc.revokedAt);
+    return await prisma.token.findUnique({
+      where: { token }
+    });
+  }
+
+  async markTokenAsUsed(token: string): Promise<void> {
+    const prisma = await this.prismaFactory.getClient();
+
+    await prisma.token.update({
+      where: { token },
+      data: {
+        usedAt: new Date()
+      }
+    });
+  }
+
+  async getUserTokens(userId: string, type?: TokenType): Promise<Token[]> {
+    const prisma = await this.prismaFactory.getClient();
+
+    const where: any = { userId };
+    if (type) {
+      where.type = type;
+    }
+
+    return await prisma.token.findMany({
+      where,
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+  }
+
+  async cleanExpiredTokens(): Promise<number> {
+    const prisma = await this.prismaFactory.getClient();
+
+    const result = await prisma.token.deleteMany({
+      where: {
+        expiresAt: {
+          lt: new Date()
+        }
+      }
+    });
+
+    return result.count;
   }
 }

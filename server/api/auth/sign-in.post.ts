@@ -10,13 +10,6 @@ export default defineEventHandler(async (event) => {
   const tokenService = new TokenService();
   const user = await userService.authenticateUser(email, password);
 
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    throw createError({
-      statusCode: 401,
-      message: "Invalid credentials",
-    });
-  }
-
   const accessTokenExpiry = 60 * 60; // 1 hour
   const refreshTokenExpiry = 60 * 60 * 24 * 7; // 7 days
 
@@ -44,11 +37,11 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    tokenService.setToken(refreshToken, user.id);
+    await tokenService.setRefreshToken(refreshToken, user.id);
   } catch (error) {
     throw createError({
       statusCode: 500,
-      message: "Erro ao criar sessão do usuário",
+      statusMessage: "Erro ao criar sessão do usuário",
     });
   }
 
