@@ -1,9 +1,6 @@
-import { User, Person, Role, TokenType } from "@prisma/client";
+import { User } from "@prisma/client";
 import { PrismaFactory } from "../factories/prismaFactory";
-
-type UserWithoutPassword = Omit<User, 'password'>;
-type UserWithPerson = User & { person: Person | null };
-type UserWithPersonNoPassword = Omit<UserWithPerson, 'password'>;
+import { UserWithoutPassword } from "../../types/user";
 
 export class UserService {
   private prismaFactory: PrismaFactory;
@@ -12,121 +9,100 @@ export class UserService {
     this.prismaFactory = PrismaFactory.getInstance();
   }
 
-  async findUserByActivationToken(token: string): Promise<UserWithoutPassword | null> {
+  async findUserById(userId: string): Promise<UserWithoutPassword | null> {
     const prisma = await this.prismaFactory.getClient();
-    
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    return user as UserWithoutPassword;
+  }
+
+  async findUserByActivationToken(
+    token: string
+  ): Promise<UserWithoutPassword | null> {
+    const prisma = await this.prismaFactory.getClient();
+
     const tokenRecord = await prisma.token.findFirst({
       where: {
         token: token,
-        type: 'EMAIL_VERIFICATION',
+        type: "EMAIL_VERIFICATION",
         usedAt: null,
         expiresAt: {
-          gt: new Date()
-        }
+          gt: new Date(),
+        },
       },
       include: {
-        user: true
-      }
+        user: true,
+      },
     });
 
     if (!tokenRecord || !tokenRecord.user) {
       return null;
     }
 
-    const { password, ...userWithoutPassword } = tokenRecord.user;
-    return userWithoutPassword;
+    return tokenRecord.user as UserWithoutPassword;
   }
 
   async findUserByEmail(email: string): Promise<UserWithoutPassword | null> {
     const prisma = await this.prismaFactory.getClient();
-    
+
     const user = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (!user) {
       return null;
     }
 
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
-  }
-
-  async findUserById(userId: string): Promise<UserWithoutPassword | null> {
-    const prisma = await this.prismaFactory.getClient();
-    
-    const user = await prisma.user.findUnique({
-      where: { id: userId }
-    });
-
-    if (!user) {
-      return null;
-    }
-
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    return user as UserWithoutPassword;
   }
 
   async activateUser(userId: string): Promise<void> {
     const prisma = await this.prismaFactory.getClient();
-    
+
     await prisma.$transaction(async (tx) => {
-      // Ativar usuário
       await tx.user.update({
         where: { id: userId },
-        data: { isActive: true }
+        data: { isActive: true },
       });
 
-      // Marcar token de ativação como usado
       await tx.token.updateMany({
         where: {
           userId: userId,
-          type: 'EMAIL_VERIFICATION',
-          usedAt: null
+          type: "EMAIL_VERIFICATION",
+          usedAt: null,
         },
-        data: { usedAt: new Date() }
+        data: { usedAt: new Date() },
       });
     });
   }
 
   async updateUser(
     userId: string,
-    updateData: Partial<Omit<User, 'id' | 'createdAt'>>
+    updateData: Partial<Omit<User, "id" | "createdAt">>
   ): Promise<void> {
     const prisma = await this.prismaFactory.getClient();
-    
+
     await prisma.user.update({
       where: { id: userId },
       data: {
         ...updateData,
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     });
-  }
-
-  async findUserWithPerson(id: string): Promise<UserWithPersonNoPassword | null> {
-    const prisma = await this.prismaFactory.getClient();
-    
-    const userWithPerson = await prisma.user.findUnique({
-      where: { id },
-      include: {
-        person: true
-      }
-    });
-
-    if (!userWithPerson) {
-      return null;
-    }
-
-    const { password, ...userWithoutPassword } = userWithPerson;
-    return userWithoutPassword;
   }
 
   async authenticateUser(email: string, password: string): Promise<any> {
     const prisma = await this.prismaFactory.getClient();
-    
+
     const user = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (!user) {
@@ -153,13 +129,7 @@ export class UserService {
       });
     }
 
-    return {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
+    return user as UserWithoutPassword;
   }
 
   async createUserWithPerson(signUpData: {
@@ -168,9 +138,9 @@ export class UserService {
     password: string;
   }): Promise<{ user: any; activationToken: string }> {
     const prisma = await this.prismaFactory.getClient();
-    
+
     const existingUser = await prisma.user.findUnique({
-      where: { email: signUpData.email }
+      where: { email: signUpData.email },
     });
 
     if (existingUser) {
@@ -187,46 +157,37 @@ export class UserService {
     const activationToken = randomUUID();
 
     const result = await prisma.$transaction(async (tx) => {
-      // Criar pessoa primeiro
       const person = await tx.person.create({
         data: {
-          firstName: signUpData.name.split(' ')[0] || signUpData.name,
-          lastName: signUpData.name.split(' ').slice(1).join(' ') || '',
-        }
+          firstName: signUpData.name.split(" ")[0] || signUpData.name,
+          lastName: signUpData.name.split(" ").slice(1).join(" ") || "",
+        },
       });
 
-      // Criar usuário
       const user = await tx.user.create({
         data: {
           email: signUpData.email,
           password: hashedPassword,
-          role: 'PASSAGEIRO',
+          role: "PASSAGEIRO",
           isActive: false,
           personId: person.id,
-        }
+        },
       });
 
-      // Criar token de ativação
       await tx.token.create({
         data: {
           token: activationToken,
-          type: 'EMAIL_VERIFICATION',
+          type: "EMAIL_VERIFICATION",
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 horas
           userId: user.id,
-        }
+        },
       });
 
       return { user, person };
     });
 
     return {
-      user: {
-        id: result.user.id,
-        email: result.user.email,
-        role: result.user.role,
-        createdAt: result.user.createdAt,
-        updatedAt: result.user.updatedAt,
-      },
+      user: result.user as UserWithoutPassword,
       activationToken,
     };
   }

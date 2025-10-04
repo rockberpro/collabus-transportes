@@ -29,7 +29,7 @@
               Tipo de Conta
             </p>
             <p>
-              {{ getUserTypeLabel(userInfo.type) }}
+              {{ userInfo.role }}
             </p>
           </div>
           <div>
@@ -52,6 +52,7 @@
 
 <script setup lang="ts">
 import { reactive, onMounted } from "vue";
+
 definePageMeta({
   middleware: ["authenticated"],
 });
@@ -60,7 +61,7 @@ const userInfo = reactive({
   id: "",
   name: "",
   email: "",
-  type: "passenger" as "passenger" | "driver" | "admin",
+  role: "",
   createdAt: new Date(),
   token: "",
 });
@@ -69,9 +70,8 @@ const toast = useToast();
 const router = useRouter();
 const { signOut } = useAuth();
 const { user, clearUser } = useAuthStore();
-
-userInfo.email = user?.email || "";
-userInfo.name = "";
+const { getUserById } = useUser();
+const { getPersonByUserId } = usePerson();
 
 const handleSignOut = async () => {
   try {
@@ -92,20 +92,31 @@ const handleSignOut = async () => {
 };
 
 onMounted(async () => {
-  await loadUserData();
+  await loadUserDetails();
+  await loadPersonDetails();
 });
 
-const loadUserData = async () => {
-  // TODO
+const loadUserDetails = async () => {
+  try {
+    const userDetails = await getUserById(user?.id || "");
+    if (userDetails) {
+      userInfo.email = userDetails.user.email;
+    }
+  } catch (error) {
+    console.error("Erro ao carregar detalhes do usuário:", error);
+  }
 };
 
-const getUserTypeLabel = (type: string) => {
-  const labels: Record<string, string> = {
-    passenger: "Passageiro",
-    driver: "Motorista",
-    admin: "Administrador",
-  };
-  return labels[type] || type;
+const loadPersonDetails = async () => {
+  try {
+    const personDetails = await getPersonByUserId(user?.id || "");
+    if (personDetails) {
+      userInfo.name = personDetails.person.firstName + " " + personDetails.person.lastName;
+      userInfo.createdAt = new Date(personDetails.person.createdAt);
+    }
+  } catch (error) {
+    console.error("Erro ao carregar detalhes da pessoa:", error);
+  }
 };
 
 const formatDate = (date: Date | string) => {

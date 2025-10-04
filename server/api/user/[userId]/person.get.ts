@@ -1,4 +1,4 @@
-import { UserService } from "~~/server/services/user";
+import { PersonService } from "~~/server/services/person";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -10,12 +10,10 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const userService = new UserService();
-    const user = await userService.findUserWithPerson(userId);
+    const personService = new PersonService();
+    const person = await personService.findPersonByUserId(userId);
 
-    return {
-      user,
-    };
+    return { person };
   } catch (error: any) {
     if (error.statusCode) {
       throw error;

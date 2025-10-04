@@ -1,13 +1,17 @@
-// Interface para o frontend
+import type { Person } from "./person";
+import { $Enums } from "@prisma/client";
+
 export interface User {
   id?: string;
   email: string;
-  role: "passenger" | "driver" | "admin";
-  token: string;
-  active: boolean;
+  password?: string;
+  role: $Enums.Role;
+  isActive: boolean;
+  personId?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-// Interface para dados de cadastro
 export interface SignUpData {
   name: string;
   email: string;
@@ -15,30 +19,10 @@ export interface SignUpData {
   passwordConfirm: string;
 }
 
-// Interface para dados de login
 export interface SignInData {
   email: string;
   password: string;
 }
 
-// Interface para o documento
-export interface UserDocument {
-  id?: string;
-  email: string;
-  password: string;
-  role: "passenger" | "driver" | "admin";
-  active: boolean;
-  token: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface UserDocumentNoPassword {
-  id?: string;
-  email: string;
-  role: "passenger" | "driver" | "admin";
-  active: boolean;
-  token: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export type UserWithoutPassword = Omit<User, "password">;
+export type UserWithPerson = UserWithoutPassword & { person: Person | null };
