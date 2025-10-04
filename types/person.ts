@@ -10,4 +10,4 @@ export interface Person {
   updatedAt?: Date;
 }
 
-export type CreatePersonData = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreatePerson = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>;

@@ -13,7 +13,9 @@ export default defineEventHandler(async (event) => {
     const personService = new PersonService();
     const person = await personService.findPersonByUserId(userId);
 
-    return { person };
+    return {
+      data: { ...person },
+    };
   } catch (error: any) {
     if (error.statusCode) {
       throw error;

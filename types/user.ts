@@ -2,7 +2,7 @@ import type { Person } from "./person";
 import { $Enums } from "@prisma/client";
 
 export interface User {
-  id?: string;
+  id: string;
   email: string;
   password?: string;
   role: $Enums.Role;

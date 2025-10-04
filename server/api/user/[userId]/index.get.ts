@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
     }
 
     return {
-      user,
+      data: { ...user }
     };
   } catch (error: any) {
     if (error.statusCode) {

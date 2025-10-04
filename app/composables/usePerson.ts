@@ -1,9 +1,9 @@
-import type { Person, CreatePersonData } from '../../types/person'
+import type { Person, CreatePerson } from '../../types/person'
 
 export const usePerson = () => {
     const getPersonByUserId = async (userId: string) => {
     try {
-      const response = await $fetch<{ success: boolean; person: Person }>(
+      const response = await $fetch<{ success: boolean; data: Person }>(
         `/api/user/${userId}/person`,
         {
           method: "GET",
@@ -16,9 +16,9 @@ export const usePerson = () => {
     }
   };
 
-  const createPerson = async (personData: CreatePersonData) => {
+  const createPerson = async (personData: CreatePerson) => {
     try {
-      const response = await $fetch<{ success: boolean; person: Person }>(
+      const response = await $fetch<{ success: boolean; data: Person }>(
         "/api/person",
         {
           method: "POST",

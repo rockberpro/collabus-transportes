@@ -6,7 +6,7 @@ export const useAuth = () => {
 
   const signUp = async (signUpData: SignUpData) => {
     try {
-      const response = await $fetch<{ success: boolean; user: User }>(
+      const response = await $fetch<{ success: boolean; data: User }>(
         "/api/auth/sign-up",
         {
           method: "POST",
@@ -22,7 +22,7 @@ export const useAuth = () => {
 
   const signIn = async (signInData: SignInData) => {
     try {
-      const response = await $fetch<{ accessToken: string; user: User }>(
+      const response = await $fetch<{ accessToken: string; data: User }>(
         "/api/auth/sign-in",
         {
           method: "POST",
@@ -30,7 +30,7 @@ export const useAuth = () => {
         }
       );
 
-      user.value = response.user;
+      user.value = response.data;
 
       return response;
     } catch (error) {

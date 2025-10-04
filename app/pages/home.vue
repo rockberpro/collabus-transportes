@@ -100,7 +100,7 @@ const loadUserDetails = async () => {
   try {
     const userDetails = await getUserById(user?.id || "");
     if (userDetails) {
-      userInfo.email = userDetails.user.email;
+      userInfo.email = userDetails.data.email;
     }
   } catch (error) {
     console.error("Erro ao carregar detalhes do usuário:", error);
@@ -111,8 +111,8 @@ const loadPersonDetails = async () => {
   try {
     const personDetails = await getPersonByUserId(user?.id || "");
     if (personDetails) {
-      userInfo.name = personDetails.person.firstName + " " + personDetails.person.lastName;
-      userInfo.createdAt = new Date(personDetails.person.createdAt);
+      userInfo.name = personDetails.data.firstName + " " + personDetails.data.lastName;
+      userInfo.createdAt = new Date(personDetails.data.createdAt);
     }
   } catch (error) {
     console.error("Erro ao carregar detalhes da pessoa:", error);

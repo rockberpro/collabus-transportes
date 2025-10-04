@@ -4,7 +4,7 @@ import type { User } from '../../types/user';
 export const useUser = () => {
   const getUserById = async (userId: string) => {
     try {
-      const response = await $fetch<{ success: boolean; user: User }>(
+      const response = await $fetch<{ success: boolean; data: User }>(
         `/api/user/${userId}`,
         {
           method: "GET",
@@ -19,7 +19,7 @@ export const useUser = () => {
 
   const getUserWithPersonById = async (userId: string) => {
     try {
-      const response = await $fetch<{ success: boolean; user: UserWithoutPassword }>(
+      const response = await $fetch<{ success: boolean; data: UserWithoutPassword }>(
         `/api/user/${userId}/person`,
         {
           method: "GET",
