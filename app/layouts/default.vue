@@ -22,30 +22,7 @@
         <ColorModeButton />
         <div class="px-2">
           <template v-if="loggedIn">
-            <div class="relative" ref="userWrapper">
-              <div @click="toggleUserMenu" class="cursor-pointer">
-                <UUser
-                  :name="userInfo.firstName"
-                  :avatar="{
-                    src: 'https://i.pravatar.cc/150?img=13',
-                    icon: 'i-lucide-image'
-                  }"
-                />
-              </div>
-
-              <transition name="fade">
-                <div
-                  v-if="showUserMenu"
-                  class="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800 rounded shadow-lg z-50 py-1"
-                >
-                  <div class="p-2">
-                    <UButton size="sm" color="error" class="w-full" @click="handleSignOut">
-                      Sair
-                    </UButton>
-                  </div>
-                </div>
-              </transition>
-            </div>
+            <UserMenu :name="userInfo.firstName" @signout="handleSignOut" />
           </template>
         </div>
       </template>
@@ -57,8 +34,9 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from "vue-router";
+import UserMenu from '@/components/UserMenu.vue';
 
 const { loggedIn, fetch: fetchSession } = useUserSession();
 const authStore = useAuthStore();
@@ -79,29 +57,6 @@ const userInfo = reactive({
   role: "",
   createdAt: new Date(),
   token: "",
-});
-
-const showUserMenu = ref(false);
-const userWrapper = ref<HTMLElement | null>(null);
-
-const toggleUserMenu = () => {
-  showUserMenu.value = !showUserMenu.value;
-};
-
-const handleDocumentClick = (e: MouseEvent) => {
-  const target = e.target as Node;
-  if (!userWrapper.value) return;
-  if (!userWrapper.value.contains(target)) {
-    showUserMenu.value = false;
-  }
-};
-
-onMounted(() => {
-  document.addEventListener('click', handleDocumentClick);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleDocumentClick);
 });
 
 const handleSignOut = async () => {
@@ -128,7 +83,6 @@ watch(
   (newValue) => {
     if (newValue) {
       // ensure user menu is closed when login state changes (avoid it being open immediately after sign-in)
-      showUserMenu.value = false;
       // try to refresh session-based store if it's empty
   if (!user.value?.id) {
         // fetch session (populates nuxt-auth-utils session cookie/store)
