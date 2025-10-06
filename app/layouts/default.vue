@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-const { loggedIn } = useUserSession();
+const { loggedIn, fetch: fetchSession } = useUserSession();
 const { user, updateUserDetails } = useAuthStore();
 const { getUserById } = useUser();
 const { getPersonByUserId } = usePerson();
@@ -60,8 +60,20 @@ watch(
   () => loggedIn.value,
   (newValue) => {
     if (newValue) {
-      loadUserDetails();
-      loadPersonDetails();
+      // try to refresh session-based store if it's empty
+      if (!user?.id) {
+        // fetch session (populates nuxt-auth-utils session cookie/store)
+        // and then attempt to load user/person details
+        fetchSession().then(() => {
+          loadUserDetails();
+          loadPersonDetails();
+        }).catch(() => {
+          // ignore fetch errors; we'll handle missing user below
+        });
+      } else {
+        loadUserDetails();
+        loadPersonDetails();
+      }
     }
   }
 );
@@ -77,8 +89,11 @@ watch(
 
 const loadUserDetails = async () => {
   try {
-    const userDetails = await getUserById(user?.id || "");
+    if (!user?.id) return;
+
+    const userDetails = await getUserById(user.id);
     if (userDetails) {
+      // optionally update store or local info if needed
     }
   } catch (error) {
     console.error("Erro ao carregar detalhes do usuário:", error);
@@ -87,7 +102,9 @@ const loadUserDetails = async () => {
 
 const loadPersonDetails = async () => {
   if (!user?.id) {
-    console.error("ID do usuário está ausente. Não é possível carregar os detalhes da pessoa.");
+    // If there's no user id, don't attempt to load person details.
+    // This can happen while session/user store is being populated.
+    // No need to log an error here; simply skip until the id becomes available.
     return;
   }
 
