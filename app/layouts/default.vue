@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 const { loggedIn } = useUserSession();
-const { user } = useAuthStore();
+const { user, updateUserDetails } = useAuthStore();
 const { getUserById } = useUser();
 const { getPersonByUserId } = usePerson();
 
@@ -48,16 +48,32 @@ const userInfo = reactive({
   id: "",
   name: "",
   firstName: "",
+  lastName: "",
   email: "",
   role: "",
   createdAt: new Date(),
   token: "",
 });
 
-onMounted(async () => {
-  await loadUserDetails();
-  await loadPersonDetails();
-});
+// watches for changes in loggedIn state
+watch(
+  () => loggedIn.value,
+  (newValue) => {
+    if (newValue) {
+      loadUserDetails();
+      loadPersonDetails();
+    }
+  }
+);
+
+watch(
+  () => user?.id,
+  (newId) => {
+    if (newId) {
+      loadPersonDetails();
+    }
+  }
+);
 
 const loadUserDetails = async () => {
   try {
@@ -70,12 +86,25 @@ const loadUserDetails = async () => {
 };
 
 const loadPersonDetails = async () => {
+  if (!user?.id) {
+    console.error("ID do usuário está ausente. Não é possível carregar os detalhes da pessoa.");
+    return;
+  }
+
   try {
-    const personDetails = await getPersonByUserId(user?.id || "");
+    const personDetails = await getPersonByUserId(user.id);
     if (personDetails) {
-      userInfo.firstName = personDetails.data.firstName;
       userInfo.name = personDetails.data.firstName + " " + personDetails.data.lastName;
+      userInfo.firstName = personDetails.data.firstName;
+      userInfo.lastName = personDetails.data.lastName;
       userInfo.createdAt = new Date(personDetails.data.createdAt);
+      console.log("User info:", userInfo);
+      updateUserDetails({
+        name: userInfo.name,
+        firstName: userInfo.firstName,
+        lastName: userInfo.lastName,
+        createdAt: userInfo.createdAt,
+      });
     }
   } catch (error) {
     console.error("Erro ao carregar detalhes da pessoa:", error);

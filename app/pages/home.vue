@@ -13,7 +13,7 @@
           <div>
             <p class="text-sm font-medium">Nome</p>
             <p>
-              {{ userInfo.name || "Não disponível" }}
+              {{ user?.name || "Não disponível" }}
             </p>
           </div>
           <div>
@@ -21,7 +21,7 @@
               E-mail
             </p>
             <p>
-              {{ userInfo.email || "Não disponível" }}
+              {{ user?.email || "Não disponível" }}
             </p>
           </div>
           <div>
@@ -29,13 +29,13 @@
               Tipo de Conta
             </p>
             <p>
-              {{ userInfo.role }}
+              {{ user?.role }}
             </p>
           </div>
           <div>
             <p>Membro desde</p>
             <p>
-              {{ formatDate(userInfo.createdAt) }}
+              {{ formatDate(user?.createdAt || new Date()) }}
             </p>
           </div>
         </div>
@@ -51,27 +51,17 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from "vue";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 definePageMeta({
   middleware: ["authenticated"],
+  layout: "default",
 });
 
-const userInfo = reactive({
-  id: "",
-  name: "",
-  email: "",
-  role: "",
-  createdAt: new Date(),
-  token: "",
-});
-
+const { user, clearUser } = useAuthStore();
 const toast = useToast();
 const router = useRouter();
 const { signOut } = useAuth();
-const { user, clearUser } = useAuthStore();
-const { getUserById } = useUser();
-const { getPersonByUserId } = usePerson();
 
 const handleSignOut = async () => {
   try {
@@ -88,34 +78,6 @@ const handleSignOut = async () => {
       title: "Erro ao sair",
       description: "Ocorreu um erro ao tentar fazer logout",
     });
-  }
-};
-
-onMounted(async () => {
-  await loadUserDetails();
-  await loadPersonDetails();
-});
-
-const loadUserDetails = async () => {
-  try {
-    const userDetails = await getUserById(user?.id || "");
-    if (userDetails) {
-      userInfo.email = userDetails.data.email;
-    }
-  } catch (error) {
-    console.error("Erro ao carregar detalhes do usuário:", error);
-  }
-};
-
-const loadPersonDetails = async () => {
-  try {
-    const personDetails = await getPersonByUserId(user?.id || "");
-    if (personDetails) {
-      userInfo.name = personDetails.data.firstName + " " + personDetails.data.lastName;
-      userInfo.createdAt = new Date(personDetails.data.createdAt);
-    }
-  } catch (error) {
-    console.error("Erro ao carregar detalhes da pessoa:", error);
   }
 };
 
