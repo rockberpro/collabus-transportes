@@ -26,11 +26,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 
-const props = defineProps<{ name?: string }>();
-const emit = defineEmits<{
-  (e: 'signout'): void;
-}>();
-
 const open = ref(false);
 const wrapper = ref<HTMLElement | null>(null);
 
