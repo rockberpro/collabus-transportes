@@ -98,7 +98,6 @@ const loadPersonDetails = async () => {
       userInfo.firstName = personDetails.data.firstName;
       userInfo.lastName = personDetails.data.lastName;
       userInfo.createdAt = new Date(personDetails.data.createdAt);
-      console.log("User info:", userInfo);
       updateUserDetails({
         name: userInfo.name,
         firstName: userInfo.firstName,
