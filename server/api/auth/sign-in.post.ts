@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { UserService } from "../../services/user";
 import { TokenService } from "../../services/token";
+import { Role } from "@prisma/client";
 
 export default defineEventHandler(async (event) => {
   const { email, password } = await readBody(event);
@@ -52,7 +53,7 @@ export default defineEventHandler(async (event) => {
     user: {
       id: user.id,
       email: user.email,
-      name: user.name,
+      role: user.role,
     },
   };
 });

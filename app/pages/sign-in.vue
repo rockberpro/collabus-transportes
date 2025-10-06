@@ -91,7 +91,7 @@ const handleSignIn = async () => {
     await fetch();
     setUser({
       user: response.user,
-      token: response.accessToken,
+      token: response.token.accessToken,
       tokenType: "accessToken",
     });
 

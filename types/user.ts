@@ -24,5 +24,16 @@ export interface SignInData {
   password: string;
 }
 
+export interface SignInResponse {
+  token: {
+    accessToken: string;
+  },
+  user: {
+    id: string;
+    email: string;
+    role: string;
+  }
+}
+
 export type UserWithoutPassword = Omit<User, "password">;
 export type UserWithPerson = UserWithoutPassword & { person: Person | null };
