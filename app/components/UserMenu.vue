@@ -26,6 +26,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 
+defineProps<{ name?: string }>();
+
 const open = ref(false);
 const wrapper = ref<HTMLElement | null>(null);
 
