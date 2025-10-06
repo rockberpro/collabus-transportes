@@ -127,6 +127,8 @@ watch(
   () => loggedIn.value,
   (newValue) => {
     if (newValue) {
+      // ensure user menu is closed when login state changes (avoid it being open immediately after sign-in)
+      showUserMenu.value = false;
       // try to refresh session-based store if it's empty
   if (!user.value?.id) {
         // fetch session (populates nuxt-auth-utils session cookie/store)
