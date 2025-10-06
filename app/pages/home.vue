@@ -42,9 +42,7 @@
       </div>
 
       <div class="flex justify-end space-x-2">
-        <UButton color="error" type="button" @click="handleSignOut">
-          Sair
-        </UButton>
+        <!-- Logout moved to the user menu in the default layout -->
       </div>
     </div>
   </div>
@@ -61,27 +59,6 @@ definePageMeta({
 
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
-const toast = useToast();
-const router = useRouter();
-const { signOut } = useAuth();
-
-const handleSignOut = async () => {
-  try {
-  await signOut();
-  authStore.clearUser();
-    toast.add({
-      title: "Logout realizado",
-      description: "Você foi desconectado com sucesso",
-    });
-    await router.push("/sign-in");
-  } catch (error) {
-    console.log(error);
-    toast.add({
-      title: "Erro ao sair",
-      description: "Ocorreu um erro ao tentar fazer logout",
-    });
-  }
-};
 
 const formatDate = (date: Date | string) => {
   const d = new Date(date);
