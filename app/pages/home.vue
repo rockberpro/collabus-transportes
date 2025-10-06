@@ -52,21 +52,23 @@
 
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/useAuthStore";
+import { storeToRefs } from "pinia";
 
 definePageMeta({
   middleware: ["authenticated"],
   layout: "default",
 });
 
-const { user, clearUser } = useAuthStore();
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
 const toast = useToast();
 const router = useRouter();
 const { signOut } = useAuth();
 
 const handleSignOut = async () => {
   try {
-    await signOut();
-    clearUser();
+  await signOut();
+  authStore.clearUser();
     toast.add({
       title: "Logout realizado",
       description: "Você foi desconectado com sucesso",

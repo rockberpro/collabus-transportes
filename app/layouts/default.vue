@@ -39,8 +39,11 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from "pinia";
 const { loggedIn, fetch: fetchSession } = useUserSession();
-const { user, updateUserDetails } = useAuthStore();
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
+const { updateUserDetails } = authStore;
 const { getUserById } = useUser();
 const { getPersonByUserId } = usePerson();
 
@@ -61,7 +64,7 @@ watch(
   (newValue) => {
     if (newValue) {
       // try to refresh session-based store if it's empty
-      if (!user?.id) {
+  if (!user.value?.id) {
         // fetch session (populates nuxt-auth-utils session cookie/store)
         // and then attempt to load user/person details
         fetchSession().then(() => {
@@ -79,7 +82,7 @@ watch(
 );
 
 watch(
-  () => user?.id,
+  () => user.value?.id,
   (newId) => {
     if (newId) {
       loadPersonDetails();
@@ -89,9 +92,9 @@ watch(
 
 const loadUserDetails = async () => {
   try {
-    if (!user?.id) return;
+  if (!user.value?.id) return;
 
-    const userDetails = await getUserById(user.id);
+  const userDetails = await getUserById(user.value.id);
     if (userDetails) {
       // optionally update store or local info if needed
     }
@@ -101,7 +104,7 @@ const loadUserDetails = async () => {
 };
 
 const loadPersonDetails = async () => {
-  if (!user?.id) {
+  if (!user.value?.id) {
     // If there's no user id, don't attempt to load person details.
     // This can happen while session/user store is being populated.
     // No need to log an error here; simply skip until the id becomes available.
@@ -109,7 +112,7 @@ const loadPersonDetails = async () => {
   }
 
   try {
-    const personDetails = await getPersonByUserId(user.id);
+  const personDetails = await getPersonByUserId(user.value.id);
     if (personDetails) {
       userInfo.name = personDetails.data.firstName + " " + personDetails.data.lastName;
       userInfo.firstName = personDetails.data.firstName;
