@@ -8,7 +8,7 @@
         <UBadge 
           size="xl" 
           variant="subtle" 
-          @click="navigateTo('/')"
+          @click="navigateTo('/home')"
           class="cursor-pointer hover:opacity-75 transition-opacity py-4"
         >
           <template #default>
