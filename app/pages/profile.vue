@@ -15,17 +15,17 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <UFormField label="CPF" name="cpf">
-              <InputTextLarge v-model="person.cpf" id="cpf" placeholder="CPF" />
+              <InputTextLarge v-model="cpfMasked" id="cpf" placeholder="000.000.000-00" maxlength="14" />
             </UFormField>
 
             <UFormField label="Data de nascimento" name="birthDate">
-              <InputTextLarge type="date" v-model="birthDateString" id="birthDate" />
+              <DateMaskedInput v-model="birthDateString" id="birthDate" placeholder="dd/mm/aaaa" />
             </UFormField>
           </div>
 
           <div class="max-w-xs">
             <UFormField label="Telefone" name="phone">
-              <InputTextLarge v-model="person.phone" id="phone" placeholder="Telefone" />
+              <InputTextLarge v-model="phoneMasked" id="phone" placeholder="(99) 99999-9999" maxlength="15" />
             </UFormField>
           </div>
 
@@ -34,8 +34,10 @@
           </UFormField>
         </div>
 
-        <div class="flex justify-end">
-          <ButtonLarge type="submit">Salvar</ButtonLarge>
+        <div class="py-5">
+          <div class="flex justify-end">
+            <ButtonLarge type="submit">Salvar</ButtonLarge>
+          </div>
         </div>
       </UForm>
     </div>
@@ -43,15 +45,11 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue';
+import { reactive, ref, onMounted, computed } from 'vue';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { usePerson } from '@/composables/usePerson';
 import type { Person } from '../../types/person';
-
-definePageMeta({
-  middleware: ["authenticated"],
-  layout: "default",
-});
+import DateMaskedInput from '@/components/DateMaskedInput.vue';
 
 const authStore = useAuthStore();
 const { user } = authStore;
@@ -68,7 +66,64 @@ const person = reactive<Partial<Person>>({
   createdAt: new Date(),
 });
 
-const birthDateString = ref('');
+const birthDateString = ref(''); // ISO 'YYYY-MM-DD' or empty
+
+const stripNonDigits = (v = '') => (v || '').toString().replace(/\D+/g, '');
+
+const formatCpf = (value = '') => {
+  const digits = stripNonDigits(value).slice(0, 11);
+  if (!digits) return '';
+  const part1 = digits.slice(0, 3);
+  const part2 = digits.slice(3, 6);
+  const part3 = digits.slice(6, 9);
+  const part4 = digits.slice(9, 11);
+  return [part1, part2, part3]
+    .filter(Boolean)
+    .join('.') + (part4 ? '-' + part4 : '');
+};
+
+const formatPhone = (value = '') => {
+  const digits = stripNonDigits(value);
+  if (!digits) return '';
+  // remove country code if present (optional): keep last 10-11 digits
+  let d = digits;
+  if (d.length > 11) d = d.slice(-11);
+  if (d.length <= 10) {
+    // (xx) xxxx-xxxx
+    const d1 = d.slice(0, 2);
+    const p1 = d.slice(2, 6);
+    const p2 = d.slice(6, 10);
+    return `${d1 ? '(' + d1 + ') ' : ''}${p1 || ''}${p2 ? '-' + p2 : ''}`;
+  } else {
+    // length 11 -> (xx) xxxxx-xxxx
+    const d1 = d.slice(0, 2);
+    const p1 = d.slice(2, 7);
+    const p2 = d.slice(7, 11);
+    return `${d1 ? '(' + d1 + ') ' : ''}${p1 || ''}${p2 ? '-' + p2 : ''}`;
+  }
+};
+
+const cpfMasked = computed({
+  get() {
+    return formatCpf(person.cpf || '');
+  },
+  set(v: string) {
+    // store only digits up to 11 characters
+    const digits = stripNonDigits(v).slice(0, 11);
+    person.cpf = digits;
+  },
+});
+
+const phoneMasked = computed({
+  get() {
+    return formatPhone(person.phone || '');
+  },
+  set(v: string) {
+    // store only digits up to 11 characters
+    const digits = stripNonDigits(v).slice(0, 11);
+    person.phone = digits;
+  },
+});
 
 const load = async () => {
   if (!user?.id) return;
@@ -92,8 +147,8 @@ const save = async () => {
     const payload = {
       firstName: person.firstName,
       lastName: person.lastName,
-      cpf: person.cpf,
-      phone: person.phone,
+      cpf: stripNonDigits(person.cpf || ''),
+      phone: stripNonDigits(person.phone || ''),
       address: person.address,
       birthDate: birthDateString.value ? new Date(birthDateString.value) : undefined,
     };
