@@ -15,7 +15,7 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <UFormField label="CPF" name="cpf">
-              <InputTextLarge v-model="cpfMasked" id="cpf" placeholder="000.000.000-00" maxlength="14" />
+              <CpfInput v-model="person.cpf" id="cpf" placeholder="000.000.000-00" />
             </UFormField>
 
             <UFormField label="Data de nascimento" name="birthDate">
@@ -45,11 +45,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted, computed } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { usePerson } from '@/composables/usePerson';
 import type { Person } from '../../types/person';
 import DateMaskedInput from '@/components/DateMaskedInput.vue';
+import CpfInput from '@/components/CpfInput.vue';
 
 const authStore = useAuthStore();
 const { user } = authStore;
@@ -71,18 +72,6 @@ const birthDateString = ref(''); // ISO 'YYYY-MM-DD' or empty
 
 const stripNonDigits = (v = '') => (v || '').toString().replace(/\D+/g, '');
 
-const formatCpf = (value = '') => {
-  const digits = stripNonDigits(value).slice(0, 11);
-  if (!digits) return '';
-  const part1 = digits.slice(0, 3);
-  const part2 = digits.slice(3, 6);
-  const part3 = digits.slice(6, 9);
-  const part4 = digits.slice(9, 11);
-  return [part1, part2, part3]
-    .filter(Boolean)
-    .join('.') + (part4 ? '-' + part4 : '');
-};
-
 const formatPhone = (value = '') => {
   const digits = stripNonDigits(value);
   if (!digits) return '';
@@ -103,17 +92,6 @@ const formatPhone = (value = '') => {
     return `${d1 ? '(' + d1 + ') ' : ''}${p1 || ''}${p2 ? '-' + p2 : ''}`;
   }
 };
-
-const cpfMasked = computed({
-  get() {
-    return formatCpf(person.cpf || '');
-  },
-  set(v: string) {
-    // store only digits up to 11 characters
-    const digits = stripNonDigits(v).slice(0, 11);
-    person.cpf = digits;
-  },
-});
 
 const phoneMasked = computed({
   get() {
