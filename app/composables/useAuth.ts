@@ -1,4 +1,4 @@
-import type { User, SignUpData, SignInData } from "../../types/user";
+import type { User, SignUpData, SignInData, SignInResponse } from "../../types/user";
 
 export const useAuth = () => {
   const user = ref<User | null>(null);
@@ -22,15 +22,13 @@ export const useAuth = () => {
 
   const signIn = async (signInData: SignInData) => {
     try {
-      const response = await $fetch<{ accessToken: string; data: User }>(
+      const response = await $fetch<{ token: { accessToken: string }; user: User }>(
         "/api/auth/sign-in",
         {
           method: "POST",
           body: signInData,
         }
       );
-
-      user.value = response.data;
 
       return response;
     } catch (error) {

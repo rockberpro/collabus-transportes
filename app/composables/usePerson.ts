@@ -32,8 +32,21 @@ export const usePerson = () => {
     }
   };
 
-  return {
-    getPersonByUserId,
-    createPerson,
+  const updatePerson = async (personId: string, updateData: Partial<CreatePerson>) => {
+    try {
+      const response = await $fetch<{ success: boolean }>(`/api/person/${personId}`, {
+        method: 'PUT',
+        body: updateData,
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
   };
-};
+
+   return {
+     getPersonByUserId,
+     createPerson,
+     updatePerson,
+   };
+ };

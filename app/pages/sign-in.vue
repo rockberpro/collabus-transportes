@@ -59,12 +59,13 @@
 
 <script setup lang="ts">
 import { reactive } from "vue";
+import { storeToRefs } from "pinia";
 
 const router = useRouter();
 const toast = useToast();
 const { signIn } = useAuth();
 const { fetch } = useUserSession();
-const { setUser } = useAuthStore();
+const authStore = useAuthStore();
 
 const state = reactive({
   email: "",
@@ -89,9 +90,9 @@ const handleSignIn = async () => {
       password: state.password,
     });
     await fetch();
-    setUser({
+    authStore.setUser({
       user: response.user,
-      token: response.accessToken,
+      token: response.token.accessToken,
       tokenType: "accessToken",
     });
 

@@ -5,6 +5,10 @@ interface AuthState {
     id: string;
     email: string;
     role: string;
+    name?: string;
+    firstName?: string;
+    lastName?: string;
+    createdAt?: Date;
   } | null;
   token: string | null;
   tokenType: string | null;
@@ -25,6 +29,14 @@ export const useAuthStore = defineStore("auth", {
       this.token = session.token;
       this.tokenType = session.tokenType;
       this.isAuthenticated = true;
+    },
+    updateUserDetails(details: { name?: string; firstName?: string; lastName?: string; createdAt?: Date }) {
+      if (this.user) {
+        if (details.name !== undefined) this.user.name = details.name;
+        if (details.firstName !== undefined) this.user.firstName = details.firstName;
+        if (details.lastName !== undefined) this.user.lastName = details.lastName;
+        if (details.createdAt !== undefined) this.user.createdAt = details.createdAt;
+      }
     },
     clearUser() {
       this.user = null;
