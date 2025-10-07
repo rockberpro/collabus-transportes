@@ -46,12 +46,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue';
-import { useAuthStore } from '@/stores/useAuthStore';
-import { usePerson } from '@/composables/usePerson';
 import type { Person } from '../../types/person';
-import DateMaskedInput from '@/components/DateMaskedInput.vue';
-import CpfInput from '@/components/CpfInput.vue';
-import PhoneInput from '@/components/PhoneInput.vue';
 
 const authStore = useAuthStore();
 const { user } = authStore;
