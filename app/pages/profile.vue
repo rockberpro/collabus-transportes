@@ -25,7 +25,7 @@
 
           <div class="max-w-xs">
             <UFormField label="Telefone" name="phone">
-              <InputTextLarge v-model="phoneMasked" id="phone" placeholder="(99) 99999-9999" maxlength="15" />
+              <PhoneInput v-model="person.phone" id="phone" placeholder="(99) 99999-9999" />
             </UFormField>
           </div>
 
@@ -51,6 +51,7 @@ import { usePerson } from '@/composables/usePerson';
 import type { Person } from '../../types/person';
 import DateMaskedInput from '@/components/DateMaskedInput.vue';
 import CpfInput from '@/components/CpfInput.vue';
+import PhoneInput from '@/components/PhoneInput.vue';
 
 const authStore = useAuthStore();
 const { user } = authStore;
@@ -71,38 +72,6 @@ const person = reactive<Partial<Person>>({
 const birthDateString = ref(''); // ISO 'YYYY-MM-DD' or empty
 
 const stripNonDigits = (v = '') => (v || '').toString().replace(/\D+/g, '');
-
-const formatPhone = (value = '') => {
-  const digits = stripNonDigits(value);
-  if (!digits) return '';
-  // remove country code if present (optional): keep last 10-11 digits
-  let d = digits;
-  if (d.length > 11) d = d.slice(-11);
-  if (d.length <= 10) {
-    // (xx) xxxx-xxxx
-    const d1 = d.slice(0, 2);
-    const p1 = d.slice(2, 6);
-    const p2 = d.slice(6, 10);
-    return `${d1 ? '(' + d1 + ') ' : ''}${p1 || ''}${p2 ? '-' + p2 : ''}`;
-  } else {
-    // length 11 -> (xx) xxxxx-xxxx
-    const d1 = d.slice(0, 2);
-    const p1 = d.slice(2, 7);
-    const p2 = d.slice(7, 11);
-    return `${d1 ? '(' + d1 + ') ' : ''}${p1 || ''}${p2 ? '-' + p2 : ''}`;
-  }
-};
-
-const phoneMasked = computed({
-  get() {
-    return formatPhone(person.phone || '');
-  },
-  set(v: string) {
-    // store only digits up to 11 characters
-    const digits = stripNonDigits(v).slice(0, 11);
-    person.phone = digits;
-  },
-});
 
 const load = async () => {
   if (!user?.id) return;
