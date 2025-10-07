@@ -54,6 +54,7 @@ import DateMaskedInput from '@/components/DateMaskedInput.vue';
 const authStore = useAuthStore();
 const { user } = authStore;
 const { getPersonByUserId, createPerson, updatePerson } = usePerson();
+const toast = useToast();
 
 const person = reactive<Partial<Person>>({
   id: undefined,
@@ -160,11 +161,19 @@ const save = async () => {
       if (created && created.data) person.id = created.data.id;
     }
 
-    // feedback: use alert as fallback
-    alert('Dados salvos com sucesso');
+    // feedback via toast
+    toast.add({
+      title: 'Sucesso',
+      description: 'Dados salvos com sucesso',
+      color: 'success',
+    });
   } catch (err) {
     console.error(err);
-    alert('Erro ao salvar dados');
+    toast.add({
+      title: 'Erro',
+      description: 'Erro ao salvar dados',
+      color: 'error',
+    });
   }
 };
 </script>
