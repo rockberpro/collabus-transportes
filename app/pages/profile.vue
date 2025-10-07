@@ -48,6 +48,11 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { usePerson } from '@/composables/usePerson';
 import type { Person } from '../../types/person';
 
+definePageMeta({
+  middleware: ["authenticated"],
+  layout: "default",
+});
+
 const authStore = useAuthStore();
 const { user } = authStore;
 const { getPersonByUserId, createPerson, updatePerson } = usePerson();
