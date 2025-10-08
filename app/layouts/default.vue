@@ -33,7 +33,7 @@
     </div>
 
     <!-- Bottom navigation (always visible) -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t z-50">
+    <nav class="fixed bottom-0 left-0 right-0 border-t z-50">
       <div class="max-w-5xl mx-auto px-4">
         <div class="flex justify-between items-center py-3">
           <button class="flex-1 text-center p-2" @click="navigateTo('/')">
