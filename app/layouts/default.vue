@@ -32,31 +32,32 @@
       <slot />
     </div>
 
-    <!-- Bottom navigation (always visible) -->
-    <nav class="fixed bottom-0 left-0 right-0 border-t z-50">
-      <div class="max-w-5xl mx-auto px-4">
-        <div class="flex justify-between items-center py-3">
-          <button class="flex-1 text-center p-2" @click="navigateTo('/')">
-            <div class="inline-flex flex-col items-center text-sm">
-              <UIcon name="mdi:home" :size="20" />
-              <span>Inicial</span>
-            </div>
-          </button>
-          <button class="flex-1 text-center p-2" @click="navigateTo('/')">
-            <div class="inline-flex flex-col items-center text-sm">
-              <UIcon name="mdi:account-group" :size="20" />
-              <span>Lorem Ipsum</span>
-            </div>
-          </button>
-          <button class="flex-1 text-center p-2" @click="navigateTo('/profile')">
-            <div class="inline-flex flex-col items-center text-sm">
-              <UIcon name="mdi:account" :size="20" />
-              <span>Perfil</span>
-            </div>
-          </button>
+    <template v-if="loggedIn">
+      <nav class="fixed bottom-0 left-0 right-0 border-t z-50">
+        <div class="max-w-5xl mx-auto px-4">
+          <div class="flex justify-between items-center py-3">
+            <button class="flex-1 text-center p-2" @click="navigateTo('/')">
+              <div class="inline-flex flex-col items-center text-sm">
+                <UIcon name="mdi:home" :size="20" />
+                <span>Inicial</span>
+              </div>
+            </button>
+            <button class="flex-1 text-center p-2" @click="navigateTo('/')">
+              <div class="inline-flex flex-col items-center text-sm">
+                <UIcon name="mdi:account-group" :size="20" />
+                <span>Lorem Ipsum</span>
+              </div>
+            </button>
+            <button class="flex-1 text-center p-2" @click="navigateTo('/profile')">
+              <div class="inline-flex flex-col items-center text-sm">
+                <UIcon name="mdi:account" :size="20" />
+                <span>Perfil</span>
+              </div>
+            </button>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </template>
   </UDashboardPanel>
 </template>
 
