@@ -28,13 +28,41 @@
       </template>
     </UDashboardNavbar>
 
-    <slot />
+    <div class="pb-20"> <!-- espaço para a bottom nav -->
+      <slot />
+    </div>
+
+    <!-- Bottom navigation (always visible) -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t z-50">
+      <div class="max-w-5xl mx-auto px-4">
+        <div class="flex justify-between items-center py-3">
+          <button class="flex-1 text-center p-2" @click="navigateTo('/')">
+            <div class="inline-flex flex-col items-center text-sm">
+              <UIcon name="mdi:home" :size="20" />
+              <span>Inicial</span>
+            </div>
+          </button>
+          <button class="flex-1 text-center p-2" @click="navigateTo('/')">
+            <div class="inline-flex flex-col items-center text-sm">
+              <UIcon name="mdi:account-group" :size="20" />
+              <span>Lorem Ipsum</span>
+            </div>
+          </button>
+          <button class="flex-1 text-center p-2" @click="navigateTo('/profile')">
+            <div class="inline-flex flex-col items-center text-sm">
+              <UIcon name="mdi:account" :size="20" />
+              <span>Perfil</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </nav>
   </UDashboardPanel>
 </template>
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from "vue-router";
 import UserMenu from '@/components/UserMenu.vue';
 
@@ -150,4 +178,20 @@ const loadPersonDetails = async () => {
   }
 };
 
+const navigateTo = (path: string) => router.push(path);
+
+onMounted(() => {
+  // disable page scrolling while this layout is active
+  try {
+    document.body.style.overflow = 'hidden';
+  } catch (e) {
+    // ignore in SSR or restricted environments
+  }
+});
+
+onUnmounted(() => {
+  try {
+    document.body.style.overflow = '';
+  } catch (e) {}
+});
 </script>
