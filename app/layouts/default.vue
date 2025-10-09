@@ -63,9 +63,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from "vue-router";
-import UserMenu from '@/components/UserMenu.vue';
 
 const { loggedIn, fetch: fetchSession } = useUserSession();
 const authStore = useAuthStore();
@@ -181,18 +179,4 @@ const loadPersonDetails = async () => {
 
 const navigateTo = (path: string) => router.push(path);
 
-onMounted(() => {
-  // disable page scrolling while this layout is active
-  try {
-    document.body.style.overflow = 'hidden';
-  } catch (e) {
-    // ignore in SSR or restricted environments
-  }
-});
-
-onUnmounted(() => {
-  try {
-    document.body.style.overflow = '';
-  } catch (e) {}
-});
 </script>
