@@ -141,10 +141,12 @@ const handleSignUp = async () => {
     });
 
     await router.push("/sign-in");
-  } catch (error: any) {
+  } catch (error) {
+    const err = error as Error;
+    console.log("Error during sign-up", err);
     toast.add({
       title: "Erro",
-      description: error.data?.message || "Erro ao criar conta",
+      description: "Erro ao criar conta",
       color: "error",
     });
   }

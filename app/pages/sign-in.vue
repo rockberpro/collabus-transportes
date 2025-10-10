@@ -96,10 +96,12 @@ const handleSignIn = async () => {
     });
 
     await router.push("/home");
-  } catch (error: any) {
+  } catch (error) {
+    const err = error as Error;
+    console.log("Error during sign-in", err);
     toast.add({
       title: "Erro",
-      description: error.data?.message || "Erro ao fazer login",
+      description: "Erro ao fazer login",
       color: "error",
     });
     return;

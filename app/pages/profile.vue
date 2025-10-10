@@ -134,14 +134,14 @@ const save = async () => {
       if (created && created.data) person.id = created.data.id;
     }
 
-    // feedback via toast
     toast.add({
       title: "Sucesso",
       description: "Dados salvos com sucesso",
       color: "success",
     });
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    const err = error as Error;
+    console.log("Error while saving user profile", err);
     toast.add({
       title: "Erro",
       description: "Erro ao salvar dados",

@@ -3,9 +3,9 @@
     <template #header>
       <UDashboardNavbar :toggle="false">
         <template #leading>
-          <UBadge 
-            size="xl" 
-            variant="subtle" 
+          <UBadge
+            size="xl"
+            variant="subtle"
             @click="navigateTo('/home')"
             class="cursor-pointer hover:opacity-75 transition-opacity py-4"
           >
@@ -40,7 +40,6 @@
 </template>
 
 <script setup lang="ts">
-import { collapsible } from "#build/ui";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 
@@ -75,7 +74,8 @@ const handleSignOut = async () => {
     });
     await router.push("/sign-in");
   } catch (error) {
-    console.error(error);
+    const err = error as Error;
+    console.log("Error during sign-out", err);
     toast.add({
       title: "Erro ao sair",
       description: "Ocorreu um erro ao tentar fazer logout",
@@ -90,21 +90,23 @@ watch(
     if (newValue) {
       // ensure user menu is closed when login state changes (avoid it being open immediately after sign-in)
       // try to refresh session-based store if it's empty
-  if (!user.value?.id) {
+      if (!user.value?.id) {
         // fetch session (populates nuxt-auth-utils session cookie/store)
         // and then attempt to load user/person details
-        fetchSession().then(() => {
-          loadUserDetails();
-          loadPersonDetails();
-        }).catch(() => {
-          // ignore fetch errors; we'll handle missing user below
-        });
+        fetchSession()
+          .then(() => {
+            loadUserDetails();
+            loadPersonDetails();
+          })
+          .catch(() => {
+            // ignore fetch errors; we'll handle missing user below
+          });
       } else {
         loadUserDetails();
         loadPersonDetails();
       }
     }
-  }
+  },
 );
 
 watch(
@@ -113,14 +115,14 @@ watch(
     if (newId) {
       loadPersonDetails();
     }
-  }
+  },
 );
 
 const loadUserDetails = async () => {
   try {
-  if (!user.value?.id) return;
+    if (!user.value?.id) return;
 
-  const userDetails = await getUserById(user.value.id);
+    const userDetails = await getUserById(user.value.id);
     if (userDetails) {
       // optionally update store or local info if needed
     }
@@ -138,9 +140,10 @@ const loadPersonDetails = async () => {
   }
 
   try {
-  const personDetails = await getPersonByUserId(user.value.id);
+    const personDetails = await getPersonByUserId(user.value.id);
     if (personDetails) {
-      userInfo.name = personDetails.data.firstName + " " + personDetails.data.lastName;
+      userInfo.name =
+        personDetails.data.firstName + " " + personDetails.data.lastName;
       userInfo.firstName = personDetails.data.firstName;
       userInfo.lastName = personDetails.data.lastName;
       userInfo.createdAt = new Date(personDetails.data.createdAt);
@@ -152,10 +155,9 @@ const loadPersonDetails = async () => {
       });
     }
   } catch (error) {
-    console.error("Erro ao carregar detalhes da pessoa:", error);
+    console.error("Error while loading user data:", error);
   }
 };
 
 const navigateTo = (path: string) => router.push(path);
-
 </script>
