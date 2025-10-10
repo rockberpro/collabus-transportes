@@ -28,15 +28,19 @@
       </template>
     </UDashboardNavbar>
 
-    <slot />
+    <div class="pb-20"> <!-- espaço para a bottom nav -->
+      <slot />
+    </div>
+
+    <template v-if="loggedIn">
+      <BottomNav />
+    </template>
   </UDashboardPanel>
 </template>
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { ref } from 'vue'
 import { useRouter } from "vue-router";
-import UserMenu from '@/components/UserMenu.vue';
 
 const { loggedIn, fetch: fetchSession } = useUserSession();
 const authStore = useAuthStore();
@@ -149,5 +153,7 @@ const loadPersonDetails = async () => {
     console.error("Erro ao carregar detalhes da pessoa:", error);
   }
 };
+
+const navigateTo = (path: string) => router.push(path);
 
 </script>
