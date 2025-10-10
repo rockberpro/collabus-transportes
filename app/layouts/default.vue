@@ -1,44 +1,46 @@
 <template>
   <UDashboardPanel>
-    <UDashboardNavbar>
-      <template #toggle>
-        <UIcon name="mdi:menu" :size="20" />
-      </template>
-      <template #leading>
-        <UBadge 
-          size="xl" 
-          variant="subtle" 
-          @click="navigateTo('/home')"
-          class="cursor-pointer hover:opacity-75 transition-opacity py-4"
-        >
-          <template #default>
-            <div class="flex items-center gap-2">
-              <span>Collabus</span>
-            </div>
-          </template>
-        </UBadge>
-      </template>
-      <template #right>
-        <ColorModeButton />
-        <div class="px-2">
-          <template v-if="loggedIn">
-            <UserMenu :name="userInfo.firstName" @signout="handleSignOut" />
-          </template>
-        </div>
-      </template>
-    </UDashboardNavbar>
+    <template #header>
+      <UDashboardNavbar :toggle="false">
+        <template #leading>
+          <UBadge 
+            size="xl" 
+            variant="subtle" 
+            @click="navigateTo('/home')"
+            class="cursor-pointer hover:opacity-75 transition-opacity py-4"
+          >
+            <template #default>
+              <div class="flex items-center gap-2">
+                <span>Collabus</span>
+              </div>
+            </template>
+          </UBadge>
+        </template>
+        <template #right>
+          <ColorModeButton />
+          <div class="px-2">
+            <template v-if="loggedIn">
+              <UserMenu :name="userInfo.firstName" @signout="handleSignOut" />
+            </template>
+          </div>
+        </template>
+      </UDashboardNavbar>
+    </template>
 
-    <div class="pb-20"> <!-- espaço para a bottom nav -->
-      <slot />
-    </div>
+    <template #body>
+      <NuxtPage />
+    </template>
 
-    <template v-if="loggedIn">
-      <BottomNav />
+    <template #footer>
+      <template v-if="loggedIn">
+        <BottomNav />
+      </template>
     </template>
   </UDashboardPanel>
 </template>
 
 <script setup lang="ts">
+import { collapsible } from "#build/ui";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 
