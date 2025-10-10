@@ -6,31 +6,55 @@
       <UForm @submit.prevent="save">
         <div class="grid grid-cols-1 gap-4 mb-4">
           <UFormField label="Nome" name="firstName">
-            <InputTextLarge v-model="person.firstName" id="firstName" placeholder="Nome" />
+            <InputTextLarge
+              id="firstName"
+              v-model="person.firstName"
+              placeholder="Nome"
+            />
           </UFormField>
 
           <UFormField label="Sobrenome" name="lastName">
-            <InputTextLarge v-model="person.lastName" id="lastName" placeholder="Sobrenome" />
+            <InputTextLarge
+              id="lastName"
+              v-model="person.lastName"
+              placeholder="Sobrenome"
+            />
           </UFormField>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <UFormField label="CPF" name="cpf">
-              <CpfInput v-model="person.cpf" id="cpf" placeholder="000.000.000-00" />
+              <CpfInput
+                id="cpf"
+                v-model="person.cpf"
+                placeholder="000.000.000-00"
+              />
             </UFormField>
 
             <UFormField label="Data de nascimento" name="birthDate">
-              <DateMaskedInput v-model="birthDateString" id="birthDate" placeholder="dd/mm/aaaa" />
+              <DateMaskedInput
+                id="birthDate"
+                v-model="birthDateString"
+                placeholder="dd/mm/aaaa"
+              />
             </UFormField>
           </div>
 
           <div class="max-w-xs">
             <UFormField label="Telefone" name="phone">
-              <PhoneInput v-model="person.phone" id="phone" placeholder="(99) 99999-9999" />
+              <PhoneInput
+                id="phone"
+                v-model="person.phone"
+                placeholder="(99) 99999-9999"
+              />
             </UFormField>
           </div>
 
           <UFormField label="Endereço" name="address">
-            <InputTextLarge v-model="person.address" id="address" placeholder="Endereço" />
+            <InputTextLarge
+              id="address"
+              v-model="person.address"
+              placeholder="Endereço"
+            />
           </UFormField>
         </div>
 
@@ -45,8 +69,13 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue';
-import type { Person } from '../../types/person';
+import { reactive, ref, onMounted } from "vue";
+import type { Person } from "~~/types/person";
+
+definePageMeta({
+  middleware: ["authenticated"],
+  layout: "default",
+});
 
 const authStore = useAuthStore();
 const { user } = authStore;
@@ -55,18 +84,18 @@ const toast = useToast();
 
 const person = reactive<Partial<Person>>({
   id: undefined,
-  firstName: '',
-  lastName: '',
-  cpf: '',
-  phone: '',
-  address: '',
+  firstName: "",
+  lastName: "",
+  cpf: "",
+  phone: "",
+  address: "",
   birthDate: undefined,
   createdAt: new Date(),
 });
 
-const birthDateString = ref(''); // ISO 'YYYY-MM-DD' or empty
+const birthDateString = ref(""); // ISO 'YYYY-MM-DD' or empty
 
-const stripNonDigits = (v = '') => (v || '').toString().replace(/\D+/g, '');
+const stripNonDigits = (v = "") => (v || "").toString().replace(/\D+/g, "");
 
 const load = async () => {
   if (!user?.id) return;
@@ -76,10 +105,10 @@ const load = async () => {
       Object.assign(person, res.data);
       birthDateString.value = person.birthDate
         ? new Date(person.birthDate).toISOString().slice(0, 10)
-        : '';
+        : "";
     }
-  } catch (err) {
-    console.error('Erro ao carregar pessoa:', err);
+  } catch (error: any) {
+    console.error("Erro ao carregar pessoa:", error);
   }
 };
 
@@ -90,10 +119,12 @@ const save = async () => {
     const payload = {
       firstName: person.firstName,
       lastName: person.lastName,
-      cpf: stripNonDigits(person.cpf || ''),
-      phone: stripNonDigits(person.phone || ''),
+      cpf: stripNonDigits(person.cpf || ""),
+      phone: stripNonDigits(person.phone || ""),
       address: person.address,
-      birthDate: birthDateString.value ? new Date(birthDateString.value) : undefined,
+      birthDate: birthDateString.value
+        ? new Date(birthDateString.value)
+        : undefined,
     };
 
     if (person.id) {
@@ -105,16 +136,16 @@ const save = async () => {
 
     // feedback via toast
     toast.add({
-      title: 'Sucesso',
-      description: 'Dados salvos com sucesso',
-      color: 'success',
+      title: "Sucesso",
+      description: "Dados salvos com sucesso",
+      color: "success",
     });
   } catch (err) {
     console.error(err);
     toast.add({
-      title: 'Erro',
-      description: 'Erro ao salvar dados',
-      color: 'error',
+      title: "Erro",
+      description: "Erro ao salvar dados",
+      color: "error",
     });
   }
 };

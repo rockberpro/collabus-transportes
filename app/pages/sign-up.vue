@@ -5,7 +5,7 @@
         <h2 class="text-3xl font-bold">Cadastrar</h2>
         <p class="mt-2 text-sm mb-8">Crie sua conta no Collabus</p>
       </div>
-      <UForm @submit.prevent="handleSignUp" :state="state">
+      <UForm :state="state" @submit.prevent="handleSignUp">
         <div class="mb-4">
           <UFormField label="Nome">
             <InputTextLarge
@@ -31,8 +31,8 @@
         <div class="mb-4">
           <UFormField label="Senha">
             <InputPasswordLarge
-              v-model="state.password"
               id="password"
+              v-model="state.password"
               :type="state.showPassword ? 'text' : 'password'"
               placeholder="Crie uma senha"
               icon="mdi:lock-outline"
@@ -46,8 +46,8 @@
         <div class="mb-12">
           <UFormField label="Confirmar Senha">
             <InputPasswordLarge
-              v-model="state.passwordConfirm"
               id="password-confirm"
+              v-model="state.passwordConfirm"
               :type="state.showPasswordConfirm ? 'text' : 'password'"
               placeholder="Repita a senha"
               icon="mdi:lock-check-outline"

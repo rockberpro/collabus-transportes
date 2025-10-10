@@ -5,12 +5,12 @@
         <h2 class="text-3xl font-bold">Entrar</h2>
         <p class="mt-2 text-sm mb-8">Entre na sua conta do Collabus</p>
       </div>
-      <UForm @submit.prevent="handleSignIn" :state="state">
+      <UForm :state="state" @submit.prevent="handleSignIn">
         <div class="mb-4">
           <UFormField label="E-mail" name="email">
             <InputTextLarge
-              v-model="state.email"
               id="email"
+              v-model="state.email"
               icon="mdi:at"
               :required="true"
               placeholder="seu@email.com"
@@ -20,16 +20,16 @@
         <div class="mb-12">
           <UFormField label="Senha" name="senha">
             <InputPasswordLarge
-              v-model="state.password"
               id="password"
+              v-model="state.password"
               :type="state.showPassword ? 'text' : 'password'"
               icon="mdi:lock-outline"
+              placeholder="Digite sua senha"
+              :required="true"
               :trailing-icon="
                 state.showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'
               "
               @trailing-click="state.showPassword = !state.showPassword"
-              :required="true"
-              placeholder="Digite sua senha"
             />
           </UFormField>
         </div>
@@ -59,7 +59,6 @@
 
 <script setup lang="ts">
 import { reactive } from "vue";
-import { storeToRefs } from "pinia";
 
 const router = useRouter();
 const toast = useToast();
