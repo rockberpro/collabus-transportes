@@ -70,7 +70,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from "vue";
-import type { Person } from "~~/types/person";
+import type { CreatePerson, Person } from "~~/types/person";
 
 definePageMeta({
   middleware: ["authenticated"],
@@ -128,9 +128,9 @@ const save = async () => {
     };
 
     if (person.id) {
-      await updatePerson(person.id, payload as any);
+      await updatePerson(person.id, payload as CreatePerson);
     } else {
-      const created = await createPerson(payload as any);
+      const created = await createPerson(payload as CreatePerson);
       if (created && created.data) person.id = created.data.id;
     }
 
