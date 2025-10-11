@@ -9,6 +9,7 @@ export default defineNuxtConfig({
   },
   ssr: false,
   modules: [
+    '@nuxt/devtools',
     "@nuxt/eslint",
     "@nuxt/fonts",
     "@nuxt/icon",
