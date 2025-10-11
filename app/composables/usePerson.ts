@@ -1,41 +1,30 @@
-import type { Person, CreatePerson } from "../../types/person";
+import type { Person, CreatePerson } from "~~/types/person";
 
 export const usePerson = () => {
   const getPersonByUserId = async (userId: string) => {
-    const response = await $fetch<{ success: boolean; data: Person }>(
+    return await $fetch<{ success: boolean; data: Person }>(
       `/api/user/${userId}/person`,
       {
         method: "GET",
       },
     );
-
-    return response;
   };
 
   const createPerson = async (personData: CreatePerson) => {
-    const response = await $fetch<{ success: boolean; data: Person }>(
-      "/api/person",
-      {
-        method: "POST",
-        body: personData,
-      },
-    );
-
-    return response;
+    return await $fetch<{ success: boolean; data: Person }>("/api/person", {
+      method: "POST",
+      body: personData,
+    });
   };
 
   const updatePerson = async (
     personId: string,
     updateData: Partial<CreatePerson>,
   ) => {
-    const response = await $fetch<{ success: boolean }>(
-      `/api/person/${personId}`,
-      {
-        method: "PUT",
-        body: updateData,
-      },
-    );
-    return response;
+    return await $fetch<{ success: boolean }>(`/api/person/${personId}`, {
+      method: "PUT",
+      body: updateData,
+    });
   };
 
   return {

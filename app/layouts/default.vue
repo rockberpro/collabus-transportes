@@ -4,10 +4,10 @@
       <UDashboardNavbar :toggle="false">
         <template #leading>
           <UBadge
+            class="cursor-pointer hover:opacity-75 transition-opacity py-4"
             size="xl"
             variant="subtle"
             @click="navigateTo('/home')"
-            class="cursor-pointer hover:opacity-75 transition-opacity py-4"
           >
             <template #default>
               <div class="flex items-center gap-2">
