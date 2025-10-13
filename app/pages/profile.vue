@@ -73,7 +73,7 @@
         <div class="py-5">
           <div class="flex justify-end space-x-2">
             <ButtonLarge type="button" variant="outline" color="neutral" @click="cancel" v-if="editing">Cancelar</ButtonLarge>
-            <ButtonLarge type="submit" :disabled="!editing">Salvar</ButtonLarge>
+            <ButtonLarge type="submit" v-if="editing">Salvar</ButtonLarge>
           </div>
         </div>
       </UForm>
