@@ -88,14 +88,40 @@ const handleSignIn = async () => {
       email: state.email,
       password: state.password,
     });
-    await fetch();
+
+    // attempt to fetch session; if it fails, continue but log the error
+    try {
+      await fetch();
+      console.log('Session fetch succeeded');
+    } catch (fetchErr) {
+      console.warn('Session fetch failed (non-blocking):', fetchErr);
+    }
+
     authStore.setUser({
       user: response.user,
       token: response.token.accessToken,
       tokenType: "accessToken",
     });
 
-    await router.push("/home");
+    // resilient navigation with logging and fallbacks
+    try {
+      await router.push({ path: "/home" });
+      console.log('Navigation to /home succeeded via router.push');
+    } catch (navErr) {
+      console.error('Navigation failed via router.push', navErr);
+      try {
+        // @ts-ignore
+        if (typeof navigateTo === 'function') {
+          await navigateTo('/home');
+          console.log('Navigation to /home succeeded via navigateTo');
+        } else {
+          window.location.href = '/home';
+        }
+      } catch (finalErr) {
+        console.error('All navigation attempts failed, falling back to window.location', finalErr);
+        window.location.href = '/home';
+      }
+    }
   } catch (error) {
     const err = error as Error;
     console.log("Error during sign-in", err);
