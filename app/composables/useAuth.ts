@@ -8,6 +8,7 @@ export const useAuth = () => {
     return await $fetch<{ success: boolean; data: User }>("/api/auth/sign-up", {
       method: "POST",
       body: signUpData,
+      credentials: 'include',
     });
   };
 
@@ -18,6 +19,7 @@ export const useAuth = () => {
     }>("/api/auth/sign-in", {
       method: "POST",
       body: signInData,
+      credentials: 'include',
     });
   };
 
@@ -25,6 +27,7 @@ export const useAuth = () => {
     const { clear } = useUserSession();
     await $fetch<Record<string, never>>("/api/auth/sign-out", {
       method: "POST",
+      credentials: 'include',
     });
 
     await clear();
