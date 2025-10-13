@@ -73,37 +73,42 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import GoBackButton from '~/components/GoBackButton.vue'
+import { ref, computed, onMounted } from 'vue'
 
-const filters = ref({
-  origin: '',
-  destination: '',
+const filters = ref({ origin: '', destination: '' })
+
+const routes = ref<Array<any>>([])
+const loading = ref(false)
+const error = ref<string | null>(null)
+
+async function loadRoutes() {
+  loading.value = true
+  error.value = null
+  try {
+    const res = await fetch('/api/routes')
+    const json = await res.json()
+    routes.value = json.data || []
+  } catch (err: any) {
+    error.value = err?.message || String(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadRoutes()
 })
 
-// Dados hard-coded inicialmente. Mais tarde serão carregados do servidor.
-const routes = ref([
-  { id: 'r1', code: 'R-001', origin: 'Estação Rodoviária', destination: 'Praça Principal', state: 'RS', city: 'Lajeado' },
-  { id: 'r2', code: 'R-002', origin: 'Terminal Central', destination: 'Hospital Municipal', state: 'RS', city: 'Lajeado' },
-  { id: 'r3', code: 'R-003', origin: 'Rua das Flores', destination: 'Avenida Brasil', state: 'RS', city: 'Lajeado' },
-])
-
 const filteredRoutes = computed(() => {
-  return routes.value.filter(r => {
+  return routes.value.filter((r: any) => {
     const originMatch = !filters.value.origin || r.origin.toLowerCase().includes(filters.value.origin.toLowerCase())
     const destMatch = !filters.value.destination || r.destination.toLowerCase().includes(filters.value.destination.toLowerCase())
-    return originMatch && destMatch && r.state === 'RS' && r.city === 'Lajeado'
+    return originMatch && destMatch
   })
 })
 
-function search() {
-  // atualmente a busca é reativa via computed; função mantida para futuros hooks
-}
-
-function reset() {
-  filters.value.origin = ''
-  filters.value.destination = ''
-}
+function search() { /* busca reativa via computed */ }
+function reset() { filters.value.origin = ''; filters.value.destination = '' }
 </script>
 
 <style scoped>
