@@ -37,12 +37,11 @@
             <span>Horários</span>
           </div>
         </ButtonLarge>
-        <!-- TODO: @click="navigateTo('/routes') -->
         <ButtonLarge
           variant="ghost"
           color="neutral"
           class="flex-1 text-center p-2"
-          @click="navigateTo('/404')"
+          @click="navigateTo('/routes')"
         >
           <div class="inline-flex flex-col items-center text-sm">
             <UIcon name="mdi:magnify-expand" :size="20" />
