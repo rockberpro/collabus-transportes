@@ -19,9 +19,9 @@
         <template #right>
           <ColorModeButton />
           <div class="px-2">
-            <template v-if="loggedIn">
-              <UserMenu :name="userInfo.firstName" @signout="handleSignOut" />
-            </template>
+                  <template v-if="combinedLoggedIn">
+                    <UserMenu :name="userInfo.firstName" @signout="handleSignOut" />
+                  </template>
           </div>
         </template>
       </UDashboardNavbar>
@@ -32,7 +32,7 @@
     </template>
 
     <template #footer>
-      <template v-if="loggedIn">
+      <template v-if="combinedLoggedIn">
         <BottomNav />
       </template>
     </template>
@@ -42,10 +42,13 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
+import { computed } from "vue";
 
 const { loggedIn, fetch: fetchSession } = useUserSession();
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
+
+const combinedLoggedIn = computed(() => Boolean(loggedIn.value) || Boolean(authStore.isAuthenticated));
 const { updateUserDetails } = authStore;
 const { getUserById } = useUser();
 const { getPersonByUserId } = usePerson();
@@ -85,7 +88,7 @@ const handleSignOut = async () => {
 
 // watches for changes in loggedIn state
 watch(
-  () => loggedIn.value,
+  () => combinedLoggedIn.value,
   (newValue) => {
     if (newValue) {
       // ensure user menu is closed when login state changes (avoid it being open immediately after sign-in)
