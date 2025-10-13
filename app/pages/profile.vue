@@ -1,15 +1,22 @@
 <template>
   <div class="flex items-center justify-center min-h-full p-8">
-    <div class="w-full max-w-2xl">
-      <h1 class="text-2xl font-semibold mb-4">Sobre mim</h1>
+    <div class="w-full max-w-2xl relative">
+        <h1 class="text-2xl font-semibold mb-4 flex items-center justify-between">
+          <span>Sobre mim</span>
+          <ButtonSmall variant="outline" color="secondary" type="button" class="text-gray-500 hover:text-gray-700" @click="editing = !editing" aria-label="Editar">
+            <UIcon name="mdi:pencil" />
+            <span>Editar</span>
+          </ButtonSmall>
+        </h1>
 
-      <UForm @submit.prevent="save">
+        <UForm @submit.prevent="save">
         <div class="grid grid-cols-1 gap-4 mb-4">
           <UFormField label="Nome" name="firstName">
             <InputTextLarge
               id="firstName"
               v-model="person.firstName"
               placeholder="Nome"
+              :disabled="!editing"
             />
           </UFormField>
 
@@ -18,6 +25,7 @@
               id="lastName"
               v-model="person.lastName"
               placeholder="Sobrenome"
+              :disabled="!editing"
             />
           </UFormField>
 
@@ -27,6 +35,7 @@
                 id="cpf"
                 v-model="person.cpf"
                 placeholder="000.000.000-00"
+                :disabled="!editing"
               />
             </UFormField>
 
@@ -35,6 +44,7 @@
                 id="birthDate"
                 v-model="birthDateString"
                 placeholder="dd/mm/aaaa"
+                :disabled="!editing"
               />
             </UFormField>
           </div>
@@ -45,6 +55,7 @@
                 id="phone"
                 v-model="person.phone"
                 placeholder="(99) 99999-9999"
+                :disabled="!editing"
               />
             </UFormField>
           </div>
@@ -54,13 +65,15 @@
               id="address"
               v-model="person.address"
               placeholder="Endereço"
+              :disabled="!editing"
             />
           </UFormField>
         </div>
 
         <div class="py-5">
-          <div class="flex justify-end">
-            <ButtonLarge type="submit">Salvar</ButtonLarge>
+          <div class="flex justify-end space-x-2">
+            <ButtonLarge type="button" variant="outline" color="neutral" @click="cancel" v-if="editing">Cancelar</ButtonLarge>
+            <ButtonLarge type="submit" :disabled="!editing">Salvar</ButtonLarge>
           </div>
         </div>
       </UForm>
@@ -94,6 +107,14 @@ const person = reactive<Partial<Person>>({
 });
 
 const birthDateString = ref(""); // ISO 'YYYY-MM-DD' or empty
+
+const editing = ref(false);
+
+const cancel = () => {
+  // reload original values and disable editing
+  load();
+  editing.value = false;
+};
 
 const stripNonDigits = (v = "") => (v || "").toString().replace(/\D+/g, "");
 
@@ -139,6 +160,8 @@ const save = async () => {
       description: "Dados salvos com sucesso",
       color: "success",
     });
+    // disable editing after successful save
+    editing.value = false;
   } catch (error) {
     const err = error as Error;
     console.log("Error while saving user profile", err);
