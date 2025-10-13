@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
   );
 
   try {
+    // set server session via helper (if available)
     await setUserSession(event, {
       user: {
         id: user.id,
@@ -37,6 +38,24 @@ export default defineEventHandler(async (event) => {
         refreshToken: refreshToken,
       },
     });
+
+    // Additionally ensure a cookie is set with attributes suitable for cross-site usage
+    try {
+      // use h3 setCookie to explicitly set cookie attributes
+      const { setCookie } = await import('h3');
+      const cookieOptions: any = {
+        httpOnly: true,
+        path: '/',
+        sameSite: 'None',
+        secure: process.env.NODE_ENV === 'production' || false,
+        maxAge: 7 * 24 * 60 * 60,
+      };
+      // store a minimal session marker (server still manages the real session)
+      setCookie(event, 'collabus_session', accessToken, cookieOptions);
+    } catch (cookieErr) {
+      // ignore cookie set errors but log
+      console.warn('Failed to set explicit cookie for session:', cookieErr);
+    }
 
     await tokenService.setRefreshToken(refreshToken, user.id);
   } catch (error) {
