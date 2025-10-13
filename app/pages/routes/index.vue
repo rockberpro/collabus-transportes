@@ -3,7 +3,7 @@
   <div class="container mx-auto p-4">
     <h1 class="text-2xl font-bold mb-4">Consultar rotas de ônibus</h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-1 gap-4 mb-6">
       <div>
         <label class="block text-sm font-medium mb-1">Estado</label>
         <select class="w-full p-2 border rounded" disabled>
@@ -18,7 +18,7 @@
         </select>
       </div>
 
-      <div class="md:col-span-2">
+      <div>
         <label class="block text-sm font-medium mb-1">De onde</label>
         <input list="origins" v-model="filters.origin" class="w-full p-2 border rounded" placeholder="Digite ou escolha uma origem" />
         <datalist id="origins">
@@ -29,7 +29,7 @@
         </datalist>
       </div>
 
-      <div class="md:col-span-2">
+      <div>
         <label class="block text-sm font-medium mb-1">Para onde</label>
         <input list="destinations" v-model="filters.destination" class="w-full p-2 border rounded" placeholder="Digite ou escolha um destino" />
         <datalist id="destinations">
@@ -42,13 +42,13 @@
     </div>
 
     <div class="mb-4">
-      <button class="px-4 py-2 bg-blue-600 text-white rounded" @click="search">Pesquisar</button>
+      <button class="px-4 py-2 rounded" @click="search">Pesquisar</button>
       <button class="px-4 py-2 ml-2 border rounded" @click="reset">Limpar</button>
     </div>
 
     <table class="w-full table-auto border-collapse">
       <thead>
-        <tr class="bg-gray-100">
+        <tr>
           <th class="border px-3 py-2 text-left">Código</th>
           <th class="border px-3 py-2 text-left">Origem</th>
           <th class="border px-3 py-2 text-left">Destino</th>
