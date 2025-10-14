@@ -6,7 +6,7 @@
     <div class="grid grid-cols-1 gap-4 mb-6">
       <div>
         <label class="block text-sm font-medium mb-1">Estado</label>
-        <select v-model="filters.state" class="w-full p-2 border rounded">
+        <select v-model="filters.state" class="w-full p-2 border rounded" disabled>
           <option value="" disabled v-if="states.length === 0">Carregando...</option>
           <option v-for="s in states" :key="s" :value="s">{{ s }}</option>
         </select>
@@ -14,7 +14,7 @@
 
       <div>
         <label class="block text-sm font-medium mb-1">Cidade</label>
-        <select v-model="filters.city" class="w-full p-2 border rounded">
+        <select v-model="filters.city" class="w-full p-2 border rounded" disabled>
           <option value="" disabled v-if="cities.length === 0">Carregando...</option>
           <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
         </select>
