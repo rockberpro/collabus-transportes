@@ -7,14 +7,16 @@
       <div>
         <label class="block text-sm font-medium mb-1">Estado</label>
         <select v-model="filters.state" class="w-full p-2 border rounded">
-          <option>RS</option>
+          <option value="" disabled v-if="states.length === 0">Carregando...</option>
+          <option v-for="s in states" :key="s" :value="s">{{ s }}</option>
         </select>
       </div>
 
       <div>
         <label class="block text-sm font-medium mb-1">Cidade</label>
         <select v-model="filters.city" class="w-full p-2 border rounded">
-          <option>Lajeado</option>
+          <option value="" disabled v-if="cities.length === 0">Carregando...</option>
+          <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
         </select>
       </div>
 
@@ -56,12 +58,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
-const filters = ref({ state: 'RS', city: 'Lajeado', code: '' })
+const filters = ref({ state: '', city: '', code: '' })
 const schedules = ref<Array<any>>([])
+const routes = ref<Array<any>>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
+
+async function loadRoutes() {
+  try {
+    const res = await fetch('/api/routes')
+    const json = await res.json()
+    routes.value = json.data || []
+    // set defaults if present
+    if (routes.value.length > 0 && !filters.value.state) {
+      // pick the first state/city available (as before: RS / Lajeado)
+      filters.value.state = routes.value[0].state
+      filters.value.city = routes.value[0].city
+    }
+  } catch (err: any) {
+    console.error(err)
+  }
+}
 
 async function loadSchedules() {
   loading.value = true
@@ -82,7 +101,22 @@ async function loadSchedules() {
   }
 }
 
-onMounted(() => loadSchedules())
+onMounted(async () => {
+  await loadRoutes()
+  await loadSchedules()
+})
+
+const states = computed(() => {
+  const set = new Set<string>()
+  for (const r of routes.value) if (r.state) set.add(r.state)
+  return Array.from(set).sort()
+})
+
+const cities = computed(() => {
+  const set = new Set<string>()
+  for (const r of routes.value) if (r.city) set.add(r.city)
+  return Array.from(set).sort()
+})
 
 function search() { loadSchedules() }
 function reset() { filters.value.code = '' ; loadSchedules() }
