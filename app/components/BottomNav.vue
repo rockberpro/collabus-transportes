@@ -1,5 +1,5 @@
 <template>
-  <nav class="fixed bottom-0 left-0 right-0 border-t z-50 dark:border-gray-700">
+  <nav class="fixed bottom-0 left-0 right-0 border-t z-50 bg-white dark:bg-zinc-900 dark:border-zinc-700 shadow-md">
     <div class="max-w-5xl mx-auto px-4">
       <div class="flex justify-between items-center py-3">
         <ButtonLarge
