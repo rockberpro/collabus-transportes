@@ -22,10 +22,7 @@
         <label class="block text-sm font-medium mb-1">De onde</label>
         <input list="origins" v-model="filters.origin" class="w-full p-2 border rounded" placeholder="Digite ou escolha uma origem" />
         <datalist id="origins">
-          <option value="Estação Rodoviária" />
-          <option value="Terminal Central" />
-          <option value="Rua das Flores" />
-          <option value="Avenida Brasil" />
+          <option v-for="o in origins" :key="o" :value="o" />
         </datalist>
       </div>
 
@@ -33,10 +30,7 @@
         <label class="block text-sm font-medium mb-1">Para onde</label>
         <input list="destinations" v-model="filters.destination" class="w-full p-2 border rounded" placeholder="Digite ou escolha um destino" />
         <datalist id="destinations">
-          <option value="Estação Rodoviária" />
-          <option value="Terminal Central" />
-          <option value="Praça Principal" />
-          <option value="Hospital Municipal" />
+          <option v-for="d in destinations" :key="d" :value="d" />
         </datalist>
       </div>
     </div>
@@ -105,6 +99,18 @@ const filteredRoutes = computed(() => {
     const destMatch = !filters.value.destination || r.destination.toLowerCase().includes(filters.value.destination.toLowerCase())
     return originMatch && destMatch
   })
+})
+
+const origins = computed(() => {
+  const set = new Set<string>()
+  for (const r of routes.value) if (r.origin) set.add(r.origin)
+  return Array.from(set).sort()
+})
+
+const destinations = computed(() => {
+  const set = new Set<string>()
+  for (const r of routes.value) if (r.destination) set.add(r.destination)
+  return Array.from(set).sort()
 })
 
 function search() { /* busca reativa via computed */ }
