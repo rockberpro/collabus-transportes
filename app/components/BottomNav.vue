@@ -1,5 +1,5 @@
 <template>
-  <nav class="fixed bottom-0 left-0 right-0 border-t z-50 dark:border-gray-700">
+  <nav class="fixed bottom-0 left-0 right-0 border-t z-50 bg-white dark:bg-zinc-900 dark:border-zinc-700 shadow-md">
     <div class="max-w-5xl mx-auto px-4">
       <div class="flex justify-between items-center py-3">
         <ButtonLarge
@@ -37,12 +37,11 @@
             <span>Horários</span>
           </div>
         </ButtonLarge>
-        <!-- TODO: @click="navigateTo('/routes') -->
         <ButtonLarge
           variant="ghost"
           color="neutral"
           class="flex-1 text-center p-2"
-          @click="navigateTo('/404')"
+          @click="navigateTo('/routes')"
         >
           <div class="inline-flex flex-col items-center text-sm">
             <UIcon name="mdi:magnify-expand" :size="20" />

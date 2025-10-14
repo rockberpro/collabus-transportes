@@ -65,3 +65,17 @@ enum TokenType {
   ACCESS_TOKEN       @map("access_token")
   REFRESH_TOKEN      @map("refresh_token")
 }
+
+model Route {
+  id          String   @id @default(cuid())
+  code        String?  @unique
+  origin      String
+  destination String
+  state       String
+  city        String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("routes")
+}

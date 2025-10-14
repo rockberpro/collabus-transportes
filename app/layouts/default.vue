@@ -28,7 +28,9 @@
     </template>
 
     <template #body>
-      <NuxtPage />
+      <div :class="combinedLoggedIn ? 'pb-20' : ''">
+        <NuxtPage />
+      </div>
     </template>
 
     <template #footer>

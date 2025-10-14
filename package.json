@@ -15,6 +15,9 @@
     "test:server:watch": "vitest --project=server --watch",
     "test:coverage": "vitest --project=unit --coverage"
   },
+  "prisma": {
+    "seed": "node prisma/seed.ts"
+  },
   "dependencies": {
     "@capacitor/android": "^7.4.2",
     "@capacitor/core": "^7.4.2",
