@@ -59,6 +59,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from '#app'
 
 const filters = ref({ state: '', city: '', code: '' })
 const schedules = ref<Array<any>>([])
@@ -101,9 +102,29 @@ async function loadSchedules() {
   }
 }
 
+const route = useRoute()
+const router = useRouter()
+
 onMounted(async () => {
+  // se houver query params, aplicá-los aos filtros antes de carregar
+  const q = route.query || {}
+  if (q.routeCode && typeof q.routeCode === 'string') filters.value.code = q.routeCode
+  if (q.state && typeof q.state === 'string') filters.value.state = q.state
+  if (q.city && typeof q.city === 'string') filters.value.city = q.city
+
   await loadRoutes()
   await loadSchedules()
+
+  // sincroniza URL se veio apenas routeCode (garante padrão de state/city no query)
+  const hasQuery = !!(q.routeCode || q.state || q.city)
+  if (hasQuery) {
+    const params: Record<string, string> = {}
+    if (filters.value.code) params.code = filters.value.code
+    if (filters.value.state) params.state = filters.value.state
+    if (filters.value.city) params.city = filters.value.city
+    // evita reload completo, apenas atualiza a query
+    router.replace({ path: route.path, query: params })
+  }
 })
 
 const states = computed(() => {

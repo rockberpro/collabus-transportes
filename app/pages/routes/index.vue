@@ -53,7 +53,12 @@
         </thead>
         <tbody>
           <tr v-for="route in filteredRoutes" :key="route.id">
-            <td class="border px-3 py-2">{{ route.code || '-' }}</td>
+            <td class="border px-3 py-2">
+              <NuxtLink v-if="route.code" :to="{ path: '/schedules', query: { routeCode: route.code, state: route.state, city: route.city } }" class="text-blue-600 hover:underline">
+                {{ route.code }}
+              </NuxtLink>
+              <span v-else>-</span>
+            </td>
             <td class="border px-3 py-2">{{ route.origin }}</td>
             <td class="border px-3 py-2">{{ route.destination }}</td>
             <td class="border px-3 py-2">{{ route.state }}</td>
