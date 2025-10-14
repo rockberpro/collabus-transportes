@@ -25,12 +25,11 @@
             <span>Mapa</span>
           </div>
         </ButtonLarge>
-        <!-- TODO: @click="navigateTo('/schedule') -->
         <ButtonLarge
           variant="ghost"
           color="neutral"
           class="flex-1 text-center p-2"
-          @click="navigateTo('/404')"
+          @click="navigateTo('/schedules')"
         >
           <div class="inline-flex flex-col items-center text-sm">
             <UIcon name="mdi:clock-outline" :size="20" />

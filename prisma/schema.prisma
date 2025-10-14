@@ -76,6 +76,23 @@ model Route {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  schedules   Schedule[]
 
   @@map("routes")
+}
+
+model Schedule {
+  id        String   @id @default(cuid())
+  routeCode String
+  state     String
+  city      String
+  times     Json
+  routeId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  route     Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  @@unique([routeCode, state, city])
+  @@map("schedules")
 }
