@@ -40,29 +40,31 @@
       <button class="px-4 py-2 ml-2 border rounded" @click="reset">Limpar</button>
     </div>
 
-    <table class="w-full table-auto border-collapse">
-      <thead>
-        <tr>
-          <th class="border px-3 py-2 text-left">Código</th>
-          <th class="border px-3 py-2 text-left">Origem</th>
-          <th class="border px-3 py-2 text-left">Destino</th>
-          <th class="border px-3 py-2 text-left">Estado</th>
-          <th class="border px-3 py-2 text-left">Cidade</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="route in filteredRoutes" :key="route.id">
-          <td class="border px-3 py-2">{{ route.code || '-' }}</td>
-          <td class="border px-3 py-2">{{ route.origin }}</td>
-          <td class="border px-3 py-2">{{ route.destination }}</td>
-          <td class="border px-3 py-2">{{ route.state }}</td>
-          <td class="border px-3 py-2">{{ route.city }}</td>
-        </tr>
-        <tr v-if="filteredRoutes.length === 0">
-          <td class="border px-3 py-2 text-center" colspan="5">Nenhuma rota encontrada</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="overflow-x-auto -mx-4 px-4 sm:-mx-0 sm:px-0">
+      <table class="min-w-[700px] w-full table-auto border-collapse">
+        <thead>
+          <tr>
+            <th class="border px-3 py-2 text-left">Código</th>
+            <th class="border px-3 py-2 text-left">Origem</th>
+            <th class="border px-3 py-2 text-left">Destino</th>
+            <th class="border px-3 py-2 text-left">Estado</th>
+            <th class="border px-3 py-2 text-left">Cidade</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="route in filteredRoutes" :key="route.id">
+            <td class="border px-3 py-2">{{ route.code || '-' }}</td>
+            <td class="border px-3 py-2">{{ route.origin }}</td>
+            <td class="border px-3 py-2">{{ route.destination }}</td>
+            <td class="border px-3 py-2">{{ route.state }}</td>
+            <td class="border px-3 py-2">{{ route.city }}</td>
+          </tr>
+          <tr v-if="filteredRoutes.length === 0">
+            <td class="border px-3 py-2 text-center" colspan="5">Nenhuma rota encontrada</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
