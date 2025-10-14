@@ -6,9 +6,10 @@ async function main() {
   console.log('Seeding routes...')
 
   const routesData = [
-    { code: 'R-001', origin: 'Estação Rodoviária', destination: 'Praça Principal', state: 'RS', city: 'Lajeado' },
-    { code: 'R-002', origin: 'Terminal Central', destination: 'Hospital Municipal', state: 'RS', city: 'Lajeado' },
-    { code: 'R-003', origin: 'Rua das Flores', destination: 'Avenida Brasil', state: 'RS', city: 'Lajeado' },
+    { code: 'R-001', origin: 'Rodoviária Nova', destination: 'Praça da Matriz', state: 'RS', city: 'Lajeado' },
+    { code: 'R-002', origin: 'Rodoviária Velha', destination: 'Hospital Bruno Born', state: 'RS', city: 'Lajeado' },
+    { code: 'R-003', origin: 'Conventos', destination: 'Univates', state: 'RS', city: 'Lajeado' },
+    { code: 'R-004', origin: 'Shopping', destination: 'São Cristóvão', state: 'RS', city: 'Lajeado' },
   ]
 
   for (const r of routesData) {
