@@ -15,6 +15,12 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
+interface SessionPayload {
+  user: AuthState["user"];
+  token: string | null;
+  tokenType: string | null;
+}
+
 export const useAuthStore = defineStore("auth", {
   state: () =>
     ({
@@ -24,7 +30,7 @@ export const useAuthStore = defineStore("auth", {
       isAuthenticated: false,
     }) as AuthState,
   actions: {
-    setUser(session: any) {
+    setUser(session: SessionPayload) {
       this.user = session.user;
       this.token = session.token;
       this.tokenType = session.tokenType;
@@ -43,6 +49,15 @@ export const useAuthStore = defineStore("auth", {
       this.token = null;
       this.tokenType = null;
       this.isAuthenticated = false;
+
+      // Also clear persisted state in localStorage when running in the browser
+      try {
+        if (typeof window !== "undefined" && window.localStorage) {
+          window.localStorage.removeItem("pinia_auth");
+        }
+      } catch (e) {
+        // ignore
+      }
     },
   },
 });
