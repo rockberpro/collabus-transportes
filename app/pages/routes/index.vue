@@ -52,13 +52,20 @@
           Nenhuma rota encontrada
         </UCard>
 
-        <UCard v-for="route in filteredRoutes" :key="route.id" class="p-4 w-full">
+        <UCard
+          v-for="route in filteredRoutes"
+          :key="route.id"
+          class="p-4 w-full cursor-pointer"
+          role="button"
+          tabindex="0"
+          @click="gotoSchedule(route)"
+          @keydown.enter.prevent="gotoSchedule(route)"
+          @keydown.space.prevent="gotoSchedule(route)"
+        >
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <div class="text-sm font-semibold">
-                <button v-if="route.code" class="text-blue-600 hover:underline" @click="gotoSchedule(route)">
-                  {{ route.code }}
-                </button>
+                <span v-if="route.code">{{ route.code }}</span>
                 <span v-else>-</span>
               </div>
               <div class="text-xs text-gray-500 dark:text-gray-400">{{ route.origin }} → {{ route.destination }}</div>
