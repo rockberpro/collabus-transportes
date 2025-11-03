@@ -1,8 +1,8 @@
 <template>
-  <div class="relative" ref="wrapper">
-    <div @click="toggle" class="cursor-pointer">
+  <div ref="wrapper" class="relative">
+    <div class="cursor-pointer" @click="toggle">
       <UUser
-        :name="name"
+        :name="displayName"
         :avatar="{
           src: 'https://i.pravatar.cc/150?img=13',
           icon: 'i-lucide-image'
@@ -25,17 +25,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '~/stores/useAuthStore';
 
 const props = defineProps<{ name?: string }>();
-const emit = defineEmits<{
+defineEmits<{
   (e: 'signout'): void;
 }>();
+
+const authStore = useAuthStore();
 
 const open = ref(false);
 const wrapper = ref<HTMLElement | null>(null);
 const router = useRouter();
+
+const displayName = computed(() => {
+  if (props.name && props.name.length) return props.name;
+  const user = authStore.user;
+  if (!user) return '';
+  return user.firstName || user.name || user.email || '';
+});
 
 const toggle = () => {
   open.value = !open.value;
