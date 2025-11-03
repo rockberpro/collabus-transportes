@@ -1,58 +1,61 @@
 <template>
-  <GoBackButton />
-  <div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">Horários por rota</h1>
+  <div>
+    <GoBackButton />
+    <!-- narrowed centered container for better readability on desktop -->
+    <div class="max-w-3xl mx-auto p-4">
+      <h1 class="text-2xl font-bold mb-4">Horários por rota</h1>
 
-    <div class="grid grid-cols-1 gap-4 mb-6">
-      <div>
-        <label class="block text-sm font-medium mb-1">Estado</label>
-        <select v-model="filters.state" class="w-full p-2 border rounded" disabled>
-          <option value="" disabled v-if="states.length === 0">Carregando...</option>
-          <option v-for="s in states" :key="s" :value="s">{{ s }}</option>
-        </select>
+      <div class="grid grid-cols-1 gap-4 mb-6">
+        <!-- Top row: Estado and Cidade side-by-side on sm+ -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Estado</label>
+            <select v-model="filters.state" class="w-full p-2 border rounded" disabled>
+              <option v-if="states.length === 0" value="" disabled>Carregando...</option>
+              <option v-for="s in states" :key="s" :value="s">{{ s }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Cidade</label>
+            <select v-model="filters.city" class="w-full p-2 border rounded" disabled>
+              <option v-if="cities.length === 0" value="" disabled>Carregando...</option>
+              <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Bottom row: Código da rota full width (narrow on sm+ via sm:w-80) -->
+        <div>
+          <label class="block text-sm font-medium mb-1">Código da rota</label>
+          <input v-model="filters.code" class="w-full sm:w-80 p-2 border rounded" placeholder="Ex: R-001">
+        </div>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium mb-1">Cidade</label>
-        <select v-model="filters.city" class="w-full p-2 border rounded" disabled>
-          <option value="" disabled v-if="cities.length === 0">Carregando...</option>
-          <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
-        </select>
+      <div class="mb-4">
+        <button class="px-4 py-2 rounded" @click="search">Pesquisar</button>
+        <button class="px-4 py-2 ml-2 border rounded" @click="reset">Limpar</button>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium mb-1">Código da rota</label>
-        <input v-model="filters.code" class="w-full p-2 border rounded" placeholder="Ex: R-001" />
+      <!-- Use single-column list of cards so each block occupies the full row on desktop -->
+      <div class="grid grid-cols-1 gap-4">
+        <UCard v-if="schedules.length === 0" class="col-span-1 sm:col-span-2 text-center p-4">
+          Nenhum horário encontrado
+        </UCard>
+
+        <UCard v-for="s in schedules" :key="s.id" class="p-4 w-full">
+          <div class="flex flex-col sm:flex-row items-start sm:justify-between gap-4">
+            <div>
+              <div class="text-sm font-semibold">{{ s.routeCode }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">{{ s.route?.origin || '-' }} → {{ s.route?.destination || '-' }}</div>
+            </div>
+            <div class="text-sm text-gray-700 dark:text-gray-200 text-right sm:text-right mt-2 sm:mt-0 whitespace-normal break-words">
+              {{ formatTimes(s.times) }}
+            </div>
+          </div>
+        </UCard>
       </div>
-    </div>
 
-    <div class="mb-4">
-      <button class="px-4 py-2 rounded" @click="search">Pesquisar</button>
-      <button class="px-4 py-2 ml-2 border rounded" @click="reset">Limpar</button>
-    </div>
-
-    <div class="overflow-x-auto -mx-4 px-4 sm:-mx-0 sm:px-0">
-      <table class="min-w-[500px] w-full table-auto border-collapse">
-        <thead>
-          <tr>
-            <th class="border px-3 py-2 text-left">Rota</th>
-            <th class="border px-3 py-2 text-left">Origem</th>
-            <th class="border px-3 py-2 text-left">Destino</th>
-            <th class="border px-3 py-2 text-left">Horários</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="s in schedules" :key="s.id">
-            <td class="border px-3 py-2">{{ s.routeCode }}</td>
-            <td class="border px-3 py-2">{{ s.route?.origin || '-' }}</td>
-            <td class="border px-3 py-2">{{ s.route?.destination || '-' }}</td>
-            <td class="border px-3 py-2">{{ formatTimes(s.times) }}</td>
-          </tr>
-          <tr v-if="schedules.length === 0">
-            <td class="border px-3 py-2 text-center" colspan="4">Nenhum horário encontrado</td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   </div>
 </template>
@@ -61,9 +64,24 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from '#app'
 
+interface RouteInfo {
+  id: string
+  state?: string
+  city?: string
+  origin?: string
+  destination?: string
+}
+
+interface ScheduleInfo {
+  id: string
+  routeCode: string
+  route?: RouteInfo
+  times?: string[] | string | null
+}
+
 const filters = ref({ state: '', city: '', code: '' })
-const schedules = ref<Array<any>>([])
-const routes = ref<Array<any>>([])
+const schedules = ref<Array<ScheduleInfo>>([])
+const routes = ref<Array<RouteInfo>>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 
@@ -75,10 +93,13 @@ async function loadRoutes() {
     // set defaults if present
     if (routes.value.length > 0 && !filters.value.state) {
       // pick the first state/city available (as before: RS / Lajeado)
-      filters.value.state = routes.value[0].state
-      filters.value.city = routes.value[0].city
+      const first = routes.value[0]
+      if (first) {
+        filters.value.state = first.state || ''
+        filters.value.city = first.city || ''
+      }
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error(err)
   }
 }
@@ -95,8 +116,8 @@ async function loadSchedules() {
     const res = await fetch(`/api/schedules?${params.toString()}`)
     const json = await res.json()
     schedules.value = json.data || []
-  } catch (err: any) {
-    error.value = err?.message || String(err)
+  } catch (err: unknown) {
+    error.value = (err as Error)?.message || String(err)
   } finally {
     loading.value = false
   }
@@ -142,10 +163,10 @@ const cities = computed(() => {
 function search() { loadSchedules() }
 function reset() { filters.value.code = '' ; loadSchedules() }
 
-function formatTimes(times: any) {
+function formatTimes(times: string[] | string | null | undefined) {
   if (!times) return '-'
   if (Array.isArray(times)) return times.join(', ')
-  try { return JSON.stringify(times) } catch { return String(times) }
+  try { return String(times) } catch { return String(times) }
 }
 </script>
 

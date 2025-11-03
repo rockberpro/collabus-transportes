@@ -1,84 +1,96 @@
 <template>
-  <GoBackButton />
-  <div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">Consultar rotas de ônibus</h1>
+  <div>
+    <GoBackButton />
+    <div class="max-w-3xl mx-auto p-4">
+      <h1 class="text-2xl font-bold mb-4">Consultar rotas de ônibus</h1>
 
-    <div class="grid grid-cols-1 gap-4 mb-6">
-      <div>
-        <label class="block text-sm font-medium mb-1">Estado</label>
-        <select class="w-full p-2 border rounded" disabled>
-          <option selected>RS</option>
-        </select>
+      <!-- Filters: top row (Estado | Cidade), bottom row (De onde | Para onde) -->
+      <div class="grid grid-cols-1 gap-4 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Estado</label>
+            <select class="w-full p-2 border rounded" disabled>
+              <option selected>RS</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Cidade</label>
+            <select class="w-full p-2 border rounded" disabled>
+              <option selected>Lajeado</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">De onde</label>
+            <input v-model="filters.origin" list="origins" class="w-full p-2 border rounded" placeholder="Digite ou escolha uma origem">
+            <datalist id="origins">
+              <option v-for="o in origins" :key="o" :value="o" />
+            </datalist>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Para onde</label>
+            <input v-model="filters.destination" list="destinations" class="w-full p-2 border rounded" placeholder="Digite ou escolha um destino">
+            <datalist id="destinations">
+              <option v-for="d in destinations" :key="d" :value="d" />
+            </datalist>
+          </div>
+        </div>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium mb-1">Cidade</label>
-        <select class="w-full p-2 border rounded" disabled>
-          <option selected>Lajeado</option>
-        </select>
+      <div class="mb-4">
+        <button class="px-4 py-2 rounded" @click="search">Pesquisar</button>
+        <button class="px-4 py-2 ml-2 border rounded" @click="reset">Limpar</button>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium mb-1">De onde</label>
-        <input list="origins" v-model="filters.origin" class="w-full p-2 border rounded" placeholder="Digite ou escolha uma origem" />
-        <datalist id="origins">
-          <option v-for="o in origins" :key="o" :value="o" />
-        </datalist>
+      <!-- Cards: single-column list, each block occupies a full row -->
+      <div class="grid grid-cols-1 gap-4">
+        <UCard v-if="filteredRoutes.length === 0" class="text-center p-4">
+          Nenhuma rota encontrada
+        </UCard>
+
+        <UCard v-for="route in filteredRoutes" :key="route.id" class="p-4 w-full">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <div class="text-sm font-semibold">
+                <button v-if="route.code" class="text-blue-600 hover:underline" @click="gotoSchedule(route)">
+                  {{ route.code }}
+                </button>
+                <span v-else>-</span>
+              </div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">{{ route.origin }} → {{ route.destination }}</div>
+            </div>
+            <div class="text-sm text-gray-700 dark:text-gray-200 mt-2 sm:mt-0 text-right">
+              <div>{{ route.state }}</div>
+              <div class="text-xs text-gray-500">{{ route.city }}</div>
+            </div>
+          </div>
+        </UCard>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium mb-1">Para onde</label>
-        <input list="destinations" v-model="filters.destination" class="w-full p-2 border rounded" placeholder="Digite ou escolha um destino" />
-        <datalist id="destinations">
-          <option v-for="d in destinations" :key="d" :value="d" />
-        </datalist>
-      </div>
-    </div>
-
-    <div class="mb-4">
-      <button class="px-4 py-2 rounded" @click="search">Pesquisar</button>
-      <button class="px-4 py-2 ml-2 border rounded" @click="reset">Limpar</button>
-    </div>
-
-    <div class="overflow-x-auto -mx-4 px-4 sm:-mx-0 sm:px-0">
-      <table class="min-w-[700px] w-full table-auto border-collapse">
-        <thead>
-          <tr>
-            <th class="border px-3 py-2 text-left">Código</th>
-            <th class="border px-3 py-2 text-left">Origem</th>
-            <th class="border px-3 py-2 text-left">Destino</th>
-            <th class="border px-3 py-2 text-left">Estado</th>
-            <th class="border px-3 py-2 text-left">Cidade</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="route in filteredRoutes" :key="route.id">
-            <td class="border px-3 py-2">
-              <NuxtLink v-if="route.code" :to="{ path: '/schedules', query: { routeCode: route.code, state: route.state, city: route.city } }" class="text-blue-600 hover:underline">
-                {{ route.code }}
-              </NuxtLink>
-              <span v-else>-</span>
-            </td>
-            <td class="border px-3 py-2">{{ route.origin }}</td>
-            <td class="border px-3 py-2">{{ route.destination }}</td>
-            <td class="border px-3 py-2">{{ route.state }}</td>
-            <td class="border px-3 py-2">{{ route.city }}</td>
-          </tr>
-          <tr v-if="filteredRoutes.length === 0">
-            <td class="border px-3 py-2 text-center" colspan="5">Nenhuma rota encontrada</td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+interface RouteInfo {
+  id: string
+  code?: string | null
+  origin?: string | null
+  destination?: string | null
+  state?: string | null
+  city?: string | null
+}
 
 const filters = ref({ origin: '', destination: '' })
 
-const routes = ref<Array<any>>([])
+const routes = ref<Array<RouteInfo>>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 
@@ -89,8 +101,8 @@ async function loadRoutes() {
     const res = await fetch('/api/routes')
     const json = await res.json()
     routes.value = json.data || []
-  } catch (err: any) {
-    error.value = err?.message || String(err)
+  } catch (err: unknown) {
+    error.value = (err as Error)?.message || String(err)
   } finally {
     loading.value = false
   }
@@ -100,10 +112,16 @@ onMounted(() => {
   loadRoutes()
 })
 
+const router = useRouter()
+
+function gotoSchedule(r: RouteInfo) {
+  router.push({ path: '/schedules', query: { routeCode: String(r.code || ''), state: String(r.state || ''), city: String(r.city || '') } })
+}
+
 const filteredRoutes = computed(() => {
-  return routes.value.filter((r: any) => {
-    const originMatch = !filters.value.origin || r.origin.toLowerCase().includes(filters.value.origin.toLowerCase())
-    const destMatch = !filters.value.destination || r.destination.toLowerCase().includes(filters.value.destination.toLowerCase())
+  return routes.value.filter((r: RouteInfo) => {
+    const originMatch = !filters.value.origin || (r.origin || '').toLowerCase().includes(filters.value.origin.toLowerCase())
+    const destMatch = !filters.value.destination || (r.destination || '').toLowerCase().includes(filters.value.destination.toLowerCase())
     return originMatch && destMatch
   })
 })
@@ -120,11 +138,11 @@ const destinations = computed(() => {
   return Array.from(set).sort()
 })
 
-function search() { /* busca reativa via computed */ }
+function search() { /* reactive via computed */ }
 function reset() { filters.value.origin = ''; filters.value.destination = '' }
 </script>
 
 <style scoped>
-/* Pequeno ajuste visual para tabela */
+/* small visual tweak retained */
 table th, table td { border-color: #e5e7eb; }
 </style>
