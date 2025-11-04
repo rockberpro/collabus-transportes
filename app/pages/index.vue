@@ -29,3 +29,8 @@
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+// Use server/client route middleware to redirect before render and avoid flicker
+definePageMeta({ middleware: ['redirect-if-logged-in'] })
+</script>
