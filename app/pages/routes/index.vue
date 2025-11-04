@@ -64,13 +64,13 @@
         >
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <div class="text-sm font-semibold">
+              <div class="text-lg font-semibold">
                 <span v-if="route.code">{{ route.code }}</span>
                 <span v-else>-</span>
               </div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">{{ route.origin }} → {{ route.destination }}</div>
+              <div class="text-md text-gray-500 dark:text-gray-400">{{ route.origin }} → {{ route.destination }}</div>
             </div>
-            <div class="text-sm text-gray-700 dark:text-gray-200 mt-2 sm:mt-0 text-right">
+            <div class="text-lg text-gray-700 dark:text-gray-200 mt-2 sm:mt-0 text-right">
               <div>{{ route.state }}</div>
               <div class="text-xs text-gray-500">{{ route.city }}</div>
             </div>

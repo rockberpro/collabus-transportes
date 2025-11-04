@@ -46,10 +46,10 @@
         <UCard v-for="s in schedules" :key="s.id" class="p-4 w-full">
           <div class="flex flex-col sm:flex-row items-start sm:justify-between gap-4">
             <div>
-              <div class="text-sm font-semibold">{{ s.routeCode }}</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">{{ s.route?.origin || '-' }} → {{ s.route?.destination || '-' }}</div>
+              <div class="text-lg font-semibold">{{ s.routeCode }}</div>
+              <div class="text-md text-gray-500 dark:text-gray-400">{{ s.route?.origin || '-' }} → {{ s.route?.destination || '-' }}</div>
             </div>
-            <div class="text-sm text-gray-700 dark:text-gray-200 text-right sm:text-right mt-2 sm:mt-0 whitespace-normal break-words">
+            <div class="text-lg text-gray-700 dark:text-gray-200 text-right sm:text-right mt-2 sm:mt-0 whitespace-normal break-words">
               {{ formatTimes(s.times) }}
             </div>
           </div>
