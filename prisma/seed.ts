@@ -197,6 +197,50 @@ async function main() {
   }
 
   console.log('Users seeded')
+
+  // Seed vehicles
+  console.log('Seeding vehicles...')
+
+  const busExpress = await prisma.company.findUnique({ where: { name: 'BusExpress' } })
+  const brasRotas = await prisma.company.findUnique({ where: { name: 'BrasRotas' } })
+
+  if (sulvias) {
+    await prisma.vehicle.upsert({
+      where: { plate: 'ABC-1234' },
+      update: { brand: 'Mercedes-Benz', model: 'Sprinter', year: 2022, capacity: 20, companyId: sulvias.id, updatedAt: new Date() },
+      create: { plate: 'ABC-1234', brand: 'Mercedes-Benz', model: 'Sprinter', year: 2022, capacity: 20, companyId: sulvias.id },
+    })
+
+    await prisma.vehicle.upsert({
+      where: { plate: 'DEF-5678' },
+      update: { brand: 'Iveco', model: 'Daily', year: 2021, capacity: 16, companyId: sulvias.id, updatedAt: new Date() },
+      create: { plate: 'DEF-5678', brand: 'Iveco', model: 'Daily', year: 2021, capacity: 16, companyId: sulvias.id },
+    })
+  }
+
+  if (busExpress) {
+    await prisma.vehicle.upsert({
+      where: { plate: 'GHI-9012' },
+      update: { brand: 'Volkswagen', model: 'Volksbus', year: 2023, capacity: 25, companyId: busExpress.id, updatedAt: new Date() },
+      create: { plate: 'GHI-9012', brand: 'Volkswagen', model: 'Volksbus', year: 2023, capacity: 25, companyId: busExpress.id },
+    })
+
+    await prisma.vehicle.upsert({
+      where: { plate: 'JKL-3456' },
+      update: { brand: 'Mercedes-Benz', model: 'OF-1721', year: 2020, capacity: 44, companyId: busExpress.id, updatedAt: new Date() },
+      create: { plate: 'JKL-3456', brand: 'Mercedes-Benz', model: 'OF-1721', year: 2020, capacity: 44, companyId: busExpress.id },
+    })
+  }
+
+  if (brasRotas) {
+    await prisma.vehicle.upsert({
+      where: { plate: 'MNO-7890' },
+      update: { brand: 'Scania', model: 'K270', year: 2024, capacity: 46, companyId: brasRotas.id, updatedAt: new Date() },
+      create: { plate: 'MNO-7890', brand: 'Scania', model: 'K270', year: 2024, capacity: 46, companyId: brasRotas.id },
+    })
+  }
+
+  console.log('Vehicles seeded')
 }
 
 main()
