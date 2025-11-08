@@ -233,8 +233,8 @@
     </div>
 
     <!-- Modal Adicionar Supervisor -->
-    <UModal v-model="showAddModal" title="Adicionar Supervisor">
-      <UCard>
+    <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click="showAddModal = false">
+      <UCard class="max-w-2xl w-full max-h-[90vh] overflow-y-auto" @click.stop>
         <template #header>
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold">Adicionar Supervisor</h3>
@@ -309,11 +309,11 @@
           </div>
         </div>
       </UCard>
-    </UModal>
+    </div>
 
     <!-- Modal Editar Empresa -->
-    <UModal v-model="showEditCompanyModal" title="Alterar Empresa do Supervisor">
-      <UCard>
+    <div v-if="showEditCompanyModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click="showEditCompanyModal = false">
+      <UCard class="max-w-2xl w-full max-h-[90vh] overflow-y-auto" @click.stop>
         <template #header>
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold">Alterar Empresa do Supervisor</h3>
@@ -373,7 +373,7 @@
           </div>
         </template>
       </UCard>
-    </UModal>
+    </div>
   </div>
 </template>
 
