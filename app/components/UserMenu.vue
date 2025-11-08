@@ -17,6 +17,14 @@
       >
         <div class="p-2">
           <UButton size="sm" class="w-full mb-2" @click="goToProfile">Sobre mim</UButton>
+          <UButton 
+            v-if="isSupervisor" 
+            size="sm" 
+            class="w-full mb-2" 
+            @click="goToDrivers"
+          >
+            Gerenciar motoristas
+          </UButton>
           <UButton size="sm" class="w-full" @click="$emit('signout')">Sair</UButton>
         </div>
       </div>
@@ -47,6 +55,11 @@ const displayName = computed(() => {
   return user.firstName || user.name || user.email || '';
 });
 
+const isSupervisor = computed(() => {
+  const user = authStore.user;
+  return user?.role === 'SUPERVISOR';
+});
+
 const toggle = () => {
   open.value = !open.value;
 };
@@ -65,5 +78,10 @@ onUnmounted(() => document.removeEventListener('click', handleDocumentClick));
 const goToProfile = () => {
   open.value = false;
   router.push('/profile');
+};
+
+const goToDrivers = () => {
+  open.value = false;
+  router.push('/drivers');
 };
 </script>

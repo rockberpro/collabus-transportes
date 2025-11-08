@@ -16,10 +16,12 @@ model User {
   role      Role     @default(PASSAGEIRO)
   isActive  Boolean  @default(true)
   personId  String?  @unique
+  companyId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   tokens    Token[]
   person    Person?  @relation(fields: [personId], references: [id])
+  company   Company? @relation(fields: [companyId], references: [id])
 
   @@map("users")
 }
@@ -103,6 +105,7 @@ model Company {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  users     User[]
 
   @@map("companies")
 }
