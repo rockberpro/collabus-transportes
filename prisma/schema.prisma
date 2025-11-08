@@ -69,16 +69,17 @@ enum TokenType {
 }
 
 model Route {
-  id          String   @id @default(cuid())
-  code        String?  @unique
+  id          String         @id @default(cuid())
+  code        String?        @unique
   origin      String
   destination String
   state       String
   city        String
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   schedules   Schedule[]
+  vehicles    RouteVehicle[]
 
   @@map("routes")
 }
@@ -112,17 +113,31 @@ model Company {
 }
 
 model Vehicle {
-  id        String   @id @default(cuid())
-  plate     String   @unique
+  id        String         @id @default(cuid())
+  plate     String         @unique
   brand     String
   model     String
   year      Int
   capacity  Int
-  isActive  Boolean  @default(true)
+  isActive  Boolean        @default(true)
   companyId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  company   Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  routes    RouteVehicle[]
 
   @@map("vehicles")
+}
+
+model RouteVehicle {
+  id        String   @id @default(cuid())
+  routeId   String
+  vehicleId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  route     Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@unique([routeId, vehicleId])
+  @@map("route_vehicles")
 }

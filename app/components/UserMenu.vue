@@ -34,6 +34,14 @@
             Gerenciar veículos
           </UButton>
           <UButton 
+            v-if="isSupervisor" 
+            size="sm" 
+            class="w-full mb-2" 
+            @click="goToRoutes"
+          >
+            Gerenciar rotas
+          </UButton>
+          <UButton 
             v-if="isAdmin" 
             size="sm" 
             class="w-full mb-2" 
@@ -109,6 +117,11 @@ const goToDrivers = () => {
 const goToVehicles = () => {
   open.value = false;
   router.push('/vehicles');
+};
+
+const goToRoutes = () => {
+  open.value = false;
+  router.push('/routes/manage');
 };
 
 const goToSupervisors = () => {
