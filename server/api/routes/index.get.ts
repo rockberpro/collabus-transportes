@@ -40,6 +40,20 @@ export default async (event: H3Event) => {
       orderBy: { code: 'asc' },
       skip: (page - 1) * limit,
       take: limit,
+      include: {
+        vehicles: {
+          include: {
+            vehicle: {
+              select: {
+                id: true,
+                plate: true,
+                brand: true,
+                model: true,
+              },
+            },
+          },
+        },
+      },
     }),
     prisma.route.count({ where }),
   ])

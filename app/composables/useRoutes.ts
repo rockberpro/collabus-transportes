@@ -11,6 +11,14 @@ export interface Route {
   isActive: boolean
   createdAt: string
   updatedAt: string
+  vehicles?: {
+    vehicle: {
+      id: string
+      plate: string
+      brand: string
+      model: string
+    }
+  }[]
 }
 
 export interface RoutesFilters {
@@ -131,6 +139,45 @@ export const useRoutes = () => {
     }
   }
 
+  const assignVehicle = async (routeId: string, vehicleId: string) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await $fetch(`/api/routes/${routeId}/vehicles`, {
+        method: 'POST' as any,
+        body: { vehicleId },
+      })
+
+      return response
+    } catch (err: any) {
+      error.value = err?.data?.statusMessage || 'Erro ao vincular veículo'
+      console.error('Erro ao vincular veículo:', err)
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const unassignVehicle = async (routeId: string, vehicleId: string) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await $fetch(`/api/routes/${routeId}/vehicles/${vehicleId}`, {
+        method: 'DELETE' as any,
+      })
+
+      return response
+    } catch (err: any) {
+      error.value = err?.data?.statusMessage || 'Erro ao desvincular veículo'
+      console.error('Erro ao desvincular veículo:', err)
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     routes,
     pagination,
@@ -140,5 +187,7 @@ export const useRoutes = () => {
     addRoute,
     updateRoute,
     removeRoute,
+    assignVehicle,
+    unassignVehicle,
   }
 }

@@ -131,6 +131,16 @@
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div class="flex justify-end gap-2">
                     <UButton
+                      icon="i-lucide-car"
+                      size="sm"
+                      color="primary"
+                      variant="ghost"
+                      @click="openVehiclesModal(route)"
+                      :title="`${route.vehicles?.length || 0} veículo(s)`"
+                    >
+                      Veículos ({{ route.vehicles?.length || 0 }})
+                    </UButton>
+                    <UButton
                       v-if="route.isActive"
                       icon="i-lucide-ban"
                       size="sm"
@@ -304,12 +314,91 @@
         </template>
       </UCard>
     </UModal>
+
+    <!-- Modal Gerenciar Veículos -->
+    <UModal v-model="showVehiclesModal" title="Gerenciar Veículos da Rota">
+      <UCard>
+        <template #header>
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold">Veículos da Rota</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                {{ selectedRoute?.code || 'Sem código' }} - {{ selectedRoute?.origin }} → {{ selectedRoute?.destination }}
+              </p>
+            </div>
+            <UButton
+              icon="i-lucide-x"
+              variant="ghost"
+              color="neutral"
+              @click="showVehiclesModal = false"
+            />
+          </div>
+        </template>
+
+        <div class="space-y-4 max-h-96 overflow-y-auto">
+          <div v-if="vehicles.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+            Nenhum veículo disponível
+          </div>
+          
+          <div
+            v-for="vehicle in vehicles"
+            :key="vehicle.id"
+            class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            <div class="flex-1">
+              <div class="font-medium text-gray-900 dark:text-white">
+                {{ vehicle.plate }}
+              </div>
+              <div class="text-sm text-gray-600 dark:text-gray-400">
+                {{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.year }})
+              </div>
+              <div class="text-xs text-gray-500 dark:text-gray-500">
+                Capacidade: {{ vehicle.capacity }} passageiros
+              </div>
+            </div>
+            
+            <div>
+              <UButton
+                v-if="isVehicleAssigned(vehicle.id)"
+                icon="i-lucide-x"
+                size="sm"
+                color="error"
+                @click="handleUnassignVehicle(vehicle.id)"
+              >
+                Desvincular
+              </UButton>
+              <UButton
+                v-else
+                icon="i-lucide-plus"
+                size="sm"
+                color="primary"
+                @click="handleAssignVehicle(vehicle.id)"
+              >
+                Vincular
+              </UButton>
+            </div>
+          </div>
+        </div>
+
+        <template #footer>
+          <div class="flex justify-end">
+            <UButton
+              variant="ghost"
+              @click="showVehiclesModal = false"
+            >
+              Fechar
+            </UButton>
+          </div>
+        </template>
+      </UCard>
+    </UModal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRoutes, type Route } from '~/composables/useRoutes'
+import { useVehicles } from '~/composables/useVehicles'
 
 definePageMeta({
   middleware: 'authenticated',
@@ -324,7 +413,11 @@ const {
   addRoute,
   updateRoute,
   removeRoute,
+  assignVehicle,
+  unassignVehicle,
 } = useRoutes()
+
+const { vehicles, fetchVehicles } = useVehicles()
 
 const filters = reactive({
   search: '',
@@ -340,6 +433,8 @@ const statusOptions = [
 ]
 
 const showAddModal = ref(false)
+const showVehiclesModal = ref(false)
+const selectedRoute = ref<Route | null>(null)
 
 const newRoute = reactive({
   code: '',
@@ -431,6 +526,39 @@ const confirmRemoveRoute = async (route: Route) => {
       // Erro já tratado no composable
     }
   }
+}
+
+const openVehiclesModal = async (route: Route) => {
+  selectedRoute.value = route
+  showVehiclesModal.value = true
+  await fetchVehicles({ isActive: true })
+}
+
+const handleAssignVehicle = async (vehicleId: string) => {
+  if (!selectedRoute.value) return
+
+  try {
+    await assignVehicle(selectedRoute.value.id, vehicleId)
+    await loadRoutes()
+  } catch (err) {
+    // Erro já tratado no composable
+  }
+}
+
+const handleUnassignVehicle = async (vehicleId: string) => {
+  if (!selectedRoute.value) return
+
+  try {
+    await unassignVehicle(selectedRoute.value.id, vehicleId)
+    await loadRoutes()
+  } catch (err) {
+    // Erro já tratado no composable
+  }
+}
+
+const isVehicleAssigned = (vehicleId: string): boolean => {
+  if (!selectedRoute.value?.vehicles) return false
+  return selectedRoute.value.vehicles.some(rv => rv.vehicle.id === vehicleId)
 }
 
 onMounted(async () => {
