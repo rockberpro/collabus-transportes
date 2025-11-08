@@ -32,7 +32,7 @@
             <!-- Botão de upload (apenas quando editando) -->
             <label 
               v-if="editing" 
-              class="absolute bottom-0 right-0 bg-primary-500 text-white rounded-full p-2 cursor-pointer hover:bg-primary-600 transition-colors shadow-lg"
+              class="absolute bottom-0 right-0 bg-primary-500 text-white rounded-full p-2 cursor-pointer hover:bg-primary-600 transition-colors shadow-lg flex items-center justify-center w-10 h-10"
             >
               <UIcon name="i-lucide-camera" class="text-xl" />
               <input 
