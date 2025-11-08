@@ -39,7 +39,7 @@
           <div>
             <USelect
               v-model="filters.isActive"
-              :options="statusOptions"
+              :items="statusOptions"
               placeholder="Filtrar por status"
               @change="handleFilterChange"
             />
