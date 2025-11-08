@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import type { Person } from "~~/types/person";
 
 interface AuthState {
   user: {
@@ -9,6 +10,8 @@ interface AuthState {
     firstName?: string;
     lastName?: string;
     createdAt?: Date;
+    avatarBase64?: string | null;
+    person?: Person | null;
   } | null;
   token: string | null;
   tokenType: string | null;
@@ -36,12 +39,21 @@ export const useAuthStore = defineStore("auth", {
       this.tokenType = session.tokenType;
       this.isAuthenticated = true;
     },
-    updateUserDetails(details: { name?: string; firstName?: string; lastName?: string; createdAt?: Date }) {
+    updateUserDetails(details: { 
+      name?: string; 
+      firstName?: string; 
+      lastName?: string; 
+      createdAt?: Date;
+      avatarBase64?: string | null;
+      person?: Person | null;
+    }) {
       if (this.user) {
         if (details.name !== undefined) this.user.name = details.name;
         if (details.firstName !== undefined) this.user.firstName = details.firstName;
         if (details.lastName !== undefined) this.user.lastName = details.lastName;
         if (details.createdAt !== undefined) this.user.createdAt = details.createdAt;
+        if (details.avatarBase64 !== undefined) this.user.avatarBase64 = details.avatarBase64;
+        if (details.person !== undefined) this.user.person = details.person;
       }
     },
     clearUser() {

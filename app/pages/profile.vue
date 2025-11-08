@@ -11,6 +11,53 @@
         </h1>
 
         <UForm @submit.prevent="save">
+        <!-- Seção de Avatar -->
+        <div class="flex flex-col items-center mb-6">
+          <div class="relative">
+            <!-- Preview circular da imagem -->
+            <div class="w-32 h-32 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center border-4 border-white dark:border-gray-800 shadow-lg">
+              <img 
+                v-if="avatarBase64" 
+                :src="avatarBase64" 
+                alt="Avatar"
+                class="w-full h-full object-cover"
+              />
+              <UIcon 
+                v-else 
+                name="i-lucide-user" 
+                class="text-4xl text-gray-400"
+              />
+            </div>
+            
+            <!-- Botão de upload (apenas quando editando) -->
+            <label 
+              v-if="editing" 
+              class="absolute bottom-0 right-0 bg-primary-500 text-white rounded-full p-2 cursor-pointer hover:bg-primary-600 transition-colors shadow-lg flex items-center justify-center w-10 h-10"
+            >
+              <UIcon name="i-lucide-camera" class="text-xl" />
+              <input 
+                type="file" 
+                accept="image/*" 
+                class="hidden" 
+                @change="handleImageUpload"
+              />
+            </label>
+          </div>
+          
+          <!-- Botão para remover foto (apenas quando editando e tem foto) -->
+          <UButton 
+            v-if="editing && avatarBase64" 
+            variant="ghost" 
+            size="sm" 
+            color="error"
+            class="mt-2"
+            @click="removeAvatar"
+          >
+            <UIcon name="i-lucide-trash-2" class="mr-1" />
+            Remover foto
+          </UButton>
+        </div>
+
         <div class="grid grid-cols-1 gap-4 mb-4">
           <UFormField label="Nome" name="firstName">
             <InputTextLarge
@@ -94,6 +141,7 @@ definePageMeta({
 const authStore = useAuthStore();
 const { user } = authStore;
 const { getPersonByUserId, createPerson, updatePerson } = usePerson();
+const { updateUser } = useUser();
 const toast = useToast();
 
 const person = reactive<Partial<Person>>({
@@ -106,6 +154,8 @@ const person = reactive<Partial<Person>>({
   birthDate: undefined,
   createdAt: new Date(),
 });
+
+const avatarBase64 = ref<string | undefined>(undefined);
 
 const birthDateString = ref(""); // ISO 'YYYY-MM-DD' or empty
 
@@ -129,12 +179,53 @@ const load = async () => {
         ? new Date(person.birthDate).toISOString().slice(0, 10)
         : "";
     }
+    
+    // Carregar avatar do usuário
+    avatarBase64.value = user.avatarBase64 || undefined;
   } catch (error: any) {
     console.error("Erro ao carregar pessoa:", error);
   }
 };
 
 onMounted(load);
+
+const handleImageUpload = async (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  
+  if (!file) return;
+  
+  // Validar tamanho (2MB máximo)
+  if (file.size > 2 * 1024 * 1024) {
+    toast.add({
+      title: "Erro",
+      description: "A imagem deve ter no máximo 2MB",
+      color: "error",
+    });
+    return;
+  }
+  
+  // Validar tipo
+  if (!file.type.startsWith('image/')) {
+    toast.add({
+      title: "Erro",
+      description: "Apenas imagens são permitidas",
+      color: "error",
+    });
+    return;
+  }
+  
+  // Converter para base64
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    avatarBase64.value = e.target?.result as string;
+  };
+  reader.readAsDataURL(file);
+};
+
+const removeAvatar = () => {
+  avatarBase64.value = undefined;
+};
 
 const save = async () => {
   try {
@@ -155,6 +246,19 @@ const save = async () => {
       const created = await createPerson(payload as CreatePerson);
       if (created && created.data) person.id = created.data.id;
     }
+
+    // Atualizar avatar do usuário se mudou
+    if (user?.id) {
+      await updateUser(user.id, { avatarBase64: avatarBase64.value || null });
+    }
+
+    // Atualizar o store com os novos dados, incluindo avatar
+    authStore.updateUserDetails({
+      firstName: person.firstName,
+      lastName: person.lastName,
+      avatarBase64: avatarBase64.value || null,
+      person: person as Person,
+    });
 
     toast.add({
       title: "Sucesso",

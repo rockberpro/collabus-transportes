@@ -8,6 +8,7 @@ export interface User {
   role: $Enums.Role;
   isActive: boolean;
   personId?: string | null;
+  avatarBase64?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

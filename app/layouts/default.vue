@@ -128,8 +128,11 @@ const loadUserDetails = async () => {
     if (!user.value?.id) return;
 
     const userDetails = await getUserById(user.value.id);
-    if (userDetails) {
-      // optionally update store or local info if needed
+    if (userDetails && userDetails.data) {
+      // Atualizar avatarBase64 no store
+      updateUserDetails({
+        avatarBase64: userDetails.data.avatarBase64,
+      });
     }
   } catch (error) {
     console.error("Erro ao carregar detalhes do usuário:", error);
@@ -157,6 +160,7 @@ const loadPersonDetails = async () => {
         firstName: userInfo.firstName,
         lastName: userInfo.lastName,
         createdAt: userInfo.createdAt,
+        person: personDetails.data,
       });
     }
   } catch (error) {

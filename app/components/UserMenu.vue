@@ -3,10 +3,7 @@
     <div class="cursor-pointer" @click="toggle">
       <UUser
         :name="displayName"
-        :avatar="{
-          src: 'https://i.pravatar.cc/150?img=13',
-          icon: 'i-lucide-image'
-        }"
+        :avatar="userAvatar"
       />
     </div>
 
@@ -77,6 +74,23 @@ const displayName = computed(() => {
   const user = authStore.user;
   if (!user) return '';
   return user.firstName || user.name || user.email || '';
+});
+
+const userAvatar = computed(() => {
+  const user = authStore.user;
+  
+  // Se não tem avatar, retorna apenas ícone
+  if (!user?.avatarBase64) {
+    return {
+      icon: 'i-lucide-user'
+    };
+  }
+  
+  // Se tem avatar, retorna a imagem base64
+  return {
+    src: user.avatarBase64,
+    icon: 'i-lucide-user' // Fallback icon
+  };
 });
 
 const isSupervisor = computed(() => {
