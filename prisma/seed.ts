@@ -46,6 +46,25 @@ async function main() {
 
   console.log('Schedules seeded')
 
+  // Seed companies
+  console.log('Seeding companies...')
+
+  const companies = [
+    { name: 'Sulvias' },
+    { name: 'BusExpress' },
+    { name: 'BrasRotas' },
+  ]
+
+  for (const c of companies) {
+    await prisma.company.upsert({
+      where: { name: c.name },
+      update: { isActive: true, updatedAt: new Date() },
+      create: { name: c.name, isActive: true },
+    })
+  }
+
+  console.log('Companies seeded')
+
   // Seed users: one per Role (ADMINISTRADOR, PASSAGEIRO, MOTORISTA, SUPERVISOR)
   console.log('Seeding users...')
 
