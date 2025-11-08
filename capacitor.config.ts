@@ -3,9 +3,9 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'br.com.collabus',
   appName: 'Collabus',
-  webDir: 'dist',
+  webDir: '.output/public',
   server: {
-    url: 'http://10.0.2.2:3000',
+    url: '#ip-address:3000',
     cleartext: true
   }
 };
