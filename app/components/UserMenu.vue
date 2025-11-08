@@ -25,6 +25,14 @@
           >
             Gerenciar motoristas
           </UButton>
+          <UButton 
+            v-if="isAdmin" 
+            size="sm" 
+            class="w-full mb-2" 
+            @click="goToSupervisors"
+          >
+            Gerenciar supervisores
+          </UButton>
           <UButton size="sm" class="w-full" @click="$emit('signout')">Sair</UButton>
         </div>
       </div>
@@ -60,6 +68,11 @@ const isSupervisor = computed(() => {
   return user?.role === 'SUPERVISOR';
 });
 
+const isAdmin = computed(() => {
+  const user = authStore.user;
+  return user?.role === 'ADMINISTRADOR';
+});
+
 const toggle = () => {
   open.value = !open.value;
 };
@@ -83,5 +96,10 @@ const goToProfile = () => {
 const goToDrivers = () => {
   open.value = false;
   router.push('/drivers');
+};
+
+const goToSupervisors = () => {
+  open.value = false;
+  router.push('/supervisors');
 };
 </script>
