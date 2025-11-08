@@ -38,10 +38,16 @@ export interface PaginationInfo {
   totalPages: number
 }
 
+export interface Company {
+  id: string
+  name: string
+}
+
 export const useDrivers = () => {
   const drivers: Ref<Driver[]> = ref([])
   const availableUsers: Ref<AvailableUser[]> = ref([])
   const pagination: Ref<PaginationInfo | null> = ref(null)
+  const company: Ref<Company | null> = ref(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -69,6 +75,27 @@ export const useDrivers = () => {
     } catch (err: any) {
       error.value = err?.data?.statusMessage || 'Erro ao buscar motoristas'
       console.error('Erro ao buscar motoristas:', err)
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const fetchCompany = async () => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await $fetch('/api/drivers/company', {
+        method: 'GET',
+      })
+
+      if (response && typeof response === 'object' && 'data' in response) {
+        company.value = (response as any).data
+      }
+    } catch (err: any) {
+      error.value = err?.data?.statusMessage || 'Erro ao buscar empresa'
+      console.error('Erro ao buscar empresa:', err)
       throw err
     } finally {
       loading.value = false
@@ -163,9 +190,11 @@ export const useDrivers = () => {
     drivers,
     availableUsers,
     pagination,
+    company,
     loading,
     error,
     fetchDrivers,
+    fetchCompany,
     fetchAvailableUsers,
     addDriver,
     updateDriver,

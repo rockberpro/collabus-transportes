@@ -8,7 +8,10 @@
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
               Gerenciar Motoristas
             </h1>
-            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <p v-if="company" class="mt-2 text-lg font-medium text-primary-600 dark:text-primary-400">
+              {{ company.name }}
+            </p>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
               Gerencie os motoristas da sua empresa
             </p>
           </div>
@@ -280,9 +283,11 @@ const {
   drivers,
   availableUsers,
   pagination,
+  company,
   loading,
   error,
   fetchDrivers,
+  fetchCompany,
   fetchAvailableUsers,
   addDriver,
   updateDriver,
@@ -399,6 +404,7 @@ const confirmRemoveDriver = async (driver: Driver) => {
 }
 
 onMounted(() => {
+  fetchCompany()
   loadDrivers()
 })
 </script>
