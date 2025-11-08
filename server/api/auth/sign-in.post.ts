@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
         id: user.id,
         email: user.email,
         role: user.role,
+        companyId: user.companyId,
       },
       token: {
         accessToken: accessToken,
@@ -73,6 +74,7 @@ export default defineEventHandler(async (event) => {
       id: user.id,
       email: user.email,
       role: user.role,
+      companyId: user.companyId,
     },
   };
 });

@@ -100,12 +100,29 @@ model Schedule {
 }
 
 model Company {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String    @id @default(cuid())
+  name      String    @unique
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   users     User[]
+  vehicles  Vehicle[]
 
   @@map("companies")
+}
+
+model Vehicle {
+  id        String   @id @default(cuid())
+  plate     String   @unique
+  brand     String
+  model     String
+  year      Int
+  capacity  Int
+  isActive  Boolean  @default(true)
+  companyId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("vehicles")
 }

@@ -26,6 +26,14 @@
             Gerenciar motoristas
           </UButton>
           <UButton 
+            v-if="isSupervisor" 
+            size="sm" 
+            class="w-full mb-2" 
+            @click="goToVehicles"
+          >
+            Gerenciar veículos
+          </UButton>
+          <UButton 
             v-if="isAdmin" 
             size="sm" 
             class="w-full mb-2" 
@@ -96,6 +104,11 @@ const goToProfile = () => {
 const goToDrivers = () => {
   open.value = false;
   router.push('/drivers');
+};
+
+const goToVehicles = () => {
+  open.value = false;
+  router.push('/vehicles');
 };
 
 const goToSupervisors = () => {
