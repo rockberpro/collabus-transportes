@@ -1,73 +1,127 @@
 <template>
-  <div ref="wrapper" class="relative">
-    <div class="cursor-pointer" @click="toggle">
+  <USlideover v-model:open="isOpen" side="right">
+    <div class="cursor-pointer">
       <UUser
         :name="displayName"
         :avatar="userAvatar"
       />
     </div>
 
-    <transition name="fade">
-      <div
-        v-if="open"
-        class="absolute right-0 mt-2 w-44 bg-white dark:bg-zinc-800 rounded shadow-lg z-50 py-1"
-      >
-        <div class="p-2">
-          <UButton size="sm" class="w-full mb-2" @click="goToProfile">Sobre mim</UButton>
-          <UButton 
-            v-if="isSupervisor" 
-            size="sm" 
-            class="w-full mb-2" 
-            @click="goToDrivers"
-          >
-            Gerenciar motoristas
-          </UButton>
-          <UButton 
-            v-if="isSupervisor" 
-            size="sm" 
-            class="w-full mb-2" 
-            @click="goToVehicles"
-          >
-            Gerenciar veículos
-          </UButton>
-          <UButton 
-            v-if="isSupervisor" 
-            size="sm" 
-            class="w-full mb-2" 
-            @click="goToRoutes"
-          >
-            Gerenciar rotas
-          </UButton>
-          <UButton 
-            v-if="isAdmin" 
-            size="sm" 
-            class="w-full mb-2" 
-            @click="goToSupervisors"
-          >
-            Gerenciar supervisores
-          </UButton>
-          <UButton size="sm" class="w-full" @click="$emit('signout')">Sair</UButton>
+    <template #header>
+      <div class="flex items-center gap-4 w-full">
+        <div class="shrink-0">
+          <UAvatar
+            :src="userAvatar.src"
+            :icon="userAvatar.icon"
+            size="xl"
+            :alt="displayName"
+          />
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="font-semibold text-lg truncate">{{ displayName }}</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">{{ userRole }}</p>
         </div>
       </div>
-    </transition>
-  </div>
+    </template>
+
+    <template #body>
+      <div class="flex flex-col gap-2">
+        <UButton 
+          size="lg" 
+          variant="ghost" 
+          class="w-full justify-start" 
+          @click="goToProfile"
+        >
+          <template #leading>
+            <UIcon name="i-lucide-user" class="text-xl" />
+          </template>
+          Sobre mim
+        </UButton>
+
+        <UButton 
+          v-if="isSupervisor" 
+          size="lg" 
+          variant="ghost"
+          class="w-full justify-start" 
+          @click="goToDrivers"
+        >
+          <template #leading>
+            <UIcon name="i-lucide-users" class="text-xl" />
+          </template>
+          Gerenciar motoristas
+        </UButton>
+
+        <UButton 
+          v-if="isSupervisor" 
+          size="lg" 
+          variant="ghost"
+          class="w-full justify-start" 
+          @click="goToVehicles"
+        >
+          <template #leading>
+            <UIcon name="i-lucide-car" class="text-xl" />
+          </template>
+          Gerenciar veículos
+        </UButton>
+
+        <UButton 
+          v-if="isSupervisor" 
+          size="lg" 
+          variant="ghost"
+          class="w-full justify-start" 
+          @click="goToRoutes"
+        >
+          <template #leading>
+            <UIcon name="i-lucide-route" class="text-xl" />
+          </template>
+          Gerenciar rotas
+        </UButton>
+
+        <UButton 
+          v-if="isAdmin" 
+          size="lg" 
+          variant="ghost"
+          class="w-full justify-start" 
+          @click="goToSupervisors"
+        >
+          <template #leading>
+            <UIcon name="i-lucide-shield" class="text-xl" />
+          </template>
+          Gerenciar supervisores
+        </UButton>
+      </div>
+    </template>
+
+    <template #footer>
+      <UButton 
+        size="lg" 
+        color="error"
+        variant="solid"
+        class="w-full" 
+        @click="handleSignOut"
+      >
+        <template #leading>
+          <UIcon name="i-lucide-log-out" class="text-xl" />
+        </template>
+        Sair
+      </UButton>
+    </template>
+  </USlideover>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '~/stores/useAuthStore';
 
 const props = defineProps<{ name?: string }>();
-defineEmits<{
+const emit = defineEmits<{
   (e: 'signout'): void;
 }>();
 
 const authStore = useAuthStore();
-
-const open = ref(false);
-const wrapper = ref<HTMLElement | null>(null);
 const router = useRouter();
+const isOpen = ref(false);
 
 const displayName = computed(() => {
   if (props.name && props.name.length) return props.name;
@@ -76,20 +130,32 @@ const displayName = computed(() => {
   return user.firstName || user.name || user.email || '';
 });
 
+const userRole = computed(() => {
+  const user = authStore.user;
+  if (!user?.role) return '';
+  
+  const roleMap: Record<string, string> = {
+    'PASSAGEIRO': 'Passageiro',
+    'MOTORISTA': 'Motorista',
+    'SUPERVISOR': 'Supervisor',
+    'ADMINISTRADOR': 'Administrador',
+  };
+  
+  return roleMap[user.role] || user.role;
+});
+
 const userAvatar = computed(() => {
   const user = authStore.user;
   
-  // Se não tem avatar, retorna apenas ícone
   if (!user?.avatarBase64) {
     return {
       icon: 'i-lucide-user'
     };
   }
   
-  // Se tem avatar, retorna a imagem base64
   return {
     src: user.avatarBase64,
-    icon: 'i-lucide-user' // Fallback icon
+    icon: 'i-lucide-user'
   };
 });
 
@@ -103,43 +169,33 @@ const isAdmin = computed(() => {
   return user?.role === 'ADMINISTRADOR';
 });
 
-const toggle = () => {
-  open.value = !open.value;
-};
-
-const handleDocumentClick = (e: MouseEvent) => {
-  const target = e.target as Node;
-  if (!wrapper.value) return;
-  if (!wrapper.value.contains(target)) {
-    open.value = false;
-  }
-};
-
-onMounted(() => document.addEventListener('click', handleDocumentClick));
-onUnmounted(() => document.removeEventListener('click', handleDocumentClick));
-
 const goToProfile = () => {
-  open.value = false;
+  isOpen.value = false;
   router.push('/profile');
 };
 
 const goToDrivers = () => {
-  open.value = false;
+  isOpen.value = false;
   router.push('/drivers');
 };
 
 const goToVehicles = () => {
-  open.value = false;
+  isOpen.value = false;
   router.push('/vehicles');
 };
 
 const goToRoutes = () => {
-  open.value = false;
+  isOpen.value = false;
   router.push('/routes/manage');
 };
 
 const goToSupervisors = () => {
-  open.value = false;
+  isOpen.value = false;
   router.push('/supervisors');
+};
+
+const handleSignOut = () => {
+  isOpen.value = false;
+  emit('signout');
 };
 </script>
