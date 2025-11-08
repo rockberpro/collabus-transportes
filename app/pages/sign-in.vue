@@ -35,7 +35,13 @@
         </div>
         <div class="mb-4">
           <UFormField>
-            <ButtonLarge label="login" variant="solid" type="submit">
+            <ButtonLarge 
+              label="login" 
+              variant="solid" 
+              type="submit"
+              :loading="state.loading"
+              :disabled="state.loading"
+            >
               Entrar
               <UIcon name="mdi:login" />
             </ButtonLarge>
@@ -70,9 +76,15 @@ const state = reactive({
   email: "",
   password: "",
   showPassword: false,
+  loading: false,
 });
 
 const handleSignIn = async () => {
+  // Prevenir múltiplas submissões
+  if (state.loading) return;
+  
+  state.loading = true;
+  
   try {
     if (!state.email || !state.password) {
       toast.add({
@@ -131,6 +143,8 @@ const handleSignIn = async () => {
       color: "error",
     });
     return;
+  } finally {
+    state.loading = false;
   }
 };
 </script>

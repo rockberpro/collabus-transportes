@@ -64,7 +64,13 @@
         </div>
         <div class="mb-4">
           <UFormField>
-            <ButtonLarge label="cadastrar" variant="solid" type="submit">
+            <ButtonLarge 
+              label="cadastrar" 
+              variant="solid" 
+              type="submit"
+              :loading="state.loading"
+              :disabled="state.loading"
+            >
               Cadastrar
               <UIcon name="mdi:account-plus" size="xl" />
             </ButtonLarge>
@@ -100,9 +106,15 @@ const state = reactive({
   passwordConfirm: "",
   showPassword: false,
   showPasswordConfirm: false,
+  loading: false,
 });
 
 const handleSignUp = async () => {
+  // Prevenir múltiplas submissões
+  if (state.loading) return;
+  
+  state.loading = true;
+  
   try {
     if (
       !state.name ||
@@ -149,6 +161,8 @@ const handleSignUp = async () => {
       description: "Erro ao criar conta",
       color: "error",
     });
+  } finally {
+    state.loading = false;
   }
 };
 </script>
