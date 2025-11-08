@@ -31,4 +31,15 @@ export default defineNuxtConfig({
     ],
   },
   css: ["~/assets/css/main.css"],
+  
+  // Configure nuxt-auth-utils for development with LAN access
+  runtimeConfig: {
+    session: {
+      password: process.env.NUXT_SESSION_PASSWORD || 'collabus-dev-secret-password-min-32-chars-long-for-secure',
+      cookie: {
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
+  },
 });

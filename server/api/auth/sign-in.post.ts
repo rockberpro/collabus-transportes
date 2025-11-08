@@ -44,11 +44,14 @@ export default defineEventHandler(async (event) => {
     try {
       // use h3 setCookie to explicitly set cookie attributes
       const { setCookie } = await import('h3');
+      const isProduction = process.env.NODE_ENV === 'production';
       const cookieOptions: any = {
         httpOnly: true,
         path: '/',
-        sameSite: 'None',
-        secure: process.env.NODE_ENV === 'production' || false,
+        // In development, use 'Lax' to allow cookies over HTTP on LAN
+        // In production, use 'None' with secure flag for HTTPS
+        sameSite: isProduction ? 'None' : 'Lax',
+        secure: isProduction,
         maxAge: 7 * 24 * 60 * 60,
       };
       // store a minimal session marker (server still manages the real session)

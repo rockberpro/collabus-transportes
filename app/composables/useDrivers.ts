@@ -44,6 +44,7 @@ export const useDrivers = () => {
       const response = await $fetch('/api/drivers', {
         method: 'GET',
         query,
+        credentials: 'include',
       })
 
       if (response && typeof response === 'object' && 'data' in response) {
@@ -66,6 +67,7 @@ export const useDrivers = () => {
     try {
       const response = await $fetch('/api/drivers/company', {
         method: 'GET',
+        credentials: 'include',
       })
 
       if (response && typeof response === 'object' && 'data' in response) {
@@ -91,6 +93,7 @@ export const useDrivers = () => {
       const response = await $fetch('/api/drivers/available', {
         method: 'GET',
         query,
+        credentials: 'include',
       })
 
       if (response && typeof response === 'object' && 'data' in response) {
@@ -113,6 +116,7 @@ export const useDrivers = () => {
       const response = await $fetch('/api/drivers', {
         method: 'POST',
         body: { userId },
+        credentials: 'include',
       })
 
       return response
@@ -133,6 +137,7 @@ export const useDrivers = () => {
       const response = await $fetch(`/api/drivers/${driverId}`, {
         method: 'PATCH',
         body: data,
+        credentials: 'include',
       })
 
       return response
@@ -152,6 +157,7 @@ export const useDrivers = () => {
     try {
       const response = await $fetch(`/api/drivers/${driverId}`, {
         method: 'DELETE',
+        credentials: 'include',
       })
 
       return response
