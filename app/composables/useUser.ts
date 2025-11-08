@@ -29,9 +29,19 @@ export const useUser = () => {
     );
   };
 
+  const deleteUserAccount = async (userId: string) => {
+    return await $fetch<{ success: boolean; message: string }>(
+      `/api/user/${userId}/delete`,
+      {
+        method: "DELETE",
+      },
+    );
+  };
+
   return {
     getUserById,
     getUserWithPersonById,
     updateUser,
+    deleteUserAccount,
   };
 };

@@ -125,12 +125,106 @@
           </div>
         </div>
       </UForm>
+
+      <!-- Zona de Perigo -->
+      <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-semibold text-red-600 dark:text-red-400 mb-4">
+          Zona de Perigo
+        </h2>
+        
+        <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-6">
+          <h3 class="font-medium text-gray-900 dark:text-white mb-2">
+            Excluir Conta
+          </h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Esta ação é permanente e não pode ser desfeita. Todos os seus dados serão removidos do sistema.
+          </p>
+          
+          <UButton
+            v-if="canDeleteAccount"
+            color="error"
+            variant="solid"
+            icon="i-lucide-trash-2"
+            @click="confirmDeleteAccount"
+          >
+            Excluir Minha Conta
+          </UButton>
+          
+          <div v-else class="text-sm text-gray-600 dark:text-gray-400">
+            <UIcon name="i-lucide-alert-circle" class="inline mr-1" />
+            Sua conta não pode ser excluída pois está vinculada a dados do sistema. Entre em contato com o administrador.
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Modal de Confirmação de Exclusão -->
+  <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click="showDeleteModal = false">
+    <UCard class="max-w-md w-full" @click.stop>
+      <template #header>
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">
+            ⚠️ Excluir Conta Permanentemente
+          </h3>
+          <UButton
+            icon="i-lucide-x"
+            variant="ghost"
+            color="neutral"
+            @click="showDeleteModal = false"
+          />
+        </div>
+      </template>
+
+      <div class="space-y-4">
+        <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800">
+          <p class="text-sm text-red-800 dark:text-red-200 font-medium mb-2">
+            Esta ação é irreversível!
+          </p>
+          <ul class="text-sm text-red-700 dark:text-red-300 space-y-1 list-disc list-inside">
+            <li>Todos os seus dados serão removidos permanentemente</li>
+            <li>Você não poderá recuperar sua conta</li>
+            <li>Esta ação não pode ser desfeita</li>
+          </ul>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Para confirmar, digite <strong>EXCLUIR</strong> abaixo:
+          </label>
+          <UInput
+            v-model="deleteConfirmText"
+            placeholder="Digite EXCLUIR"
+            class="w-full"
+            @keyup.enter="handleDeleteAccount"
+          />
+        </div>
+      </div>
+
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <UButton
+            variant="ghost"
+            @click="showDeleteModal = false"
+          >
+            Cancelar
+          </UButton>
+          <UButton
+            color="error"
+            :disabled="deleteConfirmText !== 'EXCLUIR'"
+            :loading="deletingAccount"
+            @click="handleDeleteAccount"
+          >
+            Excluir Conta
+          </UButton>
+        </div>
+      </template>
+    </UCard>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted } from "vue";
+import { reactive, ref, onMounted, computed } from "vue";
 import type { CreatePerson, Person } from "~~/types/person";
 
 definePageMeta({
@@ -141,8 +235,9 @@ definePageMeta({
 const authStore = useAuthStore();
 const { user } = authStore;
 const { getPersonByUserId, createPerson, updatePerson } = usePerson();
-const { updateUser } = useUser();
+const { updateUser, deleteUserAccount } = useUser();
 const toast = useToast();
+const router = useRouter();
 
 const person = reactive<Partial<Person>>({
   id: undefined,
@@ -160,6 +255,9 @@ const avatarBase64 = ref<string | undefined>(undefined);
 const birthDateString = ref(""); // ISO 'YYYY-MM-DD' or empty
 
 const editing = ref(false);
+const showDeleteModal = ref(false);
+const deleteConfirmText = ref("");
+const deletingAccount = ref(false);
 
 const cancel = () => {
   // reload original values and disable editing
@@ -273,6 +371,59 @@ const save = async () => {
     toast.add({
       title: "Erro",
       description: "Erro ao salvar dados",
+      color: "error",
+    });
+  }
+};
+
+const canDeleteAccount = computed(() => {
+  return user?.role === 'PASSAGEIRO';
+});
+
+const confirmDeleteAccount = () => {
+  deleteConfirmText.value = "";
+  showDeleteModal.value = true;
+};
+
+const handleDeleteAccount = async () => {
+  if (deleteConfirmText.value !== 'EXCLUIR') {
+    return;
+  }
+  
+  deletingAccount.value = true;
+  
+  try {
+    await deleteAccount();
+  } catch (error) {
+    console.error('Erro ao excluir conta:', error);
+  } finally {
+    deletingAccount.value = false;
+  }
+};
+
+const deleteAccount = async () => {
+  if (!user?.id) return;
+  
+  try {
+    await deleteUserAccount(user.id);
+    
+    showDeleteModal.value = false;
+    
+    toast.add({
+      title: "Conta excluída",
+      description: "Sua conta foi excluída com sucesso. Você será desconectado.",
+      color: "success",
+    });
+    
+    // Aguardar 2 segundos para o usuário ver a mensagem
+    setTimeout(async () => {
+      authStore.clearUser();
+      await router.push('/sign-in');
+    }, 2000);
+  } catch (error: any) {
+    toast.add({
+      title: "Erro",
+      description: error.data?.message || error.message || "Erro ao excluir conta",
       color: "error",
     });
   }
