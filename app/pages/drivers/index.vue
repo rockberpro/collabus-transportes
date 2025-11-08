@@ -207,8 +207,8 @@
     </div>
 
     <!-- Modal Adicionar Motorista -->
-    <UModal v-model="showAddModal">
-      <UCard>
+    <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click="showAddModal = false">
+      <UCard class="max-w-2xl w-full max-h-[90vh] overflow-y-auto" @click.stop>
         <template #header>
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold">Adicionar Motorista</h3>
@@ -267,7 +267,7 @@
           </div>
         </div>
       </UCard>
-    </UModal>
+    </div>
   </div>
 </template>
 
