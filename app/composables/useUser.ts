@@ -19,8 +19,19 @@ export const useUser = () => {
     });
   };
 
+  const updateUser = async (userId: string, data: { avatarBase64?: string | null }) => {
+    return await $fetch<{ success: boolean; data: User }>(
+      `/api/user/${userId}`,
+      {
+        method: "PATCH",
+        body: data,
+      },
+    );
+  };
+
   return {
     getUserById,
     getUserWithPersonById,
+    updateUser,
   };
 };

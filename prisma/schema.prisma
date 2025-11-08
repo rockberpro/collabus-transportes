@@ -10,18 +10,19 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  role      Role     @default(PASSAGEIRO)
-  isActive  Boolean  @default(true)
-  personId  String?  @unique
-  companyId String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tokens    Token[]
-  person    Person?  @relation(fields: [personId], references: [id])
-  company   Company? @relation(fields: [companyId], references: [id])
+  id           String   @id @default(cuid())
+  email        String   @unique
+  password     String
+  role         Role     @default(PASSAGEIRO)
+  isActive     Boolean  @default(true)
+  personId     String?  @unique
+  companyId    String?
+  avatarBase64 String?  @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  tokens       Token[]
+  person       Person?  @relation(fields: [personId], references: [id])
+  company      Company? @relation(fields: [companyId], references: [id])
 
   @@map("users")
 }
