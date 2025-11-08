@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+  <div class="bg-white dark:bg-zinc-800 rounded-lg p-4 shadow">
     <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
       Pessoas Associadas
     </h3>
@@ -13,7 +13,7 @@
       <div
         v-for="person in persons"
         :key="person.id"
-        class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-md"
+        class="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-700 rounded-md"
       >
         <div class="flex items-center space-x-3">
           <UIcon name="mdi:account-circle" class="text-2xl text-teal-500" />

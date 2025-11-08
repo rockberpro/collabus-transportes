@@ -13,7 +13,7 @@
     <transition name="fade">
       <div
         v-if="open"
-        class="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800 rounded shadow-lg z-50 py-1"
+        class="absolute right-0 mt-2 w-44 bg-white dark:bg-zinc-800 rounded shadow-lg z-50 py-1"
       >
         <div class="p-2">
           <UButton size="sm" class="w-full mb-2" @click="goToProfile">Sobre mim</UButton>

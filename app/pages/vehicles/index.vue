@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen bg-zinc-50 dark:bg-zinc-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Header -->
       <div class="mb-8">
@@ -23,7 +23,7 @@
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+      <div class="bg-white dark:bg-zinc-800 rounded-lg shadow p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <UInput
@@ -68,10 +68,10 @@
       </div>
 
       <!-- Lista de Veículos -->
-      <div v-else-if="vehicles.length > 0" class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+      <div v-else-if="vehicles.length > 0" class="bg-white dark:bg-zinc-800 rounded-lg shadow overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-900">
+            <thead class="bg-zinc-50 dark:bg-zinc-900">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Placa
@@ -99,8 +99,8 @@
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              <tr v-for="vehicle in vehicles" :key="vehicle.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+            <tbody class="bg-white dark:bg-zinc-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tr v-for="vehicle in vehicles" :key="vehicle.id" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ vehicle.plate }}
@@ -205,7 +205,7 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow p-12 text-center">
+      <div v-else class="bg-white dark:bg-zinc-800 rounded-lg shadow p-12 text-center">
         <UIcon name="i-lucide-car" class="text-6xl text-gray-400 mx-auto mb-4" />
         <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
           Nenhum veículo encontrado
