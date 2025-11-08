@@ -1,4 +1,5 @@
 import type { Ref } from 'vue'
+import type { AvailableUser, Company, PaginationInfo } from '~/types/common'
 
 export interface Supervisor {
   id: string
@@ -17,35 +18,12 @@ export interface Supervisor {
   } | null
 }
 
-export interface AvailableUser {
-  id: string
-  email: string
-  person: {
-    firstName: string
-    lastName: string
-    cpf?: string
-    phone?: string
-  } | null
-}
-
-export interface Company {
-  id: string
-  name: string
-}
-
 export interface SupervisorsFilters {
   search?: string
   companyId?: string
   isActive?: boolean
   page?: number
   limit?: number
-}
-
-export interface PaginationInfo {
-  page: number
-  limit: number
-  total: number
-  totalPages: number
 }
 
 export const useSupervisors = () => {
