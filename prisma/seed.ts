@@ -65,6 +65,9 @@ async function main() {
 
   console.log('Companies seeded')
 
+  // Get company references
+  const sulvias = await prisma.company.findUnique({ where: { name: 'Sulvias' } })
+
   // Seed users: one per Role (ADMINISTRADOR, PASSAGEIRO, MOTORISTA, SUPERVISOR)
   console.log('Seeding users...')
 
@@ -75,6 +78,7 @@ async function main() {
     firstName: string
     lastName: string
     cpf?: string
+    companyId?: string
   }> = [
     {
       email: 'admin@example.com',
@@ -99,6 +103,7 @@ async function main() {
       firstName: 'Driver',
       lastName: 'User',
       cpf: '33333333333',
+      companyId: sulvias?.id,
     },
     {
       email: 'supervisor@example.com',
@@ -107,6 +112,35 @@ async function main() {
       firstName: 'Supervisor',
       lastName: 'User',
       cpf: '44444444444',
+      companyId: sulvias?.id,
+    },
+    // Additional drivers for testing
+    {
+      email: 'driver2@example.com',
+      password: 'driver',
+      role: Role.MOTORISTA,
+      firstName: 'João',
+      lastName: 'Silva',
+      cpf: '55555555555',
+      companyId: sulvias?.id,
+    },
+    {
+      email: 'driver3@example.com',
+      password: 'driver',
+      role: Role.MOTORISTA,
+      firstName: 'Maria',
+      lastName: 'Santos',
+      cpf: '66666666666',
+      companyId: sulvias?.id,
+    },
+    {
+      email: 'passenger2@example.com',
+      password: 'passenger',
+      role: Role.PASSAGEIRO,
+      firstName: 'Pedro',
+      lastName: 'Oliveira',
+      cpf: '77777777777',
+      companyId: sulvias?.id,
     },
   ]
 
@@ -120,6 +154,11 @@ async function main() {
         role: u.role,
         isActive: true,
         updatedAt: new Date(),
+        ...(u.companyId && {
+          company: {
+            connect: { id: u.companyId },
+          },
+        }),
         person: {
           upsert: {
             update: {
@@ -141,6 +180,11 @@ async function main() {
         password: hashed,
         role: u.role,
         isActive: true,
+        ...(u.companyId && {
+          company: {
+            connect: { id: u.companyId },
+          },
+        }),
         person: {
           create: {
             firstName: u.firstName,
