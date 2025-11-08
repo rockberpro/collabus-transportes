@@ -284,8 +284,6 @@
                 <USelect
                   v-model="selectedCompanyForUser[user.id]"
                   :options="companySelectOptions"
-                  option-attribute="label"
-                  value-attribute="value"
                   placeholder="Selecione empresa"
                   class="w-48"
                 />
@@ -345,10 +343,8 @@
                 Nova empresa:
               </label>
               <USelect
-                v-model="newCompanyId"
+                v-model="newCompanyName"
                 :options="companySelectOptions"
-                option-attribute="label"
-                value-attribute="value"
                 placeholder="Selecione a nova empresa"
               />
             </div>
@@ -365,7 +361,7 @@
             </UButton>
             <UButton
               :loading="loading"
-              :disabled="!newCompanyId"
+              :disabled="!newCompanyName"
               @click="handleUpdateCompany"
             >
               Salvar
@@ -424,14 +420,14 @@ const companyOptions = computed(() => [
 ])
 
 const companySelectOptions = computed(() =>
-  companies.value.map(c => ({ label: c.name, value: c.id }))
+  companies.value.map(c => c.name)
 )
 
 const showAddModal = ref(false)
 const showEditCompanyModal = ref(false)
 const addingUserId = ref<string | null>(null)
 const editingSupervisor = ref<Supervisor | null>(null)
-const newCompanyId = ref<string>('')
+const newCompanyName = ref<string>('')
 const selectedCompanyForUser = ref<Record<string, string>>({})
 
 let searchTimeout: NodeJS.Timeout
@@ -501,15 +497,18 @@ const openAddSupervisorModal = async () => {
 }
 
 const handleAddSupervisor = async (userId: string) => {
-  const companyId = selectedCompanyForUser.value[userId]
+  const companyName = selectedCompanyForUser.value[userId]
   
-  if (!companyId) {
+  if (!companyName) {
     return
   }
 
+  const company = companies.value.find(c => c.name === companyName)
+  if (!company) return
+
   addingUserId.value = userId
   try {
-    await addSupervisor(userId, companyId)
+    await addSupervisor(userId, company.id)
     showAddModal.value = false
     await loadSupervisors()
   } catch (err) {
@@ -521,7 +520,7 @@ const handleAddSupervisor = async (userId: string) => {
 
 const openEditCompanyModal = async (supervisor: Supervisor) => {
   editingSupervisor.value = supervisor
-  newCompanyId.value = supervisor.company?.id || ''
+  newCompanyName.value = supervisor.company?.name || ''
   showEditCompanyModal.value = true
   
   if (companies.value.length === 0) {
@@ -530,13 +529,16 @@ const openEditCompanyModal = async (supervisor: Supervisor) => {
 }
 
 const handleUpdateCompany = async () => {
-  if (!editingSupervisor.value || !newCompanyId.value) return
+  if (!editingSupervisor.value || !newCompanyName.value) return
+
+  const company = companies.value.find(c => c.name === newCompanyName.value)
+  if (!company) return
 
   try {
-    await updateSupervisor(editingSupervisor.value.id, { companyId: newCompanyId.value })
+    await updateSupervisor(editingSupervisor.value.id, { companyId: company.id })
     showEditCompanyModal.value = false
     editingSupervisor.value = null
-    newCompanyId.value = ''
+    newCompanyName.value = ''
     await loadSupervisors()
   } catch (err) {
     // Erro já tratado no composable
