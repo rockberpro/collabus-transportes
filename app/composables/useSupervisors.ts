@@ -102,6 +102,8 @@ export const useSupervisors = () => {
 
       if (response && typeof response === 'object' && 'data' in response) {
         companies.value = (response as any).data
+        console.log(companies);
+        console.log('Empresas carregadas:', companies.value.length, companies.value)
       }
     } catch (err: any) {
       error.value = err?.data?.statusMessage || 'Erro ao buscar empresas'

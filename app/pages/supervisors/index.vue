@@ -36,7 +36,7 @@
           <div>
             <USelect
               v-model="selectedCompany"
-              :options="companyOptions"
+              :items="companyOptions"
               option-attribute="label"
               value-attribute="value"
               placeholder="Filtrar por empresa"
@@ -46,7 +46,7 @@
           <div>
             <USelect
               v-model="selectedStatus"
-              :options="statusOptions"
+              :items="statusOptions"
               option-attribute="label"
               value-attribute="value"
               placeholder="Filtrar por status"
@@ -233,7 +233,7 @@
     </div>
 
     <!-- Modal Adicionar Supervisor -->
-    <UModal v-model="showAddModal">
+    <UModal v-model="showAddModal" title="Adicionar Supervisor">
       <UCard>
         <template #header>
           <div class="flex items-center justify-between">
@@ -283,7 +283,9 @@
               <div class="flex items-center gap-2">
                 <USelect
                   v-model="selectedCompanyForUser[user.id]"
-                  :options="companySelectOptions"
+                  :items="companySelectOptions"
+                  option-attribute="label"
+                  value-attribute="value"
                   placeholder="Selecione empresa"
                   class="w-48"
                 />
@@ -310,7 +312,7 @@
     </UModal>
 
     <!-- Modal Editar Empresa -->
-    <UModal v-model="showEditCompanyModal">
+    <UModal v-model="showEditCompanyModal" title="Alterar Empresa do Supervisor">
       <UCard>
         <template #header>
           <div class="flex items-center justify-between">
@@ -344,7 +346,9 @@
               </label>
               <USelect
                 v-model="newCompanyName"
-                :options="companySelectOptions"
+                :items="companySelectOptions"
+                option-attribute="label"
+                value-attribute="value"
                 placeholder="Selecione a nova empresa"
               />
             </div>
@@ -419,9 +423,11 @@ const companyOptions = computed(() => [
   ...companies.value.map(c => ({ label: c.name, value: c.id }))
 ])
 
-const companySelectOptions = computed(() =>
-  companies.value.map(c => c.name)
-)
+const companySelectOptions = computed(() => {
+  const options = companies.value.map(c => ({ label: c.name, value: c.name }))
+  console.log('companySelectOptions:', options)
+  return options
+})
 
 const showAddModal = ref(false)
 const showEditCompanyModal = ref(false)
@@ -523,9 +529,8 @@ const openEditCompanyModal = async (supervisor: Supervisor) => {
   newCompanyName.value = supervisor.company?.name || ''
   showEditCompanyModal.value = true
   
-  if (companies.value.length === 0) {
-    await fetchCompanies()
-  }
+  // Sempre carregar empresas para garantir que estão atualizadas
+  await fetchCompanies()
 }
 
 const handleUpdateCompany = async () => {

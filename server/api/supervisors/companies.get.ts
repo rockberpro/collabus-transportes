@@ -24,9 +24,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const companies = await prisma.company.findMany({
-      where: {
-        isActive: true,
-      },
       select: {
         id: true,
         name: true,
