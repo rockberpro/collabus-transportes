@@ -236,6 +236,7 @@ const authStore = useAuthStore();
 const { user } = authStore;
 const { getPersonByUserId, createPerson, updatePerson } = usePerson();
 const { updateUser, deleteUserAccount } = useUser();
+const { signOut } = useAuth();
 const toast = useToast();
 const router = useRouter();
 
@@ -415,10 +416,15 @@ const deleteAccount = async () => {
       color: "success",
     });
     
-    // Aguardar 2 segundos para o usuário ver a mensagem
     setTimeout(async () => {
-      authStore.clearUser();
-      await router.push('/sign-in');
+      try {
+        authStore.clearUser();
+        await signOut();
+      } catch (error) {
+        console.error('Erro durante logout:', error);
+      } finally {
+        window.location.href = '/sign-in';
+      }
     }, 2000);
   } catch (error: any) {
     toast.add({
