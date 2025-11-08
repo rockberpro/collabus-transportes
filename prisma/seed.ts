@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Role } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
@@ -44,6 +45,95 @@ async function main() {
   }
 
   console.log('Schedules seeded')
+
+  // Seed users: one per Role (ADMINISTRADOR, PASSAGEIRO, MOTORISTA, SUPERVISOR)
+  console.log('Seeding users...')
+
+  const usersData: Array<{
+    email: string
+    password: string
+    role: Role
+    firstName: string
+    lastName: string
+    cpf?: string
+  }> = [
+    {
+      email: 'admin@example.com',
+      password: 'admin',
+      role: Role.ADMINISTRADOR,
+      firstName: 'Admin',
+      lastName: 'User',
+      cpf: '11111111111',
+    },
+    {
+      email: 'passenger@example.com',
+      password: 'passenger',
+      role: Role.PASSAGEIRO,
+      firstName: 'Passenger',
+      lastName: 'User',
+      cpf: '22222222222',
+    },
+    {
+      email: 'driver@example.com',
+      password: 'driver',
+      role: Role.MOTORISTA,
+      firstName: 'Driver',
+      lastName: 'User',
+      cpf: '33333333333',
+    },
+    {
+      email: 'supervisor@example.com',
+      password: 'supervisor',
+      role: Role.SUPERVISOR,
+      firstName: 'Supervisor',
+      lastName: 'User',
+      cpf: '44444444444',
+    },
+  ]
+
+  for (const u of usersData) {
+    const hashed = bcrypt.hashSync(u.password, 10)
+
+    await prisma.user.upsert({
+      where: { email: u.email },
+      update: {
+        password: hashed,
+        role: u.role,
+        isActive: true,
+        updatedAt: new Date(),
+        person: {
+          upsert: {
+            update: {
+              firstName: u.firstName,
+              lastName: u.lastName,
+              cpf: u.cpf,
+              updatedAt: new Date(),
+            },
+            create: {
+              firstName: u.firstName,
+              lastName: u.lastName,
+              cpf: u.cpf,
+            },
+          },
+        },
+      },
+      create: {
+        email: u.email,
+        password: hashed,
+        role: u.role,
+        isActive: true,
+        person: {
+          create: {
+            firstName: u.firstName,
+            lastName: u.lastName,
+            cpf: u.cpf,
+          },
+        },
+      },
+    })
+  }
+
+  console.log('Users seeded')
 }
 
 main()
