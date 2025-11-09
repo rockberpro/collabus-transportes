@@ -17,8 +17,26 @@
 
       <!-- Filtros -->
       <div class="bg-white dark:bg-zinc-800 rounded-lg shadow p-4 md:p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4">
           <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estado</label>
+            <USelect
+              v-model="filters.state"
+              :items="stateOptions"
+              placeholder="Selecione o estado"
+              disabled
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cidade</label>
+            <USelect
+              v-model="filters.city"
+              :items="cityOptions"
+              placeholder="Selecione a cidade"
+              disabled
+            />
+          </div>
+          <div class="md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">De onde</label>
             <UInput
               v-model="filters.origin"
@@ -30,7 +48,7 @@
               <option v-for="o in origins" :key="o" :value="o" />
             </datalist>
           </div>
-          <div>
+          <div class="md:col-span-1">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Para onde</label>
             <UInput
               v-model="filters.destination"
@@ -223,7 +241,12 @@ interface RouteInfo {
   city?: string | null
 }
 
-const filters = ref({ origin: '', destination: '' })
+const filters = ref({ 
+  state: 'RS',
+  city: 'Lajeado',
+  origin: '', 
+  destination: '' 
+})
 
 const routes = ref<Array<RouteInfo>>([])
 const loading = ref(false)
@@ -282,6 +305,14 @@ const destinations = computed(() => {
   const set = new Set<string>()
   for (const r of routes.value) if (r.destination) set.add(r.destination)
   return Array.from(set).sort()
+})
+
+const stateOptions = computed(() => {
+  return [{ label: 'RS', value: 'RS' }]
+})
+
+const cityOptions = computed(() => {
+  return [{ label: 'Lajeado', value: 'Lajeado' }]
 })
 
 function search() { 
