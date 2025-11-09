@@ -2,10 +2,10 @@
   <div class="min-h-screen bg-zinc-50 dark:bg-zinc-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Header -->
-      <div class="mb-8">
-        <div class="flex items-center justify-between">
+      <div class="mb-6 md:mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
               Gerenciar Veículos
             </h1>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
@@ -15,17 +15,19 @@
           <UButton
             icon="i-lucide-plus"
             size="lg"
+            class="w-full sm:w-auto"
             @click="openAddVehicleModal"
           >
-            Adicionar Veículo
+            <span class="sm:inline">Adicionar Veículo</span>
+            <span class="hidden sm:hidden">Adicionar</span>
           </UButton>
         </div>
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white dark:bg-zinc-800 rounded-lg shadow p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
+      <div class="bg-white dark:bg-zinc-800 rounded-lg shadow p-4 md:p-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+          <div class="md:col-span-1">
             <UInput
               v-model="filters.search"
               icon="i-lucide-search"
@@ -33,7 +35,7 @@
               @input="debouncedSearch"
             />
           </div>
-          <div>
+          <div class="md:col-span-1">
             <USelect
               v-model="filters.isActive"
               :items="statusOptions"
@@ -41,10 +43,11 @@
               @change="handleFilterChange"
             />
           </div>
-          <div class="flex justify-end">
+          <div class="flex justify-start md:justify-end">
             <UButton
               variant="ghost"
               icon="i-lucide-refresh-cw"
+              class="w-full md:w-auto"
               @click="resetFilters"
             >
               Limpar Filtros
@@ -67,9 +70,10 @@
         </div>
       </div>
 
-      <!-- Lista de Veículos -->
+      <!-- Lista de Veículos - Desktop (tabela) -->
       <div v-else-if="vehicles.length > 0" class="bg-white dark:bg-zinc-800 rounded-lg shadow overflow-hidden">
-        <div class="overflow-x-auto">
+        <!-- Tabela para telas médias e grandes -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-zinc-50 dark:bg-zinc-900">
               <tr>
@@ -174,30 +178,103 @@
           </table>
         </div>
 
+        <!-- Cards para mobile -->
+        <div class="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
+          <div
+            v-for="vehicle in vehicles"
+            :key="vehicle.id"
+            class="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+          >
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex-1 min-w-0">
+                <h3 class="text-base font-semibold text-gray-900 dark:text-white truncate">
+                  {{ vehicle.plate }}
+                </h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
+                  {{ vehicle.brand }} {{ vehicle.model }}
+                </p>
+              </div>
+              <UBadge :color="vehicle.isActive ? 'success' : 'error'" variant="subtle" class="ml-2 shrink-0">
+                {{ vehicle.isActive ? 'Ativo' : 'Inativo' }}
+              </UBadge>
+            </div>
+            
+            <div class="space-y-1 mb-3 text-sm">
+              <div class="flex items-center text-gray-600 dark:text-gray-400">
+                <UIcon name="i-lucide-calendar" class="mr-2 shrink-0" />
+                <span>Ano: {{ vehicle.year }}</span>
+              </div>
+              <div class="flex items-center text-gray-600 dark:text-gray-400">
+                <UIcon name="i-lucide-users" class="mr-2 shrink-0" />
+                <span>Capacidade: {{ vehicle.capacity }} passageiros</span>
+              </div>
+              <div class="flex items-center text-primary-600 dark:text-primary-400">
+                <UIcon name="i-lucide-building" class="mr-2 shrink-0" />
+                <span class="truncate">{{ vehicle.company.name }}</span>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <UButton
+                v-if="vehicle.isActive"
+                icon="i-lucide-ban"
+                size="sm"
+                color="warning"
+                variant="ghost"
+                class="flex-1"
+                @click="toggleVehicleStatus(vehicle)"
+              >
+                Desativar
+              </UButton>
+              <UButton
+                v-else
+                icon="i-lucide-check-circle"
+                size="sm"
+                color="success"
+                variant="ghost"
+                class="flex-1"
+                @click="toggleVehicleStatus(vehicle)"
+              >
+                Ativar
+              </UButton>
+              <UButton
+                icon="i-lucide-trash-2"
+                size="sm"
+                color="error"
+                variant="ghost"
+                @click="confirmRemoveVehicle(vehicle)"
+              >
+              </UButton>
+            </div>
+          </div>
+        </div>
+
         <!-- Paginação -->
-        <div v-if="pagination && pagination.totalPages > 1" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-gray-600 dark:text-gray-400">
+        <div v-if="pagination && pagination.totalPages > 1" class="px-4 md:px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">
               Mostrando {{ ((pagination.page - 1) * pagination.limit) + 1 }} a 
               {{ Math.min(pagination.page * pagination.limit, pagination.total) }} de 
               {{ pagination.total }} resultados
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 w-full sm:w-auto">
               <UButton
                 icon="i-lucide-chevron-left"
                 size="sm"
                 :disabled="pagination.page === 1"
+                class="flex-1 sm:flex-none"
                 @click="changePage(pagination.page - 1)"
               >
-                Anterior
+                <span class="hidden sm:inline">Anterior</span>
               </UButton>
               <UButton
                 icon="i-lucide-chevron-right"
                 size="sm"
                 :disabled="pagination.page === pagination.totalPages"
+                class="flex-1 sm:flex-none"
                 @click="changePage(pagination.page + 1)"
               >
-                Próxima
+                <span class="hidden sm:inline">Próxima</span>
               </UButton>
             </div>
           </div>
@@ -221,7 +298,7 @@
 
     <!-- Modal Adicionar Veículo -->
     <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click="showAddModal = false">
-      <UCard class="max-w-2xl w-full max-h-[90vh] overflow-y-auto" @click.stop>
+      <UCard class="max-w-2xl w-full max-h-[90vh] overflow-y-auto mx-4" @click.stop>
         <template #header>
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold">Adicionar Veículo</h3>
@@ -268,7 +345,7 @@
             />
           </div>
 
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Ano *
@@ -300,15 +377,17 @@
         </form>
 
         <template #footer>
-          <div class="flex justify-end gap-2">
+          <div class="flex flex-col sm:flex-row justify-end gap-2">
             <UButton
               variant="ghost"
+              class="w-full sm:w-auto order-2 sm:order-1"
               @click="showAddModal = false"
             >
               Cancelar
             </UButton>
             <UButton
               :loading="loading"
+              class="w-full sm:w-auto order-1 sm:order-2"
               @click="handleAddVehicle"
             >
               Adicionar
