@@ -9,26 +9,30 @@
 
     <USlideover v-model:open="isOpen" side="right">
     <template #header>
-      <UCard 
-        class="w-full cursor-pointer" 
-        @click="closeMenu"
-      >
-        <div class="flex items-center gap-4 w-full">
-          <div class="shrink-0">
-            <UAvatar
-              :src="userAvatar.src"
-              :icon="userAvatar.icon"
-              size="xl"
-              :alt="displayName"
-            />
+      <div class="pt-[env(safe-area-inset-top)]">
+        <UCard 
+          class="w-full cursor-pointer" 
+          @click="closeMenu"
+        >
+          <div class="flex items-center gap-4 w-full">
+            <div class="shrink-0">
+              <UAvatar
+                :src="userAvatar.src"
+                :icon="userAvatar.icon"
+                size="xl"
+                :alt="displayName"
+              />
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-lg truncate">{{ displayName }}</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ userRole }}</p>
+            </div>
           </div>
-          <div class="flex-1 min-w-0">
-            <h3 class="font-semibold text-lg truncate">{{ displayName }}</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400">{{ userRole }}</p>
-          </div>
-        </div>
-      </UCard>
-    </template>    <template #body>
+        </UCard>
+      </div>
+    </template>
+
+    <template #body>
       <div class="flex flex-col gap-2">
         <UButton 
           size="lg" 
@@ -97,18 +101,20 @@
     </template>
 
     <template #footer>
-      <UButton 
-        size="lg" 
-        color="error"
-        variant="solid"
-        class="w-full" 
-        @click="handleSignOut"
-      >
-        <template #leading>
-          <UIcon name="i-lucide-log-out" class="text-xl" />
-        </template>
-        Sair
-      </UButton>
+      <div class="pb-[env(safe-area-inset-bottom)]">
+        <UButton 
+          size="lg" 
+          color="error"
+          variant="solid"
+          class="w-full" 
+          @click="handleSignOut"
+        >
+          <template #leading>
+            <UIcon name="i-lucide-log-out" class="text-xl" />
+          </template>
+          Sair
+        </UButton>
+      </div>
     </template>
     </USlideover>
   </div>
