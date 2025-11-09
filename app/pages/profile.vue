@@ -1,5 +1,4 @@
 <template>
-  <GoBackButton />
   <div class="flex items-center justify-center min-h-full p-8">
     <div class="w-full max-w-2xl relative">
         <h1 class="text-2xl font-semibold mb-4 flex items-center justify-between">

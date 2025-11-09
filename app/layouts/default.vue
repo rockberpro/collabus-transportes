@@ -1,7 +1,7 @@
 <template>
   <UDashboardPanel>
     <template #header>
-      <div class="pt-[env(safe-area-inset-top)]">
+      <div class="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-zinc-900 pt-[env(safe-area-inset-top)]">
         <UDashboardNavbar :toggle="false">
           <template #leading>
             <UBadge
@@ -30,7 +30,7 @@
     </template>
 
     <template #body>
-      <div :class="combinedLoggedIn ? 'pb-20' : ''">
+      <div :class="combinedLoggedIn ? 'pt-24 pb-28 px-6' : 'pt-24 px-6'">
         <NuxtPage />
       </div>
     </template>

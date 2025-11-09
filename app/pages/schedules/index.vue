@@ -1,6 +1,5 @@
 <template>
   <div>
-    <GoBackButton />
     <!-- narrowed centered container for better readability on desktop -->
     <div class="max-w-3xl mx-auto p-4">
       <h1 class="text-2xl font-bold mb-4">Horários por rota</h1>
