@@ -32,6 +32,17 @@ export default defineNuxtConfig({
   },
   css: ["~/assets/css/main.css"],
   
+  // Configure viewport for mobile devices with safe-area support
+  app: {
+    head: {
+      viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
+      meta: [
+        { name: 'mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+      ],
+    },
+  },
+  
   // Configure nuxt-auth-utils for development with LAN access
   runtimeConfig: {
     session: {

@@ -1,5 +1,5 @@
 <template>
-  <nav class="fixed bottom-0 left-0 right-0 border-t z-50 bg-white dark:bg-zinc-900 dark:border-zinc-700 shadow-md">
+  <nav class="fixed bottom-0 left-0 right-0 border-t z-50 bg-white dark:bg-zinc-900 dark:border-zinc-700 shadow-md bottom-nav-safe">
     <div class="max-w-5xl mx-auto px-4">
       <div class="flex justify-between items-center py-3">
         <ButtonLarge
@@ -60,3 +60,18 @@ const navigateTo = (path: string) => {
   router.push(path);
 };
 </script>
+
+<style scoped>
+.bottom-nav-safe {
+  /* Adiciona padding inferior para evitar sobreposição com botões de navegação do sistema */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  
+  /* Garante que o background se estenda até o final da tela */
+  background-color: inherit;
+}
+
+/* Ajuste adicional para Android em modo escuro */
+.dark .bottom-nav-safe {
+  background-color: rgb(24 24 27); /* zinc-900 */
+}
+</style>
