@@ -2,10 +2,10 @@
   <div class="min-h-screen bg-zinc-50 dark:bg-zinc-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Header -->
-      <div class="mb-8">
-        <div class="flex items-center justify-between">
+      <div class="mb-6 md:mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
               Gerenciar Supervisores
             </h1>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
@@ -15,17 +15,19 @@
           <UButton
             icon="i-lucide-plus"
             size="lg"
+            class="w-full sm:w-auto"
             @click="openAddSupervisorModal"
           >
-            Adicionar Supervisor
+            <span class="sm:inline">Adicionar Supervisor</span>
+            <span class="hidden sm:hidden">Adicionar</span>
           </UButton>
         </div>
       </div>
 
       <!-- Filtros -->
-      <div class="bg-white dark:bg-zinc-800 rounded-lg shadow p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
+      <div class="bg-white dark:bg-zinc-800 rounded-lg shadow p-4 md:p-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4">
+          <div class="md:col-span-1">
             <UInput
               v-model="filters.search"
               icon="i-lucide-search"
@@ -33,7 +35,7 @@
               @input="debouncedSearch"
             />
           </div>
-          <div>
+          <div class="md:col-span-1">
             <USelect
               v-model="selectedCompany"
               :items="companyOptions"
@@ -43,7 +45,7 @@
               @change="handleFilterChange"
             />
           </div>
-          <div>
+          <div class="md:col-span-1">
             <USelect
               v-model="selectedStatus"
               :items="statusOptions"
@@ -53,10 +55,11 @@
               @change="handleFilterChange"
             />
           </div>
-          <div class="flex justify-end">
+          <div class="flex justify-start md:justify-end">
             <UButton
               variant="ghost"
               icon="i-lucide-refresh-cw"
+              class="w-full md:w-auto"
               @click="resetFilters"
             >
               Limpar Filtros
@@ -79,9 +82,10 @@
         </div>
       </div>
 
-      <!-- Lista de Supervisores -->
+      <!-- Lista de Supervisores - Desktop (tabela) -->
       <div v-else-if="supervisors.length > 0" class="bg-white dark:bg-zinc-800 rounded-lg shadow overflow-hidden">
-        <div class="overflow-x-auto">
+        <!-- Tabela para telas médias e grandes -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-zinc-50 dark:bg-zinc-900">
               <tr>
@@ -187,30 +191,115 @@
           </table>
         </div>
 
+        <!-- Cards para mobile -->
+        <div class="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
+          <div
+            v-for="supervisor in supervisors"
+            :key="supervisor.id"
+            class="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+          >
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex-1 min-w-0">
+                <h3 class="text-base font-semibold text-gray-900 dark:text-white truncate">
+                  {{ supervisor.person ? `${supervisor.person.firstName} ${supervisor.person.lastName}` : '-' }}
+                </h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
+                  {{ supervisor.email }}
+                </p>
+              </div>
+              <UBadge :color="supervisor.isActive ? 'success' : 'error'" variant="subtle" class="ml-2 shrink-0">
+                {{ supervisor.isActive ? 'Ativo' : 'Inativo' }}
+              </UBadge>
+            </div>
+            
+            <div class="space-y-1 mb-3 text-sm">
+              <div v-if="supervisor.person?.cpf" class="flex items-center text-gray-600 dark:text-gray-400">
+                <UIcon name="i-lucide-credit-card" class="mr-2 shrink-0" />
+                <span class="truncate">{{ supervisor.person.cpf }}</span>
+              </div>
+              <div v-if="supervisor.person?.phone" class="flex items-center text-gray-600 dark:text-gray-400">
+                <UIcon name="i-lucide-phone" class="mr-2 shrink-0" />
+                <span class="truncate">{{ supervisor.person.phone }}</span>
+              </div>
+              <div v-if="supervisor.company?.name" class="flex items-center text-primary-600 dark:text-primary-400">
+                <UIcon name="i-lucide-building-2" class="mr-2 shrink-0" />
+                <span class="truncate">{{ supervisor.company.name }}</span>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <UButton
+                icon="i-lucide-building-2"
+                size="sm"
+                color="primary"
+                variant="ghost"
+                class="w-full"
+                @click="openEditCompanyModal(supervisor)"
+              >
+                Alterar Empresa
+              </UButton>
+              <div class="flex gap-2">
+                <UButton
+                  v-if="supervisor.isActive"
+                  icon="i-lucide-user-x"
+                  size="sm"
+                  color="warning"
+                  variant="ghost"
+                  class="flex-1"
+                  @click="toggleSupervisorStatus(supervisor)"
+                >
+                  Desativar
+                </UButton>
+                <UButton
+                  v-else
+                  icon="i-lucide-user-check"
+                  size="sm"
+                  color="success"
+                  variant="ghost"
+                  class="flex-1"
+                  @click="toggleSupervisorStatus(supervisor)"
+                >
+                  Ativar
+                </UButton>
+                <UButton
+                  icon="i-lucide-trash-2"
+                  size="sm"
+                  color="error"
+                  variant="ghost"
+                  @click="confirmRemoveSupervisor(supervisor)"
+                >
+                </UButton>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Paginação -->
-        <div v-if="pagination && pagination.totalPages > 1" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-gray-600 dark:text-gray-400">
+        <div v-if="pagination && pagination.totalPages > 1" class="px-4 md:px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">
               Mostrando {{ ((pagination.page - 1) * pagination.limit) + 1 }} a 
               {{ Math.min(pagination.page * pagination.limit, pagination.total) }} de 
               {{ pagination.total }} resultados
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 w-full sm:w-auto">
               <UButton
                 icon="i-lucide-chevron-left"
                 size="sm"
                 :disabled="pagination.page === 1"
+                class="flex-1 sm:flex-none"
                 @click="changePage(pagination.page - 1)"
               >
-                Anterior
+                <span class="hidden sm:inline">Anterior</span>
               </UButton>
               <UButton
                 icon="i-lucide-chevron-right"
                 size="sm"
                 :disabled="pagination.page === pagination.totalPages"
+                class="flex-1 sm:flex-none"
                 @click="changePage(pagination.page + 1)"
               >
-                Próxima
+                <span class="hidden sm:inline">Próxima</span>
               </UButton>
             </div>
           </div>
@@ -234,7 +323,7 @@
 
     <!-- Modal Adicionar Supervisor -->
     <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click="showAddModal = false">
-      <UCard class="max-w-2xl w-full max-h-[90vh] overflow-y-auto" @click.stop>
+      <UCard class="max-w-2xl w-full max-h-[90vh] overflow-y-auto mx-4" @click.stop>
         <template #header>
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold">Adicionar Supervisor</h3>
@@ -267,32 +356,33 @@
             <div
               v-for="user in availableUsers"
               :key="user.id"
-              class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-2"
+              class="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg mb-2 gap-3"
             >
-              <div class="flex-1">
+              <div class="flex-1 min-w-0">
                 <div class="font-medium text-gray-900 dark:text-white">
                   {{ user.person ? `${user.person.firstName} ${user.person.lastName}` : 'Sem nome' }}
                 </div>
-                <div class="text-sm text-gray-600 dark:text-gray-400">
+                <div class="text-sm text-gray-600 dark:text-gray-400 truncate">
                   {{ user.email }}
                 </div>
                 <div v-if="user.person?.cpf" class="text-xs text-gray-500 dark:text-gray-500">
                   CPF: {{ user.person.cpf }}
                 </div>
               </div>
-              <div class="flex items-center gap-2">
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
                 <USelect
                   v-model="selectedCompanyForUser[user.id]"
                   :items="companySelectOptions"
                   option-attribute="label"
                   value-attribute="value"
                   placeholder="Selecione empresa"
-                  class="w-48"
+                  class="w-full sm:w-48"
                 />
                 <UButton
                   size="sm"
                   :loading="addingUserId === user.id"
                   :disabled="!selectedCompanyForUser[user.id]"
+                  class="w-full sm:w-auto"
                   @click.stop="handleAddSupervisor(user.id)"
                 >
                   Adicionar
@@ -313,7 +403,7 @@
 
     <!-- Modal Editar Empresa -->
     <div v-if="showEditCompanyModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click="showEditCompanyModal = false">
-      <UCard class="max-w-2xl w-full max-h-[90vh] overflow-y-auto" @click.stop>
+      <UCard class="max-w-2xl w-full max-h-[90vh] overflow-y-auto mx-4" @click.stop>
         <template #header>
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold">Alterar Empresa do Supervisor</h3>
@@ -356,9 +446,10 @@
         </div>
 
         <template #footer>
-          <div class="flex justify-end gap-2">
+          <div class="flex flex-col sm:flex-row justify-end gap-2">
             <UButton
               variant="ghost"
+              class="w-full sm:w-auto order-2 sm:order-1"
               @click="showEditCompanyModal = false"
             >
               Cancelar
@@ -366,6 +457,7 @@
             <UButton
               :loading="loading"
               :disabled="!newCompanyName"
+              class="w-full sm:w-auto order-1 sm:order-2"
               @click="handleUpdateCompany"
             >
               Salvar
