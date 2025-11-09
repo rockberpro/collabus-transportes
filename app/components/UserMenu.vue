@@ -1,30 +1,34 @@
 <template>
-  <USlideover v-model:open="isOpen" side="right">
-    <div class="cursor-pointer">
+  <div>
+    <div class="cursor-pointer" @click="toggleMenu">
       <UUser
         :name="displayName"
         :avatar="userAvatar"
       />
     </div>
 
+    <USlideover v-model:open="isOpen" side="right">
     <template #header>
-      <div class="flex items-center gap-4 w-full">
-        <div class="shrink-0">
-          <UAvatar
-            :src="userAvatar.src"
-            :icon="userAvatar.icon"
-            size="xl"
-            :alt="displayName"
-          />
+      <UCard 
+        class="w-full cursor-pointer" 
+        @click="closeMenu"
+      >
+        <div class="flex items-center gap-4 w-full">
+          <div class="shrink-0">
+            <UAvatar
+              :src="userAvatar.src"
+              :icon="userAvatar.icon"
+              size="xl"
+              :alt="displayName"
+            />
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-semibold text-lg truncate">{{ displayName }}</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ userRole }}</p>
+          </div>
         </div>
-        <div class="flex-1 min-w-0">
-          <h3 class="font-semibold text-lg truncate">{{ displayName }}</h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400">{{ userRole }}</p>
-        </div>
-      </div>
-    </template>
-
-    <template #body>
+      </UCard>
+    </template>    <template #body>
       <div class="flex flex-col gap-2">
         <UButton 
           size="lg" 
@@ -106,7 +110,8 @@
         Sair
       </UButton>
     </template>
-  </USlideover>
+    </USlideover>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -168,6 +173,14 @@ const isAdmin = computed(() => {
   const user = authStore.user;
   return user?.role === 'ADMINISTRADOR';
 });
+
+const toggleMenu = () => {
+  isOpen.value = !isOpen.value;
+};
+
+const closeMenu = () => {
+  isOpen.value = false;
+};
 
 const goToProfile = () => {
   isOpen.value = false;
