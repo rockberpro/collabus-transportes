@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Collabus',
   webDir: '.output/public',
   server: {
-    url: 'http://<ip-address>:3000',
+    url: 'http://192.168.144.124:3000',
     cleartext: true
   }
 };

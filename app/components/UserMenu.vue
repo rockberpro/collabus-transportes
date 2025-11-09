@@ -1,26 +1,34 @@
 <template>
-  <USlideover v-model:open="isOpen" side="right">
-    <div class="cursor-pointer">
+  <div>
+    <div class="cursor-pointer" @click="toggleMenu">
       <UUser
         :name="displayName"
         :avatar="userAvatar"
       />
     </div>
 
+    <USlideover v-model:open="isOpen" side="right">
     <template #header>
-      <div class="flex items-center gap-4 w-full">
-        <div class="shrink-0">
-          <UAvatar
-            :src="userAvatar.src"
-            :icon="userAvatar.icon"
-            size="xl"
-            :alt="displayName"
-          />
-        </div>
-        <div class="flex-1 min-w-0">
-          <h3 class="font-semibold text-lg truncate">{{ displayName }}</h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400">{{ userRole }}</p>
-        </div>
+      <div class="pt-[env(safe-area-inset-top)]">
+        <UCard 
+          class="w-full cursor-pointer" 
+          @click="closeMenu"
+        >
+          <div class="flex items-center gap-4 w-full">
+            <div class="shrink-0">
+              <UAvatar
+                :src="userAvatar.src"
+                :icon="userAvatar.icon"
+                size="xl"
+                :alt="displayName"
+              />
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-lg truncate">{{ displayName }}</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ userRole }}</p>
+            </div>
+          </div>
+        </UCard>
       </div>
     </template>
 
@@ -93,20 +101,23 @@
     </template>
 
     <template #footer>
-      <UButton 
-        size="lg" 
-        color="error"
-        variant="solid"
-        class="w-full" 
-        @click="handleSignOut"
-      >
-        <template #leading>
-          <UIcon name="i-lucide-log-out" class="text-xl" />
-        </template>
-        Sair
-      </UButton>
+      <div class="pb-[env(safe-area-inset-bottom)]">
+        <UButton 
+          size="lg" 
+          color="error"
+          variant="solid"
+          class="w-full" 
+          @click="handleSignOut"
+        >
+          <template #leading>
+            <UIcon name="i-lucide-log-out" class="text-xl" />
+          </template>
+          Sair
+        </UButton>
+      </div>
     </template>
-  </USlideover>
+    </USlideover>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -168,6 +179,14 @@ const isAdmin = computed(() => {
   const user = authStore.user;
   return user?.role === 'ADMINISTRADOR';
 });
+
+const toggleMenu = () => {
+  isOpen.value = !isOpen.value;
+};
+
+const closeMenu = () => {
+  isOpen.value = false;
+};
 
 const goToProfile = () => {
   isOpen.value = false;
