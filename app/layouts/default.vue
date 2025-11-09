@@ -1,30 +1,32 @@
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar :toggle="false">
-        <template #leading>
-          <UBadge
-            class="cursor-pointer hover:opacity-75 transition-opacity py-4"
-            size="xl"
-            variant="subtle"
-            @click="navigateTo('/home')"
-          >
-            <template #default>
-              <div class="flex items-center gap-2">
-                <span>Collabus</span>
-              </div>
-            </template>
-          </UBadge>
-        </template>
-        <template #right>
-          <ColorModeButton />
-          <div class="px-2">
-                  <template v-if="combinedLoggedIn">
-                    <UserMenu :name="userInfo.firstName" @signout="handleSignOut" />
-                  </template>
-          </div>
-        </template>
-      </UDashboardNavbar>
+      <div class="pt-[env(safe-area-inset-top)]">
+        <UDashboardNavbar :toggle="false">
+          <template #leading>
+            <UBadge
+              class="cursor-pointer hover:opacity-75 transition-opacity py-4"
+              size="xl"
+              variant="subtle"
+              @click="navigateTo('/home')"
+            >
+              <template #default>
+                <div class="flex items-center gap-2">
+                  <span>Collabus</span>
+                </div>
+              </template>
+            </UBadge>
+          </template>
+          <template #right>
+            <ColorModeButton />
+            <div class="px-2">
+                    <template v-if="combinedLoggedIn">
+                      <UserMenu :name="userInfo.firstName" @signout="handleSignOut" />
+                    </template>
+            </div>
+          </template>
+        </UDashboardNavbar>
+      </div>
     </template>
 
     <template #body>
@@ -34,9 +36,11 @@
     </template>
 
     <template #footer>
-      <template v-if="combinedLoggedIn">
-        <BottomNav />
-      </template>
+      <div class="pb-[env(safe-area-inset-bottom)]">
+        <template v-if="combinedLoggedIn">
+          <BottomNav />
+        </template>
+      </div>
     </template>
   </UDashboardPanel>
 </template>
