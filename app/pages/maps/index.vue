@@ -12,6 +12,8 @@ import '@maptiler/sdk/dist/maptiler-sdk.css';
 const config = useRuntimeConfig();
 const mapContainer = ref<HTMLElement | null>(null);
 let map: maptilerSdk.Map | null = null;
+let navigationControl: maptilerSdk.NavigationControl | null = null;
+let geolocateControl: maptilerSdk.GeolocateControl | null = null;
 
 onMounted(() => {
   if (!mapContainer.value) return;
@@ -26,26 +28,39 @@ onMounted(() => {
     center: [-51.9653, -29.4685], // Lajeado-RS, Brasil
     zoom: 13,
     language: 'pt',
+    navigationControl: false, // Desabilitar controles padrão
+    geolocateControl: false, // Desabilitar geolocalização padrão
   });
 
-  // Adicionar controles de navegação
-  map.addControl(new maptilerSdk.NavigationControl(), 'top-right');
+  // Adicionar controles de navegação (apenas se ainda não existirem)
+  if (!navigationControl) {
+    navigationControl = new maptilerSdk.NavigationControl();
+    map.addControl(navigationControl, 'top-right');
+  }
   
-  // Adicionar controle de geolocalização
-  map.addControl(
-    new maptilerSdk.GeolocateControl({
+  // Adicionar controle de geolocalização (apenas se ainda não existir)
+  if (!geolocateControl) {
+    geolocateControl = new maptilerSdk.GeolocateControl({
       positionOptions: {
         enableHighAccuracy: true,
       },
       trackUserLocation: true,
-    }),
-    'top-right'
-  );
+    });
+    map.addControl(geolocateControl, 'top-right');
+  }
 });
 
 onUnmounted(() => {
-  // Limpar o mapa quando o componente for desmontado
+  // Remover controles antes de limpar o mapa
   if (map) {
+    if (navigationControl) {
+      map.removeControl(navigationControl);
+      navigationControl = null;
+    }
+    if (geolocateControl) {
+      map.removeControl(geolocateControl);
+      geolocateControl = null;
+    }
     map.remove();
     map = null;
   }
