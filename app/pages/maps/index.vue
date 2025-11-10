@@ -54,7 +54,7 @@ onUnmounted(() => {
 // Definir metadados da página
 definePageMeta({
   middleware: 'authenticated',
-  layout: 'default',
+  layout: 'map',
 });
 
 // Configurar SEO
@@ -72,14 +72,12 @@ useHead({
 <style scoped>
 .map-container {
   position: fixed;
-  top: 0;
+  top: var(--ui-header-height);
   left: 0;
   right: 0;
   bottom: 0;
   width: 100%;
-  height: 100%;
-  /* Ajuste para a barra de navegação inferior */
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 60px);
+  height: calc(100vh - var(--ui-header-height) - var(--ui-bottom-nav-height));
 }
 
 .map {
@@ -126,10 +124,6 @@ useHead({
 
 /* Responsividade para dispositivos móveis */
 @media (max-width: 640px) {
-  .map-container {
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 70px);
-  }
-  
   :deep(.maplibregl-ctrl-top-right) {
     top: 10px;
     right: 10px;
