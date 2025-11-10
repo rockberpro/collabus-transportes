@@ -13,12 +13,11 @@
             <span>Início</span>
           </div>
         </ButtonLarge>
-        <!-- TODO: @click="navigateTo('/map') -->
         <ButtonLarge
           variant="ghost"
           color="neutral"
           class="flex-1 text-center p-2"
-          @click="navigateTo('/404')"
+          @click="navigateTo('/maps')"
         >
           <div class="inline-flex flex-col items-center text-sm">
             <UIcon name="mdi:map-outline" :size="20" />

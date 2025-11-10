@@ -10,7 +10,8 @@
 }
 
 :root {
-  --ui-header-height: --spacing(23);
+  --ui-header-height: 92px;
+  --ui-bottom-nav-height: 70px;
   --ui-bg: var(--color-zinc-50);
 }
 
