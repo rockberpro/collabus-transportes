@@ -1,7 +1,7 @@
 name: "collabus"
 services:
   nuxt:
-    image: node:22.19
+    image: node:24
     container_name: nuxt
     working_dir: /app
     volumes:
