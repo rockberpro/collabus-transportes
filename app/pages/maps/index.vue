@@ -23,8 +23,8 @@ onMounted(() => {
   map = new maptilerSdk.Map({
     container: mapContainer.value,
     style: maptilerSdk.MapStyle.STREETS,
-    center: [-47.8822, -15.7942], // Brasília, Brasil
-    zoom: 4,
+    center: [-51.9653, -29.4685], // Lajeado-RS, Brasil
+    zoom: 13,
     language: 'pt',
   });
 
