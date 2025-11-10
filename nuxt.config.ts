@@ -45,6 +45,9 @@ export default defineNuxtConfig({
   
   // Configure nuxt-auth-utils for development with LAN access
   runtimeConfig: {
+    public: {
+      MAPTILER_API_KEY: process.env.MAPTILER_API_KEY,
+    },
     session: {
       password: process.env.NUXT_SESSION_PASSWORD || 'collabus-dev-secret-password-min-32-chars-long-for-secure',
       cookie: {
