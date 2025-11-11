@@ -139,7 +139,7 @@ const handleSignIn = async () => {
     console.log("Error during sign-in", err);
     toast.add({
       title: "Erro",
-      description: "Erro ao fazer login",
+      description: "Usuário ou senha inválidos.",
       color: "error",
     });
     return;
