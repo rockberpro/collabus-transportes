@@ -128,36 +128,33 @@
                   </UBadge>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex justify-end gap-2">
+                  <div class="flex justify-end gap-3 items-center">
                     <UButton
                       v-if="driver.isActive"
                       icon="i-lucide-user-x"
-                      size="sm"
+                      size="xl"
                       color="warning"
                       variant="ghost"
                       @click="toggleDriverStatus(driver)"
-                    >
-                      Desativar
-                    </UButton>
+                      title="Desativar"
+                    />
                     <UButton
                       v-else
                       icon="i-lucide-user-check"
-                      size="sm"
+                      size="xl"
                       color="success"
                       variant="ghost"
                       @click="toggleDriverStatus(driver)"
-                    >
-                      Ativar
-                    </UButton>
+                      title="Ativar"
+                    />
                     <UButton
                       icon="i-lucide-trash-2"
-                      size="sm"
+                      size="xl"
                       color="error"
                       variant="ghost"
                       @click="confirmRemoveDriver(driver)"
-                    >
-                      Remover
-                    </UButton>
+                      title="Remover"
+                    />
                   </div>
                 </td>
               </tr>
