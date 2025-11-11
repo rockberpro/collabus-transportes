@@ -136,53 +136,50 @@
                   <div class="flex justify-end gap-2">
                     <UButton
                       icon="i-lucide-user-check"
-                      size="sm"
+                      size="xl"
                       color="secondary"
                       variant="ghost"
                       @click="openDriversModal(route)"
-                      :title="`${route.drivers?.length || 0} motorista(s)`"
+                      title="Gerenciar motoristas"
                     >
-                      Motoristas ({{ route.drivers?.length || 0 }})
+                      {{ route.drivers?.length || 0 }}
                     </UButton>
                     <UButton
                       icon="i-lucide-car"
-                      size="sm"
+                      size="xl"
                       color="primary"
                       variant="ghost"
                       @click="openVehiclesModal(route)"
-                      :title="`${route.vehicles?.length || 0} veículo(s)`"
+                      title="Gerenciar veículos"
                     >
-                      Veículos ({{ route.vehicles?.length || 0 }})
+                      {{ route.vehicles?.length || 0 }}
                     </UButton>
                     <UButton
                       v-if="route.isActive"
                       icon="i-lucide-ban"
-                      size="sm"
+                      size="xl"
                       color="warning"
                       variant="ghost"
                       @click="toggleRouteStatus(route)"
-                    >
-                      Desativar
-                    </UButton>
+                      title="Desativar"
+                    />
                     <UButton
                       v-else
                       icon="i-lucide-check-circle"
-                      size="sm"
+                      size="xl"
                       color="success"
                       variant="ghost"
                       @click="toggleRouteStatus(route)"
-                    >
-                      Ativar
-                    </UButton>
+                      title="Ativar"
+                    />
                     <UButton
                       icon="i-lucide-trash-2"
-                      size="sm"
+                      size="xl"
                       color="error"
                       variant="ghost"
                       @click="confirmRemoveRoute(route)"
-                    >
-                      Remover
-                    </UButton>
+                      title="Remover"
+                    />
                   </div>
                 </td>
               </tr>
@@ -235,7 +232,7 @@
                 class="w-full"
                 @click="openDriversModal(route)"
               >
-                Gerenciar Motoristas
+                Motoristas
               </UButton>
               <UButton
                 icon="i-lucide-car"
@@ -245,7 +242,7 @@
                 class="w-full"
                 @click="openVehiclesModal(route)"
               >
-                Gerenciar Veículos
+                Veículos
               </UButton>
               <div class="flex gap-2">
                 <UButton
