@@ -228,29 +228,29 @@
             <div class="flex flex-col gap-2">
               <UButton
                 icon="i-lucide-user-check"
-                size="sm"
+                size="lg"
                 color="secondary"
                 variant="ghost"
                 class="w-full"
                 @click="openDriversModal(route)"
               >
-                Motoristas
+                Motoristas ({{ route.drivers?.length || 0 }})
               </UButton>
               <UButton
                 icon="i-lucide-car"
-                size="sm"
+                size="lg"
                 color="primary"
                 variant="ghost"
                 class="w-full"
                 @click="openVehiclesModal(route)"
               >
-                Veículos
+                Veículos ({{ route.vehicles?.length || 0 }})
               </UButton>
               <div class="flex gap-2">
                 <UButton
                   v-if="route.isActive"
                   icon="i-lucide-ban"
-                  size="sm"
+                  size="lg"
                   color="warning"
                   variant="ghost"
                   class="flex-1"
@@ -261,7 +261,7 @@
                 <UButton
                   v-else
                   icon="i-lucide-check-circle"
-                  size="sm"
+                  size="lg"
                   color="success"
                   variant="ghost"
                   class="flex-1"
@@ -271,7 +271,7 @@
                 </UButton>
                 <UButton
                   icon="i-lucide-trash-2"
-                  size="sm"
+                  size="lg"
                   color="error"
                   variant="ghost"
                   @click="confirmRemoveRoute(route)"

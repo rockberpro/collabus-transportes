@@ -215,7 +215,7 @@
               <UButton
                 v-if="vehicle.isActive"
                 icon="i-lucide-ban"
-                size="sm"
+                size="lg"
                 color="warning"
                 variant="ghost"
                 class="flex-1"
@@ -226,7 +226,7 @@
               <UButton
                 v-else
                 icon="i-lucide-check-circle"
-                size="sm"
+                size="lg"
                 color="success"
                 variant="ghost"
                 class="flex-1"
@@ -236,7 +236,7 @@
               </UButton>
               <UButton
                 icon="i-lucide-trash-2"
-                size="sm"
+                size="lg"
                 color="error"
                 variant="ghost"
                 @click="confirmRemoveVehicle(vehicle)"

@@ -131,21 +131,21 @@
                   <div class="flex justify-end gap-3 items-center">
                     <UButton
                       v-if="driver.isActive"
-                      icon="i-lucide-user-x"
+                      icon="i-lucide-ban"
                       size="xl"
                       color="warning"
                       variant="ghost"
                       @click="toggleDriverStatus(driver)"
-                      title="Desativar"
+                      title="Desativar motorista"
                     />
                     <UButton
                       v-else
-                      icon="i-lucide-user-check"
+                      icon="i-lucide-check-circle"
                       size="xl"
                       color="success"
                       variant="ghost"
                       @click="toggleDriverStatus(driver)"
-                      title="Ativar"
+                      title="Ativar motorista"
                     />
                     <UButton
                       icon="i-lucide-trash-2"
@@ -153,7 +153,7 @@
                       color="error"
                       variant="ghost"
                       @click="confirmRemoveDriver(driver)"
-                      title="Remover"
+                      title="Remover motorista"
                     />
                   </div>
                 </td>
@@ -197,8 +197,8 @@
             <div class="flex gap-2">
               <UButton
                 v-if="driver.isActive"
-                icon="i-lucide-user-x"
-                size="sm"
+                icon="i-lucide-ban"
+                size="lg"
                 color="warning"
                 variant="ghost"
                 class="flex-1"
@@ -208,8 +208,8 @@
               </UButton>
               <UButton
                 v-else
-                icon="i-lucide-user-check"
-                size="sm"
+                icon="i-lucide-check-circle"
+                size="lg"
                 color="success"
                 variant="ghost"
                 class="flex-1"
@@ -219,7 +219,7 @@
               </UButton>
               <UButton
                 icon="i-lucide-trash-2"
-                size="sm"
+                size="lg"
                 color="error"
                 variant="ghost"
                 @click="confirmRemoveDriver(driver)"
