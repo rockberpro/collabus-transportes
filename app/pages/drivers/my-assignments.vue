@@ -18,11 +18,50 @@
 
       <!-- Tabs -->
       <div class="mb-6">
-        <UTabs v-model:selected="activeTab" :items="tabs" class="w-full" />
+        <div class="border-b border-gray-200 dark:border-gray-700">
+          <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <button
+              @click="activeTab = 0"
+              :class="[
+                activeTab === 0
+                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300',
+                'group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm'
+              ]"
+            >
+              <UIcon 
+                name="i-lucide-clock" 
+                :class="[
+                  activeTab === 0 ? 'text-primary-500' : 'text-gray-400 group-hover:text-gray-500',
+                  'mr-2 h-5 w-5'
+                ]"
+              />
+              Horários
+            </button>
+            <button
+              @click="activeTab = 1"
+              :class="[
+                activeTab === 1
+                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300',
+                'group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm'
+              ]"
+            >
+              <UIcon 
+                name="i-lucide-car" 
+                :class="[
+                  activeTab === 1 ? 'text-primary-500' : 'text-gray-400 group-hover:text-gray-500',
+                  'mr-2 h-5 w-5'
+                ]"
+              />
+              Veículos
+            </button>
+          </nav>
+        </div>
       </div>
 
       <!-- Tab: Horários -->
-      <div v-if="activeTab === 0">
+      <div v-show="activeTab === 0">
         <!-- Filtros de Horários -->
         <div class="bg-white dark:bg-zinc-800 rounded-lg shadow p-4 md:p-6 mb-6">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
@@ -214,7 +253,7 @@
       </div>
 
       <!-- Tab: Veículos -->
-      <div v-if="activeTab === 1">
+      <div v-show="activeTab === 1">
         <!-- Filtros de Veículos -->
         <div class="bg-white dark:bg-zinc-800 rounded-lg shadow p-4 md:p-6 mb-6">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
@@ -441,10 +480,6 @@ const authStore = useAuthStore()
 
 // Tabs
 const activeTab = ref(0)
-const tabs = [
-  { label: 'Horários', icon: 'i-lucide-clock' },
-  { label: 'Veículos', icon: 'i-lucide-car' },
-]
 
 // Schedules
 const {
