@@ -10,19 +10,20 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
+  id           String         @id @default(cuid())
+  email        String         @unique
   password     String
-  role         Role     @default(PASSAGEIRO)
-  isActive     Boolean  @default(true)
-  personId     String?  @unique
+  role         Role           @default(PASSAGEIRO)
+  isActive     Boolean        @default(true)
+  personId     String?        @unique
   companyId    String?
-  avatarBase64 String?  @db.Text
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  avatarBase64 String?        @db.Text
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
   tokens       Token[]
-  person       Person?  @relation(fields: [personId], references: [id])
-  company      Company? @relation(fields: [companyId], references: [id])
+  routes       RouteDriver[]
+  person       Person?        @relation(fields: [personId], references: [id])
+  company      Company?       @relation(fields: [companyId], references: [id])
 
   @@map("users")
 }
@@ -81,6 +82,7 @@ model Route {
   updatedAt   DateTime       @updatedAt
   schedules   Schedule[]
   vehicles    RouteVehicle[]
+  drivers     RouteDriver[]
 
   @@map("routes")
 }
@@ -141,4 +143,17 @@ model RouteVehicle {
 
   @@unique([routeId, vehicleId])
   @@map("route_vehicles")
+}
+
+model RouteDriver {
+  id        String   @id @default(cuid())
+  routeId   String
+  driverId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  route     Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  driver    User     @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@unique([routeId, driverId])
+  @@map("route_drivers")
 }

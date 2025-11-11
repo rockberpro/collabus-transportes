@@ -53,6 +53,22 @@ export default async (event: H3Event) => {
             },
           },
         },
+        drivers: {
+          include: {
+            driver: {
+              select: {
+                id: true,
+                email: true,
+                person: {
+                  select: {
+                    firstName: true,
+                    lastName: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     }),
     prisma.route.count({ where }),

@@ -60,6 +60,19 @@
         </UButton>
 
         <UButton 
+          v-if="isDriver" 
+          size="lg" 
+          variant="ghost"
+          class="w-full justify-start" 
+          @click="goToMyAssignments"
+        >
+          <template #leading>
+            <UIcon name="i-lucide-calendar-check" class="text-xl" />
+          </template>
+          Minhas designações
+        </UButton>
+
+        <UButton 
           v-if="isSupervisor" 
           size="lg" 
           variant="ghost"
@@ -180,6 +193,11 @@ const isAdmin = computed(() => {
   return user?.role === 'ADMINISTRADOR';
 });
 
+const isDriver = computed(() => {
+  const user = authStore.user;
+  return user?.role === 'MOTORISTA';
+});
+
 const toggleMenu = () => {
   isOpen.value = !isOpen.value;
 };
@@ -211,6 +229,11 @@ const goToRoutes = () => {
 const goToSupervisors = () => {
   isOpen.value = false;
   router.push('/supervisors');
+};
+
+const goToMyAssignments = () => {
+  isOpen.value = false;
+  router.push('/drivers/my-assignments');
 };
 
 const handleSignOut = () => {

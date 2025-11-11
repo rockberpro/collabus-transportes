@@ -135,44 +135,51 @@
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div class="flex justify-end gap-2">
                     <UButton
+                      icon="i-lucide-user-check"
+                      size="xl"
+                      color="secondary"
+                      variant="ghost"
+                      @click="openDriversModal(route)"
+                      title="Gerenciar motoristas"
+                    >
+                      {{ route.drivers?.length || 0 }}
+                    </UButton>
+                    <UButton
                       icon="i-lucide-car"
-                      size="sm"
+                      size="xl"
                       color="primary"
                       variant="ghost"
                       @click="openVehiclesModal(route)"
-                      :title="`${route.vehicles?.length || 0} veículo(s)`"
+                      title="Gerenciar veículos"
                     >
-                      Veículos ({{ route.vehicles?.length || 0 }})
+                      {{ route.vehicles?.length || 0 }}
                     </UButton>
                     <UButton
                       v-if="route.isActive"
                       icon="i-lucide-ban"
-                      size="sm"
+                      size="xl"
                       color="warning"
                       variant="ghost"
                       @click="toggleRouteStatus(route)"
-                    >
-                      Desativar
-                    </UButton>
+                      title="Desativar"
+                    />
                     <UButton
                       v-else
                       icon="i-lucide-check-circle"
-                      size="sm"
+                      size="xl"
                       color="success"
                       variant="ghost"
                       @click="toggleRouteStatus(route)"
-                    >
-                      Ativar
-                    </UButton>
+                      title="Ativar"
+                    />
                     <UButton
                       icon="i-lucide-trash-2"
-                      size="sm"
+                      size="xl"
                       color="error"
                       variant="ghost"
                       @click="confirmRemoveRoute(route)"
-                    >
-                      Remover
-                    </UButton>
+                      title="Remover"
+                    />
                   </div>
                 </td>
               </tr>
@@ -207,12 +214,26 @@
                 <span>{{ route.city }} - {{ route.state }}</span>
               </div>
               <div class="flex items-center text-gray-600 dark:text-gray-400">
+                <UIcon name="i-lucide-user-check" class="mr-2 shrink-0" />
+                <span>{{ route.drivers?.length || 0 }} motorista(s) vinculado(s)</span>
+              </div>
+              <div class="flex items-center text-gray-600 dark:text-gray-400">
                 <UIcon name="i-lucide-car" class="mr-2 shrink-0" />
                 <span>{{ route.vehicles?.length || 0 }} veículo(s) vinculado(s)</span>
               </div>
             </div>
 
             <div class="flex flex-col gap-2">
+              <UButton
+                icon="i-lucide-user-check"
+                size="sm"
+                color="secondary"
+                variant="ghost"
+                class="w-full"
+                @click="openDriversModal(route)"
+              >
+                Motoristas
+              </UButton>
               <UButton
                 icon="i-lucide-car"
                 size="sm"
@@ -221,7 +242,7 @@
                 class="w-full"
                 @click="openVehiclesModal(route)"
               >
-                Gerenciar Veículos
+                Veículos
               </UButton>
               <div class="flex gap-2">
                 <UButton
@@ -482,6 +503,87 @@
         </template>
       </UCard>
     </div>
+
+    <!-- Modal Gerenciar Motoristas -->
+    <div v-if="showDriversModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click="showDriversModal = false">
+      <UCard class="max-w-2xl w-full max-h-[90vh] overflow-y-auto mx-4" @click.stop>
+        <template #header>
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold">Motoristas da Rota</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                {{ selectedRoute?.code || 'Sem código' }} - {{ selectedRoute?.origin }} → {{ selectedRoute?.destination }}
+              </p>
+            </div>
+            <UButton
+              icon="i-lucide-x"
+              variant="ghost"
+              color="neutral"
+              @click="showDriversModal = false"
+            />
+          </div>
+        </template>
+
+        <div class="space-y-4 max-h-96 overflow-y-auto">
+          <div v-if="drivers.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+            Nenhum motorista disponível
+          </div>
+          
+          <div
+            v-for="driver in drivers"
+            :key="driver.id"
+            class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-900 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors gap-3"
+          >
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-gray-900 dark:text-white">
+                {{ driver.person ? `${driver.person.firstName} ${driver.person.lastName}` : 'Sem nome' }}
+              </div>
+              <div class="text-sm text-gray-600 dark:text-gray-400">
+                {{ driver.email }}
+              </div>
+              <div v-if="driver.person?.cpf" class="text-xs text-gray-500 dark:text-gray-500">
+                CPF: {{ driver.person.cpf }}
+              </div>
+            </div>
+            
+            <div class="shrink-0">
+              <UButton
+                v-if="isDriverAssigned(driver.id)"
+                icon="i-lucide-x"
+                size="sm"
+                color="error"
+                class="w-full sm:w-auto"
+                @click="handleUnassignDriver(driver.id)"
+              >
+                Desvincular
+              </UButton>
+              <UButton
+                v-else
+                icon="i-lucide-plus"
+                size="sm"
+                color="secondary"
+                class="w-full sm:w-auto"
+                @click="handleAssignDriver(driver.id)"
+              >
+                Vincular
+              </UButton>
+            </div>
+          </div>
+        </div>
+
+        <template #footer>
+          <div class="flex justify-end">
+            <UButton
+              variant="ghost"
+              class="w-full sm:w-auto"
+              @click="showDriversModal = false"
+            >
+              Fechar
+            </UButton>
+          </div>
+        </template>
+      </UCard>
+    </div>
   </div>
 </template>
 
@@ -489,6 +591,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoutes, type Route } from '~/composables/useRoutes'
 import { useVehicles } from '~/composables/useVehicles'
+import { useDrivers, type Driver } from '~/composables/useDrivers'
 
 definePageMeta({
   middleware: 'authenticated',
@@ -505,9 +608,12 @@ const {
   removeRoute,
   assignVehicle,
   unassignVehicle,
+  assignDriver,
+  unassignDriver,
 } = useRoutes()
 
 const { vehicles, fetchVehicles } = useVehicles()
+const { drivers, fetchDrivers } = useDrivers()
 
 const filters = reactive({
   search: '',
@@ -524,6 +630,7 @@ const statusOptions = [
 
 const showAddModal = ref(false)
 const showVehiclesModal = ref(false)
+const showDriversModal = ref(false)
 const selectedRoute = ref<Route | null>(null)
 
 const newRoute = reactive({
@@ -630,6 +737,8 @@ const handleAssignVehicle = async (vehicleId: string) => {
   try {
     await assignVehicle(selectedRoute.value.id, vehicleId)
     await loadRoutes()
+    // Atualizar selectedRoute com os dados mais recentes
+    selectedRoute.value = routes.value.find(r => r.id === selectedRoute.value?.id) || null
   } catch (err) {
     // Erro já tratado no composable
   }
@@ -641,6 +750,8 @@ const handleUnassignVehicle = async (vehicleId: string) => {
   try {
     await unassignVehicle(selectedRoute.value.id, vehicleId)
     await loadRoutes()
+    // Atualizar selectedRoute com os dados mais recentes
+    selectedRoute.value = routes.value.find(r => r.id === selectedRoute.value?.id) || null
   } catch (err) {
     // Erro já tratado no composable
   }
@@ -649,6 +760,43 @@ const handleUnassignVehicle = async (vehicleId: string) => {
 const isVehicleAssigned = (vehicleId: string): boolean => {
   if (!selectedRoute.value?.vehicles) return false
   return selectedRoute.value.vehicles.some(rv => rv.vehicle.id === vehicleId)
+}
+
+const openDriversModal = async (route: Route) => {
+  selectedRoute.value = route
+  showDriversModal.value = true
+  await fetchDrivers({ isActive: true })
+}
+
+const handleAssignDriver = async (driverId: string) => {
+  if (!selectedRoute.value) return
+
+  try {
+    await assignDriver(selectedRoute.value.id, driverId)
+    await loadRoutes()
+    // Atualizar selectedRoute com os dados mais recentes
+    selectedRoute.value = routes.value.find(r => r.id === selectedRoute.value?.id) || null
+  } catch (err) {
+    // Erro já tratado no composable
+  }
+}
+
+const handleUnassignDriver = async (driverId: string) => {
+  if (!selectedRoute.value) return
+
+  try {
+    await unassignDriver(selectedRoute.value.id, driverId)
+    await loadRoutes()
+    // Atualizar selectedRoute com os dados mais recentes
+    selectedRoute.value = routes.value.find(r => r.id === selectedRoute.value?.id) || null
+  } catch (err) {
+    // Erro já tratado no composable
+  }
+}
+
+const isDriverAssigned = (driverId: string): boolean => {
+  if (!selectedRoute.value?.drivers) return false
+  return selectedRoute.value.drivers.some(rd => rd.driver.id === driverId)
 }
 
 onMounted(async () => {
