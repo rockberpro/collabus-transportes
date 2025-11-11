@@ -740,6 +740,8 @@ const handleAssignVehicle = async (vehicleId: string) => {
   try {
     await assignVehicle(selectedRoute.value.id, vehicleId)
     await loadRoutes()
+    // Atualizar selectedRoute com os dados mais recentes
+    selectedRoute.value = routes.value.find(r => r.id === selectedRoute.value?.id) || null
   } catch (err) {
     // Erro já tratado no composable
   }
@@ -751,6 +753,8 @@ const handleUnassignVehicle = async (vehicleId: string) => {
   try {
     await unassignVehicle(selectedRoute.value.id, vehicleId)
     await loadRoutes()
+    // Atualizar selectedRoute com os dados mais recentes
+    selectedRoute.value = routes.value.find(r => r.id === selectedRoute.value?.id) || null
   } catch (err) {
     // Erro já tratado no composable
   }
@@ -773,6 +777,8 @@ const handleAssignDriver = async (driverId: string) => {
   try {
     await assignDriver(selectedRoute.value.id, driverId)
     await loadRoutes()
+    // Atualizar selectedRoute com os dados mais recentes
+    selectedRoute.value = routes.value.find(r => r.id === selectedRoute.value?.id) || null
   } catch (err) {
     // Erro já tratado no composable
   }
@@ -784,6 +790,8 @@ const handleUnassignDriver = async (driverId: string) => {
   try {
     await unassignDriver(selectedRoute.value.id, driverId)
     await loadRoutes()
+    // Atualizar selectedRoute com os dados mais recentes
+    selectedRoute.value = routes.value.find(r => r.id === selectedRoute.value?.id) || null
   } catch (err) {
     // Erro já tratado no composable
   }
