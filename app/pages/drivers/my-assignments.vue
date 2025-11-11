@@ -558,6 +558,7 @@ const loadSchedules = async () => {
     search: schedulesFilters.search,
     page: schedulesFilters.page,
     limit: schedulesFilters.limit,
+    myAssignments: true, // Buscar apenas horários das rotas designadas
   })
 }
 
@@ -600,7 +601,7 @@ const loadVehicles = async () => {
     if (vehiclesFilters.search) query.search = vehiclesFilters.search
     if (typeof vehiclesFilters.isActive !== 'undefined') query.isActive = vehiclesFilters.isActive
 
-    const response = await $fetch('/api/vehicles/by-company', {
+    const response = await $fetch('/api/vehicles/my-assignments', {
       method: 'GET',
       query,
     })

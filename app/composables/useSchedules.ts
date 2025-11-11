@@ -29,6 +29,7 @@ export interface SchedulesFilters {
   code?: string
   page?: number
   limit?: number
+  myAssignments?: boolean // Se deve buscar apenas as designações do motorista
 }
 
 export const useSchedules = () => {
@@ -52,8 +53,13 @@ export const useSchedules = () => {
       if (filters.page) query.page = filters.page
       if (filters.limit) query.limit = filters.limit
 
-      // Usar endpoint específico para motoristas
-      const endpoint = filters.companyId ? '/api/schedules' : '/api/schedules/by-company'
+      // Escolher endpoint baseado no contexto
+      let endpoint = '/api/schedules'
+      if (filters.myAssignments) {
+        endpoint = '/api/schedules/my-assignments'
+      } else if (!filters.companyId) {
+        endpoint = '/api/schedules/by-company'
+      }
 
       const response = await $fetch(endpoint, {
         method: 'GET',
