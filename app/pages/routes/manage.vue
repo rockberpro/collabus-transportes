@@ -133,12 +133,13 @@
                   </UBadge>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex justify-end gap-2">
+                  <div class="flex justify-end gap-3 items-center">
                     <UButton
                       icon="i-lucide-user-check"
                       size="xl"
                       color="secondary"
                       variant="ghost"
+                      class="min-w-[60px]"
                       @click="openDriversModal(route)"
                       title="Gerenciar motoristas"
                     >
@@ -149,6 +150,7 @@
                       size="xl"
                       color="primary"
                       variant="ghost"
+                      class="min-w-[60px]"
                       @click="openVehiclesModal(route)"
                       title="Gerenciar veículos"
                     >
