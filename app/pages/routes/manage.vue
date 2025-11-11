@@ -276,6 +276,7 @@
                   variant="ghost"
                   @click="confirmRemoveRoute(route)"
                 >
+                  Remover
                 </UButton>
               </div>
             </div>

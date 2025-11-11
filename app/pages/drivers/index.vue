@@ -224,6 +224,7 @@
                 variant="ghost"
                 @click="confirmRemoveDriver(driver)"
               >
+                Remover
               </UButton>
             </div>
           </div>

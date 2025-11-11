@@ -241,6 +241,7 @@
                 variant="ghost"
                 @click="confirmRemoveVehicle(vehicle)"
               >
+                Remover
               </UButton>
             </div>
           </div>
