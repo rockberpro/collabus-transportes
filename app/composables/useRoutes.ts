@@ -19,6 +19,16 @@ export interface Route {
       model: string
     }
   }[]
+  drivers?: {
+    driver: {
+      id: string
+      email: string
+      person: {
+        firstName: string
+        lastName: string
+      } | null
+    }
+  }[]
 }
 
 export interface RoutesFilters {
@@ -178,6 +188,45 @@ export const useRoutes = () => {
     }
   }
 
+  const assignDriver = async (routeId: string, driverId: string) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await $fetch(`/api/routes/${routeId}/drivers`, {
+        method: 'POST' as any,
+        body: { driverId },
+      })
+
+      return response
+    } catch (err: any) {
+      error.value = err?.data?.statusMessage || 'Erro ao vincular motorista'
+      console.error('Erro ao vincular motorista:', err)
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const unassignDriver = async (routeId: string, driverId: string) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await $fetch(`/api/routes/${routeId}/drivers/${driverId}`, {
+        method: 'DELETE' as any,
+      })
+
+      return response
+    } catch (err: any) {
+      error.value = err?.data?.statusMessage || 'Erro ao desvincular motorista'
+      console.error('Erro ao desvincular motorista:', err)
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     routes,
     pagination,
@@ -189,5 +238,7 @@ export const useRoutes = () => {
     removeRoute,
     assignVehicle,
     unassignVehicle,
+    assignDriver,
+    unassignDriver,
   }
 }
