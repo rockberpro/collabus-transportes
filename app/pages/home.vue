@@ -18,7 +18,9 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Rotas</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">-</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                {{ statsLoading ? '-' : stats?.routes || 0 }}
+              </p>
             </div>
             <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
               <UIcon name="i-lucide-map" class="text-2xl text-blue-600 dark:text-blue-400" />
@@ -30,7 +32,9 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Motoristas</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">-</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                {{ statsLoading ? '-' : stats?.drivers || 0 }}
+              </p>
             </div>
             <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
               <UIcon name="i-lucide-users" class="text-2xl text-green-600 dark:text-green-400" />
@@ -42,7 +46,9 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Veículos</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">-</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                {{ statsLoading ? '-' : stats?.vehicles || 0 }}
+              </p>
             </div>
             <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
               <UIcon name="i-lucide-truck" class="text-2xl text-purple-600 dark:text-purple-400" />
@@ -54,7 +60,9 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Horários</p>
-              <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">-</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                {{ statsLoading ? '-' : stats?.schedules || 0 }}
+              </p>
             </div>
             <div class="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
               <UIcon name="i-lucide-calendar-clock" class="text-2xl text-orange-600 dark:text-orange-400" />
@@ -92,7 +100,7 @@
           </NuxtLink>
 
           <NuxtLink 
-            v-if="isAdmin"
+            v-if="isAdmin || user?.role === 'SUPERVISOR'"
             to="/drivers"
             class="bg-white dark:bg-zinc-800 rounded-lg shadow p-4 hover:shadow-md transition-shadow cursor-pointer"
           >
@@ -105,7 +113,7 @@
           </NuxtLink>
 
           <NuxtLink 
-            v-if="isAdmin"
+            v-if="isAdmin || user?.role === 'SUPERVISOR'"
             to="/vehicles"
             class="bg-white dark:bg-zinc-800 rounded-lg shadow p-4 hover:shadow-md transition-shadow cursor-pointer"
           >
@@ -118,7 +126,7 @@
           </NuxtLink>
 
           <NuxtLink 
-            v-if="isAdmin"
+            v-if="isAdmin || user?.role === 'SUPERVISOR'"
             to="/routes/manage"
             class="bg-white dark:bg-zinc-800 rounded-lg shadow p-4 hover:shadow-md transition-shadow cursor-pointer"
           >
@@ -208,7 +216,7 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/useAuthStore";
 import { storeToRefs } from "pinia";
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 
 definePageMeta({
   middleware: ["authenticated"],
@@ -217,6 +225,15 @@ definePageMeta({
 
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
+
+// Dashboard stats
+const stats = ref<{
+  routes: number
+  drivers: number
+  vehicles: number
+  schedules: number
+} | null>(null)
+const statsLoading = ref(false)
 
 // Time-based greeting
 const greeting = computed(() => {
@@ -236,19 +253,39 @@ const firstName = computed(() => {
 const roleDescription = computed(() => {
   const role = user.value?.role
   const descriptions: Record<string, string> = {
-    'ADMIN': 'Você tem acesso total ao sistema',
+    'ADMINISTRADOR': 'Você tem acesso total ao sistema',
     'SUPERVISOR': 'Gerencie motoristas e rotas da sua empresa',
-    'DRIVER': 'Visualize suas rotas e horários',
-    'PASSENGER': 'Consulte rotas e horários de ônibus'
+    'MOTORISTA': 'Visualize suas rotas e horários',
+    'PASSAGEIRO': 'Consulte rotas e horários de ônibus'
   }
-  return descriptions[role || 'PASSENGER'] || 'Bem-vindo ao sistema de transportes'
+  return descriptions[role || 'PASSAGEIRO'] || 'Bem-vindo ao sistema de transportes'
 })
 
 // Role checks
-const isAdmin = computed(() => user.value?.role === 'ADMIN')
+const isAdmin = computed(() => user.value?.role === 'ADMINISTRADOR')
 const isAdminOrSupervisor = computed(() => 
-  user.value?.role === 'ADMIN' || user.value?.role === 'SUPERVISOR'
+  user.value?.role === 'ADMINISTRADOR' || user.value?.role === 'SUPERVISOR'
 )
+
+// Fetch dashboard stats
+const fetchStats = async () => {
+  if (!isAdminOrSupervisor.value) return
+  
+  statsLoading.value = true
+  try {
+    const response = await $fetch('/api/dashboard/stats', {
+      method: 'GET',
+    })
+    
+    if (response && typeof response === 'object' && 'data' in response) {
+      stats.value = (response as any).data
+    }
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas:', error)
+  } finally {
+    statsLoading.value = false
+  }
+}
 
 // Format date
 const formatDate = (date: Date | string) => {
@@ -263,22 +300,27 @@ const formatDate = (date: Date | string) => {
 // Get role label
 const getRoleLabel = (role?: string) => {
   const labels: Record<string, string> = {
-    'ADMIN': 'Administrador',
+    'ADMINISTRADOR': 'Administrador',
     'SUPERVISOR': 'Supervisor',
-    'DRIVER': 'Motorista',
-    'PASSENGER': 'Passageiro'
+    'MOTORISTA': 'Motorista',
+    'PASSAGEIRO': 'Passageiro'
   }
-  return labels[role || 'PASSENGER'] || role || 'Desconhecido'
+  return labels[role || 'PASSAGEIRO'] || role || 'Desconhecido'
 }
 
 // Get role badge color
 const getRoleBadgeColor = (role?: string): "primary" | "error" | "warning" | "success" | "neutral" => {
   const colors: Record<string, "primary" | "error" | "warning" | "success" | "neutral"> = {
-    'ADMIN': 'error',
+    'ADMINISTRADOR': 'error',
     'SUPERVISOR': 'warning',
-    'DRIVER': 'primary',
-    'PASSENGER': 'success'
+    'MOTORISTA': 'primary',
+    'PASSAGEIRO': 'success'
   }
-  return colors[role || 'PASSENGER'] || 'neutral'
+  return colors[role || 'PASSAGEIRO'] || 'neutral'
 }
+
+// Load stats on mount
+onMounted(() => {
+  fetchStats()
+})
 </script>
