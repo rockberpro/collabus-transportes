@@ -26,23 +26,13 @@
 
       <!-- Filtros -->
       <div class="bg-white dark:bg-zinc-800 rounded-lg shadow p-4 md:p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
           <div class="md:col-span-1">
             <UInput
               v-model="filters.search"
               icon="i-lucide-search"
               placeholder="Buscar por nome ou email..."
               @input="debouncedSearch"
-            />
-          </div>
-          <div class="md:col-span-1">
-            <USelect
-              v-model="selectedCompany"
-              :items="companyOptions"
-              option-attribute="label"
-              value-attribute="value"
-              placeholder="Filtrar por empresa"
-              @change="handleFilterChange"
             />
           </div>
           <div class="md:col-span-1">
@@ -145,45 +135,33 @@
                   </UBadge>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex justify-end gap-2">
-                    <UButton
-                      icon="i-lucide-building-2"
-                      size="sm"
-                      color="primary"
-                      variant="ghost"
-                      @click="openEditCompanyModal(supervisor)"
-                    >
-                      Empresa
-                    </UButton>
+                  <div class="flex justify-end gap-3 items-center">
                     <UButton
                       v-if="supervisor.isActive"
-                      icon="i-lucide-user-x"
-                      size="sm"
+                      icon="i-lucide-ban"
+                      size="xl"
                       color="warning"
                       variant="ghost"
                       @click="toggleSupervisorStatus(supervisor)"
-                    >
-                      Desativar
-                    </UButton>
+                      title="Desativar supervisor"
+                    />
                     <UButton
                       v-else
-                      icon="i-lucide-user-check"
-                      size="sm"
+                      icon="i-lucide-check-circle"
+                      size="xl"
                       color="success"
                       variant="ghost"
                       @click="toggleSupervisorStatus(supervisor)"
-                    >
-                      Ativar
-                    </UButton>
+                      title="Ativar supervisor"
+                    />
                     <UButton
                       icon="i-lucide-trash-2"
-                      size="sm"
+                      size="xl"
                       color="error"
                       variant="ghost"
                       @click="confirmRemoveSupervisor(supervisor)"
-                    >
-                      Remover
-                    </UButton>
+                      title="Remover supervisor"
+                    />
                   </div>
                 </td>
               </tr>
@@ -227,49 +205,38 @@
               </div>
             </div>
 
-            <div class="flex flex-col gap-2">
+            <div class="flex gap-2">
               <UButton
-                icon="i-lucide-building-2"
-                size="sm"
-                color="primary"
+                v-if="supervisor.isActive"
+                icon="i-lucide-ban"
+                size="lg"
+                color="warning"
                 variant="ghost"
-                class="w-full"
-                @click="openEditCompanyModal(supervisor)"
+                class="flex-1"
+                @click="toggleSupervisorStatus(supervisor)"
               >
-                Alterar Empresa
+                Desativar
               </UButton>
-              <div class="flex gap-2">
-                <UButton
-                  v-if="supervisor.isActive"
-                  icon="i-lucide-user-x"
-                  size="sm"
-                  color="warning"
-                  variant="ghost"
-                  class="flex-1"
-                  @click="toggleSupervisorStatus(supervisor)"
-                >
-                  Desativar
-                </UButton>
-                <UButton
-                  v-else
-                  icon="i-lucide-user-check"
-                  size="sm"
-                  color="success"
-                  variant="ghost"
-                  class="flex-1"
-                  @click="toggleSupervisorStatus(supervisor)"
-                >
-                  Ativar
-                </UButton>
-                <UButton
-                  icon="i-lucide-trash-2"
-                  size="sm"
-                  color="error"
-                  variant="ghost"
-                  @click="confirmRemoveSupervisor(supervisor)"
-                >
-                </UButton>
-              </div>
+              <UButton
+                v-else
+                icon="i-lucide-check-circle"
+                size="lg"
+                color="success"
+                variant="ghost"
+                class="flex-1"
+                @click="toggleSupervisorStatus(supervisor)"
+              >
+                Ativar
+              </UButton>
+              <UButton
+                icon="i-lucide-trash-2"
+                size="lg"
+                color="error"
+                variant="ghost"
+                @click="confirmRemoveSupervisor(supervisor)"
+              >
+                Remover
+              </UButton>
             </div>
           </div>
         </div>
@@ -401,71 +368,6 @@
       </UCard>
     </div>
 
-    <!-- Modal Editar Empresa -->
-    <div v-if="showEditCompanyModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click="showEditCompanyModal = false">
-      <UCard class="max-w-2xl w-full max-h-[90vh] overflow-y-auto mx-4" @click.stop>
-        <template #header>
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold">Alterar Empresa do Supervisor</h3>
-            <UButton
-              icon="i-lucide-x"
-              variant="ghost"
-              color="neutral"
-              @click="showEditCompanyModal = false"
-            />
-          </div>
-        </template>
-
-        <div class="space-y-4">
-          <div v-if="editingSupervisor">
-            <div class="mb-4">
-              <p class="text-sm text-gray-600 dark:text-gray-400">Supervisor:</p>
-              <p class="font-medium text-gray-900 dark:text-white">
-                {{ editingSupervisor.person ? `${editingSupervisor.person.firstName} ${editingSupervisor.person.lastName}` : editingSupervisor.email }}
-              </p>
-            </div>
-            <div class="mb-4">
-              <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Empresa atual:</p>
-              <p class="font-medium text-primary-600 dark:text-primary-400">
-                {{ editingSupervisor.company?.name || 'Sem empresa' }}
-              </p>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Nova empresa:
-              </label>
-              <USelect
-                v-model="newCompanyName"
-                :items="companySelectOptions"
-                option-attribute="label"
-                value-attribute="value"
-                placeholder="Selecione a nova empresa"
-              />
-            </div>
-          </div>
-        </div>
-
-        <template #footer>
-          <div class="flex flex-col sm:flex-row justify-end gap-2">
-            <UButton
-              variant="ghost"
-              class="w-full sm:w-auto order-2 sm:order-1"
-              @click="showEditCompanyModal = false"
-            >
-              Cancelar
-            </UButton>
-            <UButton
-              :loading="loading"
-              :disabled="!newCompanyName"
-              class="w-full sm:w-auto order-1 sm:order-2"
-              @click="handleUpdateCompany"
-            >
-              Salvar
-            </UButton>
-          </div>
-        </template>
-      </UCard>
-    </div>
   </div>
 </template>
 
@@ -501,7 +403,6 @@ const filters = reactive({
   limit: 10,
 })
 
-const selectedCompany = ref('all')
 const selectedStatus = ref('all')
 
 const statusOptions = [
@@ -510,11 +411,6 @@ const statusOptions = [
   { label: 'Inativos', value: 'false' },
 ]
 
-const companyOptions = computed(() => [
-  { label: 'Todas as empresas', value: 'all' },
-  ...companies.value.map(c => ({ label: c.name, value: c.id }))
-])
-
 const companySelectOptions = computed(() => {
   const options = companies.value.map(c => ({ label: c.name, value: c.name }))
   console.log('companySelectOptions:', options)
@@ -522,10 +418,7 @@ const companySelectOptions = computed(() => {
 })
 
 const showAddModal = ref(false)
-const showEditCompanyModal = ref(false)
 const addingUserId = ref<string | null>(null)
-const editingSupervisor = ref<Supervisor | null>(null)
-const newCompanyName = ref<string>('')
 const selectedCompanyForUser = ref<Record<string, string>>({})
 
 let searchTimeout: NodeJS.Timeout
@@ -541,13 +434,6 @@ const debouncedSearch = () => {
 const handleFilterChange = () => {
   filters.page = 1
   
-  // Converter selectedCompany
-  if (selectedCompany.value === 'all') {
-    filters.companyId = undefined
-  } else {
-    filters.companyId = selectedCompany.value
-  }
-  
   // Converter selectedStatus
   if (selectedStatus.value === 'true') {
     filters.isActive = true
@@ -562,9 +448,7 @@ const handleFilterChange = () => {
 
 const resetFilters = () => {
   filters.search = ''
-  filters.companyId = undefined
   filters.isActive = undefined
-  selectedCompany.value = 'all'
   selectedStatus.value = 'all'
   filters.page = 1
   loadSupervisors()
@@ -613,32 +497,6 @@ const handleAddSupervisor = async (userId: string) => {
     // Erro já tratado no composable
   } finally {
     addingUserId.value = null
-  }
-}
-
-const openEditCompanyModal = async (supervisor: Supervisor) => {
-  editingSupervisor.value = supervisor
-  newCompanyName.value = supervisor.company?.name || ''
-  showEditCompanyModal.value = true
-  
-  // Sempre carregar empresas para garantir que estão atualizadas
-  await fetchCompanies()
-}
-
-const handleUpdateCompany = async () => {
-  if (!editingSupervisor.value || !newCompanyName.value) return
-
-  const company = companies.value.find(c => c.name === newCompanyName.value)
-  if (!company) return
-
-  try {
-    await updateSupervisor(editingSupervisor.value.id, { companyId: company.id })
-    showEditCompanyModal.value = false
-    editingSupervisor.value = null
-    newCompanyName.value = ''
-    await loadSupervisors()
-  } catch (err) {
-    // Erro já tratado no composable
   }
 }
 
